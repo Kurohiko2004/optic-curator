@@ -54,12 +54,15 @@ h1, h2, h3, h4 {
 
 .button-primary {
   background: var(--gradient-main);
+  width: fit-content;
+  height: 50px;
   color: white;
   border: none;
   padding: 12px 28px;
   border-radius: 12px;
   font-weight: 600;
   font-family: var(--font-heading);
+  /*font-size: 1.2rem;*/
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   text-decoration: none;

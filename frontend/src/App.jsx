@@ -1,5 +1,5 @@
 import React from 'react';
-import ShopPage from './ShopPage';
+import ShopPage from './pages/ShopPage';
 import './index.css';
 
 function App() {
