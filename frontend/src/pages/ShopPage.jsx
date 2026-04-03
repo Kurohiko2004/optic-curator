@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import Header from '../components/layout/Header';
+import FilterSidebar from '../components/shop/FilterSidebar';
+import ProductCard from '../components/shop/ProductCard';
 
 const ShopPage = () => {
   const [price, setPrice] = useState(500);
@@ -23,23 +26,7 @@ const ShopPage = () => {
 
   return (
     <div className="shop-page">
-      {/* Header */}
-      <header className="shop-header glass-morphism">
-        <div className="header-content">
-          <div className="logo premium-gradient-text">OPTIC VR</div>
-          <nav>
-            <a href="#">Showroom</a>
-            <a href="#" className="active">Store</a>
-            <a href="#">AR Laboratory</a>
-            <a href="#">About</a>
-          </nav>
-          <div className="header-actions">
-            <button className="icon-button">🔍</button>
-            <button className="icon-button">🛒</button>
-            <button className="button-primary" style={{ padding: '8px 16px', borderRadius: '8px' }}>Login</button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero Welcome */}
       <section className="welcome-section animate-fade-in">
@@ -59,85 +46,20 @@ const ShopPage = () => {
 
       {/* Main Shop Area */}
       <main className="shop-main-area">
-        {/* Left Filters */}
-        <aside className="filters-sidebar">
-          <div className="filter-group glass-morphism">
-            <h3>Filters</h3>
-            
-            <div className="filter-section">
-              <label>Price Range: <span className="premium-gradient-text">${price}</span></label>
-              <input 
-                type="range" 
-                min="50" 
-                max="1000" 
-                value={price} 
-                onChange={(e) => setPrice(e.target.value)}
-                className="price-slider"
-              />
-              <div className="price-labels">
-                <span>$50</span>
-                <span>$1000</span>
-              </div>
-            </div>
-
-            <div className={`filter-section ${expandedFilters.shape ? 'expanded' : ''}`}>
-              <div className="filter-header" onClick={() => toggleFilter('shape')}>
-                <span>Glasses Shape</span>
-                <span className="arrow">{expandedFilters.shape ? '−' : '+'}</span>
-              </div>
-              {expandedFilters.shape && (
-                <div className="filter-options">
-                  {shapes.map(s => (
-                    <label key={s} className="checkbox-label">
-                      <input type="checkbox" /> {s}
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className={`filter-section ${expandedFilters.face ? 'expanded' : ''}`}>
-              <div className="filter-header" onClick={() => toggleFilter('face')}>
-                <span>Face Shape</span>
-                <span className="arrow">{expandedFilters.face ? '−' : '+'}</span>
-              </div>
-              {expandedFilters.face && (
-                <div className="filter-options">
-                   {faceShapes.map(f => (
-                    <label key={f} className="checkbox-label">
-                      <input type="checkbox" /> {f}
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </aside>
+        <FilterSidebar 
+          price={price} 
+          setPrice={setPrice} 
+          expandedFilters={expandedFilters} 
+          toggleFilter={toggleFilter}
+          shapes={shapes}
+          faceShapes={faceShapes}
+        />
 
         {/* Right Product Matrix */}
         <div className="product-matrix-container">
           <div className="matrix-grid">
             {glassesItems.map(item => (
-              <div key={item.id} className="product-card glass-morphism animate-fade-in">
-                <div className="product-image-container">
-                  <img src={item.image} alt={item.name} />
-                  <div className="try-on-badge">AR Ready</div>
-                </div>
-                <div className="product-info">
-                  <div className="info-top">
-                    <h4>{item.name}</h4>
-                    <span className="price">${item.price}</span>
-                  </div>
-                  <p className="type">{item.type}</p>
-                  <p className="color">{item.color}</p>
-                  <div className="product-actions">
-                    <button className="secondary-button" style={{ flex: 1 }}>Details</button>
-                    <button className="button-primary" style={{ flex: 1, padding: '10px' }}>
-                      AR Try-On
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <ProductCard key={item.id} item={item} />
             ))}
           </div>
 
