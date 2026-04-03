@@ -12,8 +12,8 @@ const Header = ({ onLoginClick, onSignupClick, setCurrentPage, activePage }) => 
         </nav>
         <div className="header-actions">
           <button className="icon-button">🛒</button>
-          <button className="secondary-button" style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }} onClick={onLoginClick}>Sign Up</button>
-          <button className="button-primary" style={{ padding: '8px 16px', borderRadius: '8px' }} onClick={onSignupClick}>Log In</button>
+          <button className="secondary-button" style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }} onClick={onSignupClick}>Sign Up</button>
+          <button className="button-primary" style={{ padding: '8px 16px', borderRadius: '8px' }} onClick={onLoginClick}>Log In</button>
         </div>
       </div>
     </header>

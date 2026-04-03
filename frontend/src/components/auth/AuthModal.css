@@ -1,3 +1,4 @@
+/* AuthModal.css */
 /* The Dark Background */
 .modal-overlay {
   position: fixed;
@@ -23,6 +24,7 @@
   max-width: 400px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
   color: var(--text-main);
+  position: relative;
 }
 
 .modal-content h2 {
@@ -82,7 +84,51 @@
   filter: brightness(1.2);
 }
 
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: var(--text-main);
+}
+
 @keyframes modalFadeIn {
   from { opacity: 0; backdrop-filter: blur(0px); }
   to { opacity: 1; backdrop-filter: blur(8px); }
+}
+
+.password-group {
+  position: relative;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  color: var(--text-main);
+}
+
+.password-group input {
+  padding-right: 48px;
 }

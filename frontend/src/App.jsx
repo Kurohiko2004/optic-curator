@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import ShopPage from './pages/ShopPage';
 import IntroductionPage from './pages/IntroductionPage';
-import LoginModal from './components/auth/LoginModal';
-import SignupModal from './components/auth/SignupModal';
+import AuthModal from './components/auth/AuthModal';
 import './index.css';
 
 function App() {
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isSignupOpen, setIsSignupOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState('introduction'); // 'introduction' or 'store'
+  const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
 
-  const openLogin = () => { setIsSignupOpen(false); setIsLoginOpen(true); };
-  const openSignup = () => { setIsLoginOpen(false); setIsSignupOpen(true); };
+  const openLogin = () => setAuthModal({ isOpen: true, mode: 'login' });
+  const openSignup = () => setAuthModal({ isOpen: true, mode: 'signup' });
+  const closeAuthModal = () => setAuthModal(prev => ({ ...prev, isOpen: false }));
+  
+  const [currentPage, setCurrentPage] = useState('introduction'); // 'introduction' or 'store'
 
   return (
     <div className="app-container">
@@ -34,8 +34,11 @@ function App() {
         />
       )}
       
-      {isLoginOpen && <LoginModal onClose={() => setIsLoginOpen(false)} onSignupClick={openSignup} />}
-      {isSignupOpen && <SignupModal onClose={() => setIsSignupOpen(false)} onLoginClick={openLogin} />}
+      <AuthModal 
+        isOpen={authModal.isOpen} 
+        initialMode={authModal.mode} 
+        onClose={closeAuthModal} 
+      />
     </div>
   );
 }

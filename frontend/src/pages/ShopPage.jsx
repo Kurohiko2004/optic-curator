@@ -13,7 +13,7 @@ import { useShopFilters } from '../hooks/useShopFilters';
 // Extracted CSS
 import './ShopPage.css';
 
-const ShopPage = ({ onLoginClick, onSignupClick }) => {
+const ShopPage = ({ onLoginClick, onSignupClick, setCurrentPage }) => {
   const { 
     price, setPrice, 
     expandedFilters, toggleFilter, 
@@ -22,7 +22,12 @@ const ShopPage = ({ onLoginClick, onSignupClick }) => {
 
   return (
     <div className="shop-page">
-      <Header onLoginClick={onLoginClick} onSignupClick={onSignupClick} />
+      <Header 
+        onLoginClick={onLoginClick} 
+        onSignupClick={onSignupClick} 
+        setCurrentPage={setCurrentPage}
+        activePage="store"
+      />
       <ShopHero />
       <ShopBanner />
 
