@@ -1,4 +1,5 @@
 import React from 'react';
+import FilterSection from './FilterSection';
 
 const FilterSidebar = ({ price, setPrice, expandedFilters, toggleFilter, shapes, faceShapes }) => {
   return (
@@ -22,37 +23,29 @@ const FilterSidebar = ({ price, setPrice, expandedFilters, toggleFilter, shapes,
           </div>
         </div>
 
-        <div className={`filter-section ${expandedFilters.shape ? 'expanded' : ''}`}>
-          <div className="filter-header" onClick={() => toggleFilter('shape')}>
-            <span>Glasses Shape</span>
-            <span className="arrow">{expandedFilters.shape ? '−' : '+'}</span>
-          </div>
-          {expandedFilters.shape && (
-            <div className="filter-options">
-              {shapes.map(s => (
-                <label key={s} className="checkbox-label">
-                  <input type="checkbox" /> {s}
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
+        <FilterSection 
+          title="Glasses Shape" 
+          isExpanded={expandedFilters.shape} 
+          onToggle={() => toggleFilter('shape')}
+        >
+          {shapes.map(s => (
+            <label key={s} className="checkbox-label">
+              <input type="checkbox" /> {s}
+            </label>
+          ))}
+        </FilterSection>
 
-        <div className={`filter-section ${expandedFilters.face ? 'expanded' : ''}`}>
-          <div className="filter-header" onClick={() => toggleFilter('face')}>
-            <span>Face Shape</span>
-            <span className="arrow">{expandedFilters.face ? '−' : '+'}</span>
-          </div>
-          {expandedFilters.face && (
-            <div className="filter-options">
-               {faceShapes.map(f => (
-                <label key={f} className="checkbox-label">
-                  <input type="checkbox" /> {f}
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
+        <FilterSection 
+          title="Face Shape" 
+          isExpanded={expandedFilters.face} 
+          onToggle={() => toggleFilter('face')}
+        >
+          {faceShapes.map(f => (
+            <label key={f} className="checkbox-label">
+              <input type="checkbox" /> {f}
+            </label>
+          ))}
+        </FilterSection>
       </div>
     </aside>
   );
