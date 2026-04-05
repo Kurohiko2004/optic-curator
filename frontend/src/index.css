@@ -31,7 +31,10 @@ body {
   width: 100%;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-heading);
   letter-spacing: -0.02em;
 }
@@ -82,14 +85,23 @@ h1, h2, h3, h4 {
   width: 100%;
   height: 100%;
   z-index: -1;
-  background: 
+  background:
     radial-gradient(circle at 20% 20%, rgba(129, 140, 248, 0.15) 0%, transparent 40%),
     radial-gradient(circle at 80% 80%, rgba(192, 132, 252, 0.15) 0%, transparent 40%);
 }
 
 @keyframes glow {
-  0%, 100% { opacity: 0.8; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
+
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
 }
 
 .glow-circle {
@@ -101,8 +113,15 @@ h1, h2, h3, h4 {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -143,3 +162,7 @@ h1, h2, h3, h4 {
   box-shadow: 0 0 10px rgba(129, 140, 248, 0.5);
 }
 
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
