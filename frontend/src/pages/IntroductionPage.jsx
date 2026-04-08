@@ -8,14 +8,12 @@ import imgNews2 from '../assets/news_2.jpg';
 import imgNews3 from '../assets/news_3.jpg';
 import imgAbout from '../assets/about_img.jpg';
 
-const IntroductionPage = ({ onLoginClick, onSignupClick, setCurrentPage }) => {
+const IntroductionPage = ({ onLoginClick, onSignupClick }) => {
   return (
     <div className="intro-page">
       <Header
         onLoginClick={onLoginClick}
         onSignupClick={onSignupClick}
-        setCurrentPage={setCurrentPage}
-        activePage="introduction"
       />
 
       {/* BANNER */}
