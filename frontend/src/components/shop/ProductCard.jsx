@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const ProductCard = ({ item }) => {
+const ProductCard = ({ item, onTryOnClick }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="product-card glass-morphism animate-fade-in">
       <div className="product-image-container">
@@ -15,8 +18,14 @@ const ProductCard = ({ item }) => {
         <p className="type">{item.type}</p>
         <p className="color">{item.color}</p>
         <div className="product-actions">
-          <button className="secondary-button" style={{ flex: 1 }}>Details</button>
-          <button className="button-primary" style={{ flex: 1, padding: '10px' }}>
+          <button 
+            className="secondary-button" 
+            style={{ flex: 1 }}
+            onClick={() => navigate(`/item/${item.id}`)}
+          >
+            Details
+          </button>
+          <button className="button-primary" style={{ flex: 1, padding: '10px' }} onClick={onTryOnClick}>
             AR Try-On
           </button>
         </div>
