@@ -1,48 +1,41 @@
-import React, { useState, Suspense, useEffect } from 'react';
+import React, { useState, Suspense, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, Environment, Float, MeshDistortMaterial } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, Environment, Float, useGLTF } from '@react-three/drei';
 import { glassesItems } from '../data/shopData';
 import './ARTryOnPage.css';
 
-// A simple dummy model component representing the glasses
-export const DummyGlassesModel = ({ color }) => {
+// Real 3D GLTF Model Component
+export const GlassesModel = ({ modelPath, color }) => {
+  const { scene } = useGLTF(modelPath || '/model/glasses/glass1.glb');
+  
+  // Apply color to the frame material
+  // Assuming the frame parts are named consistently or we can target by index/type
+  useEffect(() => {
+    scene.traverse((child) => {
+      if (child.isMesh) {
+        // Simple logic: if the name contains 'frame' or if it's the primary mesh
+        // This might need adjustment based on the specific structure of glass1.glb
+        if (child.name.toLowerCase().includes('frame') || !child.name.toLowerCase().includes('lens')) {
+          if (child.material) {
+            child.material.color.set(color);
+          }
+        }
+        
+        // Ensure glass-like objects stay transparent/dark
+        if (child.name.toLowerCase().includes('lens')) {
+          if (child.material) {
+            child.material.transparent = true;
+            child.material.opacity = 0.6;
+            child.material.color.set('#000000');
+          }
+        }
+      }
+    });
+  }, [scene, color]);
+
   return (
     <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-      <mesh rotation={[0.1, 0, 0]}>
-        {/* Frame Front */}
-        <boxGeometry args={[2, 0.5, 0.1]} />
-        <meshStandardMaterial color={color || '#818cf8'} roughness={0.1} metalness={0.8} />
-      </mesh>
-      
-      {/* Left Lens */}
-      <mesh position={[-0.5, 0, 0.05]}>
-        <circleGeometry args={[0.4, 32]} />
-        <MeshDistortMaterial 
-          color="#000" 
-          speed={0} 
-          distort={0} 
-          opacity={0.6} 
-          transparent 
-        />
-      </mesh>
-      
-      {/* Right Lens */}
-      <mesh position={[0.5, 0, 0.05]}>
-        <circleGeometry args={[0.4, 32]} />
-        <MeshDistortMaterial 
-          color="#000" 
-          speed={0} 
-          distort={0} 
-          opacity={0.6} 
-          transparent 
-        />
-      </mesh>
-      
-      {/* Bridge */}
-      <mesh position={[0, -0.05, 0.05]}>
-        <boxGeometry args={[0.3, 0.1, 0.05]} />
-        <meshStandardMaterial color={color || '#818cf8'} />
-      </mesh>
+      <primitive object={scene} scale={1.5} position={[0, -0.2, 0]} />
     </Float>
   );
 };
@@ -50,6 +43,49 @@ export const DummyGlassesModel = ({ color }) => {
 const ARTryOnModal = ({ isOpen, onClose, selectedItemId }) => {
   const item = glassesItems.find(i => i.id === selectedItemId) || glassesItems[0];
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+
+  // Handle camera stream
+  useEffect(() => {
+    const startCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          } 
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          streamRef.current = stream;
+        }
+      } catch (err) {
+        console.error("Error accessing camera:", err);
+        setIsCameraActive(false);
+        alert("Could not access camera. Please check permissions.");
+      }
+    };
+
+    const stopCamera = () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    };
+
+    if (isCameraActive) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+
+    return () => stopCamera();
+  }, [isCameraActive]);
   
   // Available color variants
   const colorVariants = [
@@ -107,21 +143,35 @@ const ARTryOnModal = ({ isOpen, onClose, selectedItemId }) => {
 
           {/* CENTER: AR Viewport */}
           <main className="ar-viewport-center">
-            <div className="ar-canvas-container">
-              <Canvas shadows>
+            <div className={`ar-canvas-container ${isCameraActive ? 'with-camera' : ''}`}>
+              <Canvas 
+                shadows 
+                gl={{ alpha: true, antialias: true }}
+                onCreated={({ gl }) => {
+                  gl.setClearColor(0x000000, 0); // Transparent background
+                }}
+              >
                 <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={50} />
-                <ambientLight intensity={0.5} />
+                <ambientLight intensity={isCameraActive ? 0.7 : 0.5} />
                 <pointLight position={[10, 10, 10]} intensity={1} />
                 <spotLight position={[-10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
                 
                 <Suspense fallback={null}>
-                  <DummyGlassesModel color={selectedColor} />
+                  <GlassesModel color={selectedColor} />
                   <Environment preset="city" />
                 </Suspense>
 
                 <OrbitControls enablePan={false} minDistance={2} maxDistance={10} />
               </Canvas>
             </div>
+
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`ar-video-feed ${isCameraActive ? 'visible' : ''}`}
+            />
 
             {!isCameraActive && (
               <div className="camera-placeholder">
@@ -151,21 +201,21 @@ const ARTryOnModal = ({ isOpen, onClose, selectedItemId }) => {
               </button>
              </div>
 
-             <div className="control-card glass-morphism">
-               <h4>Diagnostics</h4>
-               <div className="diagnostic-stat">
-                 <span>Face Detect:</span>
-                 <span className="dot red"></span>
-               </div>
-               <div className="diagnostic-stat">
-                 <span>Lighting:</span>
-                 <span className="dot green"></span>
-               </div>
-               <div className="diagnostic-stat">
-                 <span>FPS:</span>
-                 <span className="value">60</span>
-               </div>
-             </div>
+              <div className="control-card glass-morphism">
+                <h4>Diagnostics</h4>
+                <div className="diagnostic-stat">
+                  <span>Face Detect:</span>
+                  <span className={`dot ${isCameraActive ? 'green' : 'red'}`}></span>
+                </div>
+                <div className="diagnostic-stat">
+                  <span>Lighting:</span>
+                  <span className="dot green"></span>
+                </div>
+                <div className="diagnostic-stat">
+                  <span>FPS:</span>
+                  <span className="value">60</span>
+                </div>
+              </div>
 
              <button className="add-to-cart-btn button-primary">
                Add to Cart

@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment } from '@react-three/drei';
 import Header from '../components/layout/Header';
-import ARTryOnModal, { DummyGlassesModel } from './ARTryOnPage';
+import ARTryOnModal, { GlassesModel } from './ARTryOnPage';
 import { glassesItems } from '../data/shopData';
 import './ProductDetailPage.css';
 
@@ -20,7 +20,7 @@ const RotatingModel = ({ color }) => {
 
   return (
     <group ref={meshRef}>
-      <DummyGlassesModel color={color} />
+      <GlassesModel color={color} />
     </group>
   );
 };
