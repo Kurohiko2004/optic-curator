@@ -22,6 +22,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'glassesId',
         as: 'orderItems'
       });
+      this.belongsToMany(models.Color, {
+        through: 'GlassesColors',
+        foreignKey: 'glassesId',
+        otherKey: 'colorsId',
+        as: 'colors'
+      });
     }
   }
   Glasses.init({
@@ -29,7 +35,9 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     description: DataTypes.TEXT,
     price: DataTypes.DECIMAL,
-    stock: DataTypes.INTEGER
+    stock: DataTypes.INTEGER,
+    materialFrame: DataTypes.STRING,
+    lensType: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Glasses',

@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 
-const Header = ({ onLoginClick, onSignupClick }) => {
+const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
+  const { cartCount } = useCart();
   const location = useLocation();
   const activePage = location.pathname;
 
@@ -13,9 +15,61 @@ const Header = ({ onLoginClick, onSignupClick }) => {
           <Link to="/store" className={activePage === '/store' ? 'active' : ''}>Store</Link>
         </nav>
         <div className="header-actions">
-          <button className="icon-button">🛒</button>
-          <button className="secondary-button" style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }} onClick={onSignupClick}>Sign Up</button>
-          <button className="button-primary" style={{ padding: '8px 16px', borderRadius: '8px' }} onClick={onLoginClick}>Log In</button>
+          {user && (
+            <button className="icon-button cart-btn" style={{ position: 'relative' }}>
+              🛒
+              {cartCount > 0 && (
+                <span className="cart-badge" style={{
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-5px',
+                  background: 'var(--accent-primary)',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '18px',
+                  height: '18px',
+                  fontSize: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold'
+                }}>
+                  {cartCount}
+                </span>
+              )}
+            </button>
+          )}
+          {user ? (
+            <>
+              <span className="user-info" style={{ marginRight: '1rem', color: 'var(--text-muted)' }}>
+                Hi, {user.username || 'User'}
+              </span>
+              <button 
+                className="secondary-button" 
+                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }} 
+                onClick={onLogout}
+              >
+                Log Out
+              </button>
+            </>
+          ) : (
+            <>
+              <button 
+                className="secondary-button" 
+                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }} 
+                onClick={onSignupClick}
+              >
+                Sign Up
+              </button>
+              <button 
+                className="button-primary" 
+                style={{ padding: '8px 16px', borderRadius: '8px' }} 
+                onClick={onLoginClick}
+              >
+                Log In
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>

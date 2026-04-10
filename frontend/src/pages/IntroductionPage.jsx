@@ -8,12 +8,14 @@ import imgNews2 from '../assets/news_2.jpg';
 import imgNews3 from '../assets/news_3.jpg';
 import imgAbout from '../assets/about_img.jpg';
 
-const IntroductionPage = ({ onLoginClick, onSignupClick }) => {
+const IntroductionPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   return (
     <div className="intro-page">
       <Header
         onLoginClick={onLoginClick}
         onSignupClick={onSignupClick}
+        user={user}
+        onLogout={onLogout}
       />
 
       {/* BANNER */}

@@ -7,4 +7,4 @@ const router = express.Router();
 
 router.get('/', validate(getGlassesSchema, 'query'), getAllGlasses);
 
-module.exports = router;
+module.exports = router;

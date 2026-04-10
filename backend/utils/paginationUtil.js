@@ -36,19 +36,15 @@ const getPagination = (page, items) => {
 const getPagingData = (dbResult, currentPage, limit) => {
     const totalItems = dbResult?.count || 0;
     const list = dbResult?.rows || [];
-    
     const totalPages = Math.ceil(totalItems / limit);
 
     return {
-        success: true,
+        totalItems,
         data: list,
-        pagination: {
-            totalItems,
-            totalPages,
-            currentPage,
-            itemsPerPage: limit
-        }
+        totalPages,
+        currentPage
     };
 };
+
 
 module.exports = { getPagination, getPagingData };
