@@ -1,12 +1,18 @@
 const jwt = require('jsonwebtoken');
 const authService = require('../services/authService.js');
-const asyncHandler = require('../middlewares/asyncHandlerUtil.js');
+const asyncHandler = require('../utils/asyncHandlerUtil.js');
 
 const signToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN || '7d'
     });
 };
+
+const filterUser = (user) => ({
+    id: user.id,
+    username: user.username,
+    email: user.email
+});
 
 const signup = asyncHandler(async (req, res, next) => {
     const { username, email, password, roleId } = req.body;
@@ -25,11 +31,7 @@ const signup = asyncHandler(async (req, res, next) => {
         success: true,
         token,
         data: {
-            user: {
-                id: newUser.id,
-                username: newUser.username,
-                email: newUser.email
-            }
+            user: filterUser(newUser)
         }
     });
 });

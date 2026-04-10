@@ -10,9 +10,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      this.belongsTo(models.GlassesShape, { // Changed from GlassShape to GlassesShape
-        foreignKey: 'glassShapeId',
-        as: 'glassShape'
+      this.belongsTo(models.GlassesShape, {
+        foreignKey: 'glassesShapeId',
+        as: 'shape'
       });
       this.hasMany(models.CartItem, {
         foreignKey: 'glassesId',
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Glasses.init({
-    glassShapeId: DataTypes.INTEGER,
+    glassesShapeId: DataTypes.INTEGER,
     name: DataTypes.STRING,
     description: DataTypes.TEXT,
     price: DataTypes.DECIMAL,

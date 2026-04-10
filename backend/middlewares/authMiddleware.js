@@ -1,6 +1,6 @@
 require('dotenv').config()
 const jwt = require('jsonwebtoken');
-const asyncHandler = require('./asyncHandlerUtil.js');
+const asyncHandler = require('../utils/asyncHandlerUtil.js');
 const authService = require('../services/authService.js');
 
 const protect = asyncHandler(async (req, res, next) => {
