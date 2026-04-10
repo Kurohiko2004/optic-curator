@@ -1,0 +1,300 @@
+/* Modal Overlay */
+.ar-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modal Content */
+.ar-modal-content {
+  width: 90%;
+  max-width: 1100px;
+  height: 80vh;
+  background: #0f172a;
+  border-radius: 30px;
+  border: 1px solid var(--glass-border);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-modal-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* Modal Layout */
+.ar-modal-layout {
+  display: flex;
+  height: 100%;
+}
+
+/* Left Sidebar */
+.ar-sidebar-left {
+  width: 220px;
+  padding: 40px 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border-right: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.ar-sidebar-left h4 {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.color-selection-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.color-variant-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 12px;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.color-variant-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.color-variant-item.active {
+  background: rgba(129, 140, 248, 0.1);
+  border-color: rgba(129, 140, 248, 0.3);
+}
+
+.color-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.color-variant-item.active .color-circle {
+  border-color: white;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.color-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.color-variant-item.active .color-name {
+  color: white;
+}
+
+.color-circle .checkmark {
+  color: white;
+  font-size: 8px;
+  opacity: 0.8;
+  transform: rotate(45deg) scaleX(-1);
+  font-weight: bold;
+}
+
+.sidebar-item-info {
+  margin-top: auto;
+}
+
+.sidebar-item-info h3 {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+}
+
+.sidebar-item-info p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.price-tag {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: var(--accent-primary);
+}
+
+/* Center Viewport */
+.ar-viewport-center {
+  flex: 1;
+  position: relative;
+  background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+}
+
+.ar-canvas-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.ar-canvas-container.with-camera {
+  background: transparent;
+}
+
+.ar-video-feed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transform: scaleX(-1); /* Mirror effect for webcam */
+}
+
+.ar-video-feed.visible {
+  opacity: 1;
+}
+
+.camera-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.camera-placeholder .icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  opacity: 0.3;
+}
+
+.ar-ui-overlay {
+  position: absolute;
+  bottom: 25px;
+  left: 25px;
+}
+
+.status-badge {
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-badge.ready {
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+/* Right Sidebar */
+.ar-sidebar-right {
+  width: 260px;
+  padding: 30px 24px;
+  background: rgba(0, 0, 0, 0.2);
+  border-left: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.control-card {
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.control-card h4 {
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  color: var(--text-muted);
+}
+
+.diagnostic-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot.red { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+.dot.green { background: #22c55e; box-shadow: 0 0 10px #22c55e; }
+
+.add-to-cart-btn {
+  margin-top: auto;
+  width: 100% !important;
+  justify-content: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 900px) {
+  .ar-modal-layout {
+    flex-direction: column;
+  }
+  .ar-sidebar-left, .ar-sidebar-right {
+    width: 100%;
+    border: none;
+  }
+  .ar-sidebar-left {
+    padding: 20px;
+    flex-direction: row;
+    height: auto;
+  }
+}

@@ -1,14 +1,16 @@
-import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-const Header = ({ onLoginClick, onSignupClick, setCurrentPage, activePage }) => {
+const Header = ({ onLoginClick, onSignupClick }) => {
+  const location = useLocation();
+  const activePage = location.pathname;
+
   return (
     <header className="shop-header glass-morphism">
       <div className="header-content">
-        <div className="logo premium-gradient-text" style={{cursor: 'pointer'}} onClick={() => setCurrentPage && setCurrentPage('introduction')}>OPTIC VR</div>
+        <Link to="/" className="logo premium-gradient-text" style={{ textDecoration: 'none' }}>OPTIC VR</Link>
         <nav>
-          <a href="#" className={activePage === 'introduction' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setCurrentPage && setCurrentPage('introduction'); }}>Introduction</a>
-          <a href="#" className={activePage === 'store' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setCurrentPage && setCurrentPage('store'); }}>Store</a>
-          <a href="#">AR Laboratory</a>
+          <Link to="/" className={activePage === '/' ? 'active' : ''}>Introduction</Link>
+          <Link to="/store" className={activePage === '/store' ? 'active' : ''}>Store</Link>
         </nav>
         <div className="header-actions">
           <button className="icon-button">🛒</button>
