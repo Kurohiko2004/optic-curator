@@ -2,8 +2,12 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Colors', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.dropTable('GlassShapes');
+  },
+
+  async down(queryInterface, Sequelize) {
+    await queryInterface.createTable('GlassShapes', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,8 +15,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       name: {
-        type: Sequelize.STRING,
-        allowNull: false
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
@@ -23,9 +26,5 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
-  },
-
-  async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('Colors');
   }
 };
