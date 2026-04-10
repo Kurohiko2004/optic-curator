@@ -6,6 +6,15 @@ const errorHandler = require('./middlewares/errorMiddleware.js');
 const authRoutes = require('./routes/authRoutes.js');
 const glassesRoutes = require('./routes/glassesRoutes.js');
 const cartRoutes = require('./routes/cartRoutes.js');
+const db = require('./models/index.js'); // Import db models
+
+// Test database connection
+db.sequelize.authenticate()
+  .then(() => {
+    console.log('✅ Database connected successfully (Aiven MySQL)')
+    console.log(process.env.DB_HOST)
+  })
+  .catch(err => console.error('❌ Unable to connect to the database:', err));
 
 const app = express();
 const PORT = process.env.PORT || 8082;
