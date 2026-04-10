@@ -13,7 +13,7 @@ const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           <Link to="/store" className={activePage === '/store' ? 'active' : ''}>Store</Link>
         </nav>
         <div className="header-actions">
-          <button className="icon-button">🛒</button>
+          {user && <button className="icon-button">🛒</button>}
           {user ? (
             <>
               <span className="user-info" style={{ marginRight: '1rem', color: 'var(--text-muted)' }}>
