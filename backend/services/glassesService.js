@@ -61,6 +61,39 @@ const findAllGlasses = async (queryParams, pagination) => {
 };
 
 
+const findById = async (id) => {
+    return await db.Glasses.findByPk(id, {
+        include: [
+            {
+                model: db.GlassesShape,
+                as: 'shape',
+                attributes: ['id', 'name']
+            },
+            {
+                model: db.Color,
+                as: 'colors',
+                attributes: ['id', 'name'],
+                through: { attributes: [] }
+            }
+        ]
+    });
+};
+
+const findAllShapes = async () => {
+    return await db.GlassesShape.findAll({
+        attributes: ['id', 'name']
+    });
+};
+
+const findAllColors = async () => {
+    return await db.Color.findAll({
+        attributes: ['id', 'name']
+    });
+};
+
 module.exports = {
-    findAllGlasses
+    findAllGlasses,
+    findById,
+    findAllShapes,
+    findAllColors
 };
