@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 
-const Header = ({ onLoginClick, onSignupClick }) => {
+const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const location = useLocation();
   const activePage = location.pathname;
 
@@ -14,8 +14,37 @@ const Header = ({ onLoginClick, onSignupClick }) => {
         </nav>
         <div className="header-actions">
           <button className="icon-button">🛒</button>
-          <button className="secondary-button" style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }} onClick={onSignupClick}>Sign Up</button>
-          <button className="button-primary" style={{ padding: '8px 16px', borderRadius: '8px' }} onClick={onLoginClick}>Log In</button>
+          {user ? (
+            <>
+              <span className="user-info" style={{ marginRight: '1rem', color: 'var(--text-muted)' }}>
+                Hi, {user.username || 'User'}
+              </span>
+              <button 
+                className="secondary-button" 
+                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }} 
+                onClick={onLogout}
+              >
+                Log Out
+              </button>
+            </>
+          ) : (
+            <>
+              <button 
+                className="secondary-button" 
+                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }} 
+                onClick={onSignupClick}
+              >
+                Sign Up
+              </button>
+              <button 
+                className="button-primary" 
+                style={{ padding: '8px 16px', borderRadius: '8px' }} 
+                onClick={onLoginClick}
+              >
+                Log In
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>

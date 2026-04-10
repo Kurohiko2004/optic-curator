@@ -14,7 +14,7 @@ import { useShopFilters } from '../hooks/useShopFilters';
 // Extracted CSS
 import './ShopPage.css';
 
-const ShopPage = ({ onLoginClick, onSignupClick }) => {
+const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const { 
     price, setPrice, 
     expandedFilters, toggleFilter, 
@@ -36,6 +36,8 @@ const ShopPage = ({ onLoginClick, onSignupClick }) => {
       <Header 
         onLoginClick={onLoginClick} 
         onSignupClick={onSignupClick} 
+        user={user}
+        onLogout={onLogout}
       />
       <ShopHero />
       <ShopBanner />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ShopPage from './pages/ShopPage';
 import IntroductionPage from './pages/IntroductionPage';
@@ -8,10 +8,30 @@ import './index.css';
 
 function App() {
   const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // For now, just set a placeholder user object
+      // In a real app, you'd verify the token with the backend
+      setUser({ loggedIn: true });
+    }
+  }, []);
 
   const openLogin = () => setAuthModal({ isOpen: true, mode: 'login' });
   const openSignup = () => setAuthModal({ isOpen: true, mode: 'signup' });
   const closeAuthModal = () => setAuthModal(prev => ({ ...prev, isOpen: false }));
+
+  const handleAuthSuccess = (userData) => {
+    setUser(userData);
+    closeAuthModal();
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+  };
 
   return (
     <div className="app-container">
@@ -22,20 +42,36 @@ function App() {
       
       <Routes>
         <Route path="/" element={
-          <IntroductionPage onLoginClick={openLogin} onSignupClick={openSignup} />
+          <IntroductionPage 
+            onLoginClick={openLogin} 
+            onSignupClick={openSignup} 
+            user={user} 
+            onLogout={handleLogout} 
+          />
         } />
         <Route path="/store" element={
-          <ShopPage onLoginClick={openLogin} onSignupClick={openSignup} />
+          <ShopPage 
+            onLoginClick={openLogin} 
+            onSignupClick={openSignup} 
+            user={user} 
+            onLogout={handleLogout} 
+          />
         } />
         <Route path="/item/:id" element={
-          <ProductDetailPage onLoginClick={openLogin} onSignupClick={openSignup} />
+          <ProductDetailPage 
+            onLoginClick={openLogin} 
+            onSignupClick={openSignup} 
+            user={user} 
+            onLogout={handleLogout} 
+          />
         } />
       </Routes>
       
       <AuthModal 
         isOpen={authModal.isOpen} 
         initialMode={authModal.mode} 
-        onClose={closeAuthModal} 
+        onClose={closeAuthModal}
+        onSuccess={handleAuthSuccess}
       />
     </div>
   );
