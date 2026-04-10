@@ -14,4 +14,4 @@ const getAllGlasses = asyncHandler(async (req, res, next) => {
     res.status(200).json(response);
 });
 
-module.exports = { getAllGlasses };
+module.exports = { getAllGlasses };

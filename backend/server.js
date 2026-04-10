@@ -5,6 +5,7 @@ const cors = require('cors');
 const errorHandler = require('./middlewares/errorMiddleware.js');
 const authRoutes = require('./routes/authRoutes.js');
 const glassesRoutes = require('./routes/glassesRoutes.js');
+const cartRoutes = require('./routes/cartRoutes.js');
 
 const app = express();
 const PORT = process.env.PORT || 8082;
@@ -22,6 +23,7 @@ app.use(express.json());
 // Main route
 app.use('/api/auth', authRoutes);
 app.use('/api/glasses', glassesRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Error handling middleware (MUST be after routes)
 app.use(errorHandler);

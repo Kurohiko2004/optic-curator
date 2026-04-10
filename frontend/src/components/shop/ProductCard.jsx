@@ -1,8 +1,24 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 
 const ProductCard = ({ item, onTryOnClick }) => {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const [adding, setAdding] = React.useState(false);
+
+  const handleAddToCart = async (e) => {
+    e.stopPropagation();
+    setAdding(true);
+    try {
+      await addToCart(item.id, 1);
+      alert('Đã thêm sản phẩm vào giỏ hàng!');
+    } catch (err) {
+      alert(err.message || 'Cần đăng nhập để thực hiện tính năng này');
+    } finally {
+      setAdding(false);
+    }
+  };
 
   return (
     <div className="product-card glass-morphism animate-fade-in">
@@ -17,16 +33,26 @@ const ProductCard = ({ item, onTryOnClick }) => {
         </div>
         <p className="type">{item.type}</p>
         <p className="color">{item.color}</p>
-        <div className="product-actions">
+        <div className="product-actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+            <button 
+                className="secondary-button" 
+                style={{ flex: 1 }}
+                onClick={() => navigate(`/item/${item.id}`)}
+            >
+                Details
+            </button>
+            <button className="button-primary" style={{ flex: 1, padding: '10px' }} onClick={onTryOnClick}>
+                AR Try-On
+            </button>
+          </div>
           <button 
-            className="secondary-button" 
-            style={{ flex: 1 }}
-            onClick={() => navigate(`/item/${item.id}`)}
+            className="button-primary" 
+            style={{ width: '100%', background: 'var(--accent-secondary)' }} 
+            onClick={handleAddToCart}
+            disabled={adding}
           >
-            Details
-          </button>
-          <button className="button-primary" style={{ flex: 1, padding: '10px' }} onClick={onTryOnClick}>
-            AR Try-On
+            {adding ? 'Adding...' : 'Add to Cart'}
           </button>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 
 const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
+  const { cartCount } = useCart();
   const location = useLocation();
   const activePage = location.pathname;
 
@@ -13,7 +15,30 @@ const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           <Link to="/store" className={activePage === '/store' ? 'active' : ''}>Store</Link>
         </nav>
         <div className="header-actions">
-          {user && <button className="icon-button">🛒</button>}
+          {user && (
+            <button className="icon-button cart-btn" style={{ position: 'relative' }}>
+              🛒
+              {cartCount > 0 && (
+                <span className="cart-badge" style={{
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-5px',
+                  background: 'var(--accent-primary)',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '18px',
+                  height: '18px',
+                  fontSize: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold'
+                }}>
+                  {cartCount}
+                </span>
+              )}
+            </button>
+          )}
           {user ? (
             <>
               <span className="user-info" style={{ marginRight: '1rem', color: 'var(--text-muted)' }}>

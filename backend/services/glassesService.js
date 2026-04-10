@@ -36,6 +36,12 @@ const findAllGlasses = async (queryParams, pagination) => {
         where: whereCondition,
         limit,
         offset,
+        attributes: {
+            include: [
+                [db.sequelize.col('glassesShapeId'), 'glassShapeId']
+            ],
+            exclude: ['glassesShapeId']
+        },
         include: [
             {
                 model: db.GlassesShape,
@@ -53,6 +59,7 @@ const findAllGlasses = async (queryParams, pagination) => {
         distinct: true // Tránh đếm trùng khi join many-to-many
     });
 };
+
 
 module.exports = {
     findAllGlasses
