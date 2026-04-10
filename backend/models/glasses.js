@@ -37,7 +37,9 @@ module.exports = (sequelize, DataTypes) => {
     price: DataTypes.DECIMAL,
     stock: DataTypes.INTEGER,
     materialFrame: DataTypes.STRING,
-    lensType: DataTypes.STRING
+    lensType: DataTypes.STRING,
+    image: DataTypes.STRING,
+    modelPath: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Glasses',

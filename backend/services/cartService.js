@@ -59,7 +59,38 @@ const getCartByUserId = async (userId) => {
     });
 };
 
+const updateItemQuantity = async (userId, cartItemId, quantity) => {
+    const item = await db.CartItem.findOne({
+        where: { id: cartItemId },
+        include: [{ model: db.Cart, as: 'cart', where: { userId } }]
+    });
+
+    if (!item) {
+        throw new Error('Không tìm thấy sản phẩm trong giỏ hàng');
+    }
+
+    item.quantity = quantity;
+    await item.save();
+    return item;
+};
+
+const removeItemFromCart = async (userId, cartItemId) => {
+    const item = await db.CartItem.findOne({
+        where: { id: cartItemId },
+        include: [{ model: db.Cart, as: 'cart', where: { userId } }]
+    });
+
+    if (!item) {
+        throw new Error('Không tìm thấy sản phẩm trong giỏ hàng');
+    }
+
+    await item.destroy();
+    return true;
+};
+
 module.exports = {
     addItemToCart,
-    getCartByUserId
+    getCartByUserId,
+    updateItemQuantity,
+    removeItemFromCart
 };

@@ -14,6 +14,11 @@ export const fetchGlasses = async (params = {}) => {
   return handleResponse(response);
 };
 
+export const fetchGlassById = async (id) => {
+  const response = await fetch(`${BASE_URL}/glasses/${id}`);
+  return handleResponse(response);
+};
+
 export const fetchShapes = async () => {
   const response = await fetch(`${BASE_URL}/glasses/shapes`);
   return handleResponse(response);

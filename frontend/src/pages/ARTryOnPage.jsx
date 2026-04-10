@@ -10,29 +10,31 @@ export const GlassesModel = ({ modelPath, color }) => {
   
   // Apply color to the frame material
   // Assuming the frame parts are named consistently or we can target by index/type
-  useEffect(() => {
+useEffect(() => {
     scene.traverse((child) => {
       if (child.isMesh) {
-        // Simple logic: if the name contains 'frame' or if it's the primary mesh
-        // This might need adjustment based on the specific structure of glass1.glb
-        if (child.name.toLowerCase().includes('frame') || !child.name.toLowerCase().includes('lens')) {
+        // Target ONLY Plane001 for the frame color
+        if (child.name === 'Plane001') {
           if (child.material) {
             child.material.color.set(color);
           }
         }
-        
-        // Ensure glass-like objects stay transparent/dark
-        if (child.name.toLowerCase().includes('lens')) {
+
+        // Target ONLY Plane for the lens transparency
+        if (child.name === 'Plane') {
           if (child.material) {
             child.material.transparent = true;
             child.material.opacity = 0.6;
             child.material.color.set('#000000');
           }
         }
+
+        // Note: Plane002 (Handle) is ignored by this logic, so it keeps its original material.
       }
     });
   }, [scene, color]);
 
+  
   return (
     <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
       <primitive object={scene} scale={1.5} position={[0, -0.2, 0]} />

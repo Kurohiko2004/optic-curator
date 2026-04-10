@@ -14,4 +14,22 @@ const getAllGlasses = asyncHandler(async (req, res, next) => {
     res.status(200).json(response);
 });
 
-module.exports = { getAllGlasses };
+const getGlassById = asyncHandler(async (req, res, next) => {
+    const glass = await glassesService.findById(req.params.id);
+    if (!glass) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm' });
+    }
+    res.status(200).json({ success: true, data: glass });
+});
+
+const getAllShapes = asyncHandler(async (req, res, next) => {
+    const shapes = await glassesService.findAllShapes();
+    res.status(200).json({ success: true, data: shapes });
+});
+
+const getAllColors = asyncHandler(async (req, res, next) => {
+    const colors = await glassesService.findAllColors();
+    res.status(200).json({ success: true, data: colors });
+});
+
+module.exports = { getAllGlasses, getGlassById, getAllShapes, getAllColors };
