@@ -54,9 +54,20 @@ const removeFromCart = asyncHandler(async (req, res) => {
     });
 });
 
+const clearCart = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    await cartService.clearCart(userId);
+
+    res.status(200).json({
+        success: true,
+        message: 'Đã xóa toàn bộ sản phẩm khỏi giỏ hàng'
+    });
+});
+
 module.exports = {
     addToCart,
     getMyCart,
     updateQuantity,
-    removeFromCart
+    removeFromCart,
+    clearCart
 };

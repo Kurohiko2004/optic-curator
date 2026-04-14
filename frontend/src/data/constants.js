@@ -5,5 +5,13 @@ export const API_ENDPOINTS = {
     LOGIN: `${BASE_API_URL}/auth/login`,
     SIGNUP: `${BASE_API_URL}/auth/signup`,
   },
+  CART: {
+    GET: `${BASE_API_URL}/cart`,
+    ADD: `${BASE_API_URL}/cart/add`,
+    CLEAR: `${BASE_API_URL}/cart/clear`,
+    UPDATE: (id) => `${BASE_API_URL}/cart/${id}`,
+    DELETE: (id) => `${BASE_API_URL}/cart/${id}`,
+  },
   GLASSES: `${BASE_API_URL}/glasses`,
+
 };
