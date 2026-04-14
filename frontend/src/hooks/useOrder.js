@@ -31,9 +31,15 @@ export const useOrder = () => {
     try {
       const response = await orderApi.createOrder(orderDetails);
       if (response.success) {
-         // Cập nhật lại giỏ hàng (sẽ rỗng)
          await loadCart();
-         // Tùy chọn: Xử lý VNPAY Redirect ở đây nếu tích hợp
+         
+         // Nếu backend trả về link VNPAY, lập tức redirect
+         if (response.paymentUrl) {
+             window.location.href = response.paymentUrl;
+             // Trả về false tạm thời để UI không cần hide sang trang thành công vội
+             return { success: false, pendingRedirect: true }; 
+         }
+
          return { success: true, order: response.data };
       }
     } catch (err) {

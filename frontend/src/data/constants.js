@@ -16,6 +16,9 @@ export const API_ENDPOINTS = {
     GET_ME: `${BASE_API_URL}/orders/me`,
     POST: `${BASE_API_URL}/orders`,
   },
-  GLASSES: `${BASE_API_URL}/glasses`,
-
+  GLASSES: {
+    LIST: `${BASE_API_URL}/glasses`,
+    DETAIL: (id) => `${BASE_API_URL}/glasses/${id}`,
+    SHAPES: `${BASE_API_URL}/glasses/shapes`,
+  },
 };
