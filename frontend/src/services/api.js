@@ -8,6 +8,10 @@ const handleResponse = async (response) => {
   return data;
 };
 
+/**
+ * fetchGlasses params: 
+ * page, items, sortBy, sortOrder, search
+ */
 export const fetchGlasses = async (params = {}) => {
   const query = new URLSearchParams(params).toString();
   const response = await fetch(`${BASE_URL}/glasses?${query}`);

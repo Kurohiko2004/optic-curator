@@ -29,8 +29,8 @@ const FilterSidebar = ({ price, setPrice, expandedFilters, toggleFilter, shapes,
           onToggle={() => toggleFilter('shape')}
         >
           {shapes.map(s => (
-            <label key={s} className="checkbox-label">
-              <input type="checkbox" /> {s}
+            <label key={s.id || s} className="checkbox-label">
+              <input type="checkbox" /> {s.name || s}
             </label>
           ))}
         </FilterSection>

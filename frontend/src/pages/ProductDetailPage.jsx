@@ -1,17 +1,25 @@
-import React, { useState, useRef, Suspense } from 'react';
+import React, { useState, useRef, Suspense, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment } from '@react-three/drei';
 import Header from '../components/layout/Header';
 import ARTryOnModal, { GlassesModel } from './ARTryOnPage';
-import { glassesItems } from '../data/shopData';
+import { fetchGlassById } from '../services/api';
 import './ProductDetailPage.css';
 
-// Component for the 3D preview in the detail page
+// Mapping color names to hex for visual representation (Optional fallback)
+const colorMap = {
+  'Obsidian Black': '#1a1a1a',
+  'Sapphire Blue': '#1e40af',
+  'Rose Gold': '#fb8500',
+  'Cyber Silver': '#94a3b8',
+  'Gold': '#FFD700',
+  'Silver': '#C0C0C0',
+  'Black': '#000000',
+};
+
 const RotatingModel = ({ color }) => {
   const meshRef = useRef();
-  
-  // Slow 360 rotation logic
   useFrame((state, delta) => {
     if (meshRef.current) {
       meshRef.current.rotation.y += delta * 0.5;
@@ -25,60 +33,91 @@ const RotatingModel = ({ color }) => {
   );
 };
 
-const ProductDetailPage = ({ onLoginClick, onSignupClick }) => {
+const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const item = glassesItems.find((p) => p.id === parseInt(id));
-
+  
+  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [arModal, setArModal] = useState({ isOpen: false });
   const [is3DView, setIs3DView] = useState(false);
-  
-  // Define variants
-  const colorVariants = [
-    { name: 'Obsidian Black', hex: '#1a1a1a' },
-    { name: 'Sapphire Blue', hex: '#1e40af' },
-    { name: 'Rose Gold', hex: '#fb8500' },
-    { name: 'Cyber Silver', hex: '#94a3b8' }
-  ];
+  const [selectedVariant, setSelectedVariant] = useState(null);
 
-  const [selectedVariant, setSelectedVariant] = useState(
-    colorVariants.find(v => v.name === item?.color) || colorVariants[0]
-  );
+  useEffect(() => {
+    const getProductDetail = async () => {
+      setLoading(true);
+      try {
+        const response = await fetchGlassById(id);
+        // Based on the provided API structure: { success: true, data: { ... } }
+        const productData = response.data || response; 
+        setItem(productData);
+        
+        if (productData.colors && productData.colors.length > 0) {
+          setSelectedVariant(productData.colors[0]);
+        }
+      } catch (err) {
+        console.error("Error fetching product:", err);
+        setError("Không tìm thấy sản phẩm hoặc có lỗi xảy ra.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!item) {
+    getProductDetail();
+  }, [id]);
+
+  if (loading) {
     return (
       <div className="product-detail-page">
-        <Header onLoginClick={onLoginClick} onSignupClick={onSignupClick} />
-        <div className="error-container">
-          <h2>Product Not Found</h2>
+        <Header onLoginClick={onLoginClick} onSignupClick={onSignupClick} user={user} onLogout={onLogout} />
+        <div className="loading-container" style={{ textAlign: 'center', marginTop: '100px' }}>
+          <h2>Đang tải thông tin sản phẩm...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !item) {
+    return (
+      <div className="product-detail-page">
+        <Header onLoginClick={onLoginClick} onSignupClick={onSignupClick} user={user} onLogout={onLogout} />
+        <div className="error-container" style={{ textAlign: 'center', marginTop: '100px' }}>
+          <h2>{error || "Product Not Found"}</h2>
           <Link to="/store" className="button-primary">Back to Store</Link>
         </div>
       </div>
     );
   }
 
+  const selectedColorHex = selectedVariant ? (colorMap[selectedVariant.name] || '#666') : '#666';
+
   return (
     <div className="product-detail-page animate-fade-in">
-      <Header onLoginClick={onLoginClick} onSignupClick={onSignupClick} activePage="store" />
+      <Header 
+        onLoginClick={onLoginClick} 
+        onSignupClick={onSignupClick} 
+        user={user} 
+        onLogout={onLogout} 
+        activePage="store" 
+      />
 
       <main className="detail-container">
-        {/* Back Button */}
         <button className="back-to-store-btn" onClick={() => navigate('/store')}>
           ← Back to Store
         </button>
 
         <div className="detail-grid">
-          {/* Left: Product Visuals */}
           <div className="product-visuals">
             <div className="variant-sidebar">
-              {colorVariants.map((variant) => (
+              {item.colors && item.colors.map((color) => (
                 <div 
-                  key={variant.name} 
-                  className={`variant-dot ${selectedVariant.name === variant.name ? 'active' : ''}`}
-                  onClick={() => setSelectedVariant(variant)}
-                  title={variant.name}
+                  key={color.id} 
+                  className={`variant-dot ${selectedVariant?.id === color.id ? 'active' : ''}`}
+                  onClick={() => setSelectedVariant(color)}
+                  title={color.name}
                 >
-                  <div className="dot-fill" style={{ backgroundColor: variant.hex }}></div>
+                  <div className="dot-fill" style={{ backgroundColor: colorMap[color.name] || '#ccc' }}></div>
                 </div>
               ))}
             </div>
@@ -91,7 +130,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick }) => {
                     <ambientLight intensity={0.7} />
                     <pointLight position={[10, 10, 10]} intensity={1} />
                     <Suspense fallback={null}>
-                      <RotatingModel color={selectedVariant.hex} />
+                      <RotatingModel color={selectedColorHex} />
                       <Environment preset="city" />
                     </Suspense>
                     <OrbitControls enableZoom={false} enablePan={false} />
@@ -110,10 +149,9 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick }) => {
             </div>
           </div>
 
-          {/* Right: Product Info */}
           <div className="product-essentials">
             <div className="breadcrumb-nav">
-              <Link to="/store">Store</Link> <span className="separator">/</span> <span>{item.type}</span>
+              <Link to="/store">Store</Link> <span className="separator">/</span> <span>{item.shape?.name || 'Glasses'}</span>
             </div>
 
             <h1 className="premium-gradient-text">{item.name}</h1>
@@ -122,22 +160,24 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick }) => {
             <div className="product-specs">
               <div className="spec-item">
                 <span className="label">Frame Material:</span>
-                <span className="value">{item.type}</span>
+                <span className="value">{item.materialFrame}</span>
               </div>
               <div className="spec-item">
                 <span className="label">Selected Color:</span>
-                <span className="value" style={{ color: selectedVariant.hex }}>{selectedVariant.name}</span>
+                <span className="value" style={{ color: selectedColorHex }}>{selectedVariant?.name}</span>
               </div>
               <div className="spec-item">
                 <span className="label">Lens Type:</span>
-                <span className="value">Polarized UV400</span>
+                <span className="value">{item.lensType}</span>
+              </div>
+              <div className="spec-item">
+                <span className="label">Stock:</span>
+                <span className="value">{item.stock} items left</span>
               </div>
             </div>
 
             <p className="product-description">
-              The {item.name} in <strong>{selectedVariant.name}</strong> represents the pinnacle of optical engineering. 
-              Crafted from premium {item.type.toLowerCase()}, these frames offer unparalleled 
-              durability with a weightless feel. Perfect for both professional and casual environments.
+              {item.description}
             </p>
 
             <div className="action-buttons">
