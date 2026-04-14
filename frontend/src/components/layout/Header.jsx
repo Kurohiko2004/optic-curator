@@ -1,9 +1,10 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
 const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const { cartCount } = useCart();
   const location = useLocation();
+  const navigate = useNavigate();
   const activePage = location.pathname;
 
   return (
@@ -16,7 +17,11 @@ const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         </nav>
         <div className="header-actions">
           {user && (
-            <button className="icon-button cart-btn" style={{ position: 'relative' }}>
+            <button 
+              className="icon-button cart-btn" 
+              style={{ position: 'relative' }}
+              onClick={() => navigate('/cart')}
+            >
               🛒
               {cartCount > 0 && (
                 <span className="cart-badge" style={{

@@ -2,4 +2,12 @@
 export * from './apiClient';
 export * from './authApi';
 export * from './glassesApi';
-export * from './cartApi'; // Adding reference here too for convenience
+export { cartApi, cartApi as default } from './cartApi';
+
+// Aliases for Cart for compatibility
+import { cartApi } from './cartApi';
+export const addToCart = cartApi.addToCart;
+export const getMyCart = cartApi.getCart;
+export const updateCartQuantity = cartApi.updateQuantity;
+export const removeFromCart = cartApi.removeItem;
+export const clearCart = cartApi.clearCart;

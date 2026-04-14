@@ -6,6 +6,8 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import AuthModal from './components/auth/AuthModal';
 import { CartProvider } from './context/CartContext';
 import './index.css';
+import OrderDebugPage from "./pages/OrderDebugPage.jsx";
+import CartDebugPage from "./pages/CartDebugPage.jsx";
 
 function App() {
   const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
@@ -68,6 +70,25 @@ function App() {
               onLogout={handleLogout} 
             />
           } />
+
+          <Route path="/cart" element={
+            <CartDebugPage
+                onLoginClick={openLogin}
+                onSignupClick={openSignup}
+                user={user}
+                onLogout={handleLogout}
+            />
+          } />
+
+          <Route path="/orders/me" element={
+            <OrderDebugPage
+                onLoginClick={openLogin}
+                onSignupClick={openSignup}
+                user={user}
+                onLogout={handleLogout}
+            />
+          } />
+
         </Routes>
         
         <AuthModal 

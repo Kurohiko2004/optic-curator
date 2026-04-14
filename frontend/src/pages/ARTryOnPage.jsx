@@ -6,8 +6,11 @@ import './ARTryOnPage.css';
 
 // Real 3D GLTF Model Component
 export const GlassesModel = ({ modelPath, color }) => {
+  // fail-safe
   const { scene } = useGLTF(modelPath || '/model/glasses/glass1.glb');
-  
+
+  // const { scene } = useGLTF(modelPath);
+
   // Apply color to the frame material
   // Assuming the frame parts are named consistently or we can target by index/type
 useEffect(() => {

@@ -18,17 +18,20 @@ const colorMap = {
   'Black': '#000000',
 };
 
-const RotatingModel = ({ color }) => {
+const RotatingModel = ({ modelPath, color }) => {
   const meshRef = useRef();
   useFrame((state, delta) => {
     if (meshRef.current) {
       meshRef.current.rotation.y += delta * 0.5;
     }
+    console.log(modelPath);
   });
+
+
 
   return (
     <group ref={meshRef}>
-      <GlassesModel color={color} />
+      <GlassesModel modelPath={modelPath} color={color} />
     </group>
   );
 };
@@ -49,7 +52,6 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
       setLoading(true);
       try {
         const response = await fetchGlassById(id);
-        // Based on the provided API structure: { success: true, data: { ... } }
         const productData = response.data || response; 
         setItem(productData);
         
@@ -130,7 +132,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                     <ambientLight intensity={0.7} />
                     <pointLight position={[10, 10, 10]} intensity={1} />
                     <Suspense fallback={null}>
-                      <RotatingModel color={selectedColorHex} />
+                      <RotatingModel modelPath={item.modelPath} color={selectedColorHex} />
                       <Environment preset="city" />
                     </Suspense>
                     <OrbitControls enableZoom={false} enablePan={false} />

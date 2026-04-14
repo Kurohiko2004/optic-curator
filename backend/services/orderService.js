@@ -7,6 +7,8 @@ const db = require('../models/index.js');
  * @returns {object} Order đã được tạo thành công
  */
 const createOrderFromCart = async (userId, orderDetails) => {
+    console.time("insert");
+
     // Khởi tạo Transaction (DB Transaction) -> Đảm bảo toàn vẹn dữ liệu
     const t = await db.sequelize.transaction();
 
@@ -21,7 +23,7 @@ const createOrderFromCart = async (userId, orderDetails) => {
                     include: [{ model: db.Glasses, as: 'glasses' }]
                 }
             ],
-            transaction: t 
+            transaction: t
         });
 
         if (!cart || !cart.cartItems || cart.cartItems.length === 0) {
@@ -77,6 +79,8 @@ const createOrderFromCart = async (userId, orderDetails) => {
 
         // Nếu mọi thứ trơn tru, Commit Database (chính thức ghi vào DB)
         await t.commit();
+
+        console.timeEnd("insert");
         return order;
 
     } catch (error) {
