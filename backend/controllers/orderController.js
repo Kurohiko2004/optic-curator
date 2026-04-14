@@ -1,7 +1,7 @@
 const orderService = require('../services/orderService');
 const asyncHandler = require('../utils/asyncHandlerUtil');
 const crypto = require('crypto');
-GITconst querystring = require('querystring');
+const qs = require('qs'); // SỬ DỤNG THƯ VIỆN QS ĐÃ CÓ TRONG PACKAGE.JSON
 const config = require('../config/vnpay');
 const { sortObject, getFormatDate } = require('../utils/vnpayUtil');
 
@@ -22,8 +22,9 @@ const createOrder = asyncHandler(async (req, res) => {
         const secretKey = config.vnp_HashSecret;
         let vnpUrl = config.vnp_Url;
         
-        const returnUrl = 'http://localhost:8082/api/payment/vnpay_return';
+        const returnUrl = config.vnp_ReturnUrl || 'http://localhost:5173/payment/result';
         const date = getFormatDate();
+        const amount = Math.floor(parseFloat(newOrder.totalPrice) * 100);
 
         let vnp_Params = {};
         vnp_Params['vnp_Version'] = '2.1.0';
@@ -32,19 +33,19 @@ const createOrder = asyncHandler(async (req, res) => {
         vnp_Params['vnp_Locale'] = 'vn';
         vnp_Params['vnp_CurrCode'] = 'VND';
         vnp_Params['vnp_TxnRef'] = String(newOrder.id);
-        vnp_Params['vnp_OrderInfo'] = 'Thanh toan don hang giay kinh SO ' + newOrder.id;
+        vnp_Params['vnp_OrderInfo'] = 'Thanh toan don hang ' + newOrder.id;
         vnp_Params['vnp_OrderType'] = 'other';
-        vnp_Params['vnp_Amount'] = Math.round(newOrder.totalPrice * 100);
+        vnp_Params['vnp_Amount'] = amount;
         vnp_Params['vnp_ReturnUrl'] = returnUrl;
         vnp_Params['vnp_IpAddr'] = ipAddr;
         vnp_Params['vnp_CreateDate'] = date;
 
-        // 1. Sắp xếp các tham số (hàm này đã encodeURIComponent bên trong)
+        // 1. Sắp xếp tham số (hàm sortObject trong vnpayUtil đã encode sẵn từng cặp key/value)
         vnp_Params = sortObject(vnp_Params);
 
-        // 2. Tạo chuỗi ký bằng querystring.stringify (Standard Node.js)
-        // Vì vnp_Params đã được encode trong sortObject, ta truyền tham số thứ 2 rỗng để tránh encode lần nữa
-        const signData = querystring.stringify(vnp_Params, { encode: false });
+        // 2. Tạo chuỗi ký (signData) 
+        // Dùng qs.stringify với { encode: false } để nối các tham số bằng dấu & một cách chính xác
+        const signData = qs.stringify(vnp_Params, { encode: false });
 
         // 3. Ký SHA512
         const hmac = crypto.createHmac("sha512", secretKey);
@@ -53,9 +54,11 @@ const createOrder = asyncHandler(async (req, res) => {
         vnp_Params['vnp_SecureHash'] = signed;
 
         // 4. Tạo URL Redirect cuối cùng
-        vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
+        // Dùng dấu & chuẩn thay vì [object Object]
+        vnpUrl += '?' + qs.stringify(vnp_Params, { encode: false });
 
-        console.log("SIGN DATA:", signData);
+        console.log("--- VNPAY DEBUG ---");
+        console.log("SIGN DATA (RAW):", signData);
         console.log("FINAL URL:", vnpUrl);
 
         return res.status(201).json({
