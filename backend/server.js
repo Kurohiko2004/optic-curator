@@ -6,6 +6,7 @@ const errorHandler = require('./middlewares/errorMiddleware.js');
 const authRoutes = require('./routes/authRoutes.js');
 const glassesRoutes = require('./routes/glassesRoutes.js');
 const cartRoutes = require('./routes/cartRoutes.js');
+const orderRoutes = require('./routes/orderRoutes.js');
 const db = require('./models/index.js'); // Import db models
 
 // Test database connection
@@ -33,6 +34,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/glasses', glassesRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Error handling middleware (MUST be after routes)
 app.use(errorHandler);
