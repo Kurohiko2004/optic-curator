@@ -10,6 +10,7 @@ router.use(protect);
 
 router.post('/add', validate(addToCartSchema, 'body'), cartController.addToCart);
 router.get('/', cartController.getMyCart);
+router.delete('/clear', cartController.clearCart); // Phải nằm trên routes /:id để tránh bị nhầm lẫn
 router.patch('/:id', validate(updateQuantitySchema, 'body'), cartController.updateQuantity);
 router.delete('/:id', cartController.removeFromCart);
 
