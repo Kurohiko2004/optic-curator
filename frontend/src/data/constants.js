@@ -12,6 +12,10 @@ export const API_ENDPOINTS = {
     UPDATE: (id) => `${BASE_API_URL}/cart/${id}`,
     DELETE: (id) => `${BASE_API_URL}/cart/${id}`,
   },
+  ORDER: {
+    GET_ME: `${BASE_API_URL}/orders/me`,
+    POST: `${BASE_API_URL}/orders`,
+  },
   GLASSES: `${BASE_API_URL}/glasses`,
 
 };
