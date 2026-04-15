@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      // Shim for MindAR compatibility with Three.js R160+
+      window.THREE = {
+        sRGBEncoding: 3001,
+        LinearEncoding: 3000
+      };
+    </script>
+
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
