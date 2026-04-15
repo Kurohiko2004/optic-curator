@@ -18,9 +18,9 @@ import { useShopFilters } from '../hooks/useShopFilters';
 import './ShopPage.css';
 
 const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
-  const { 
-    price, setPrice, 
-    expandedFilters, toggleFilter, 
+  const {
+    price, setPrice,
+    expandedFilters, toggleFilter,
     itemsPerPage, setItemsPerPage,
     selectedShape, setSelectedShape // Import selectedShape
   } = useShopFilters();
@@ -29,7 +29,7 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const [availableShapes, setAvailableShapes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [arModal, setArModal] = useState({ isOpen: false, itemId: null });
-  
+
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -102,9 +102,9 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
   return (
     <div className="shop-page">
-      <Header 
-        onLoginClick={onLoginClick} 
-        onSignupClick={onSignupClick} 
+      <Header
+        onLoginClick={onLoginClick}
+        onSignupClick={onSignupClick}
         user={user}
         onLogout={onLogout}
       />
@@ -112,10 +112,10 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
       <ShopBanner />
 
       <main className="shop-main-area">
-        <FilterSidebar 
-          price={price} 
-          setPrice={setPrice} 
-          expandedFilters={expandedFilters} 
+        <FilterSidebar
+          price={price}
+          setPrice={setPrice}
+          expandedFilters={expandedFilters}
           toggleFilter={toggleFilter}
           shapes={availableShapes}
           faceShapes={faceShapes}
@@ -131,14 +131,14 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
               <div className="results-info" style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
                 <span>Showing {glasses.length} of {totalItems} products</span>
               </div>
-              
+
               <div className="matrix-grid">
                 {glasses.length > 0 ? (
                   glasses.map(item => (
-                    <ProductCard 
-                      key={item.id} 
-                      item={item} 
-                      onTryOnClick={() => startTryOn(item.id)} 
+                    <ProductCard
+                      key={item.id}
+                      item={item}
+                      onTryOnClick={() => startTryOn(item.id)}
                     />
                   ))
                 ) : (
@@ -148,50 +148,22 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                 )}
               </div>
 
-              <Pagination 
-                itemsPerPage={itemsPerPage} 
-                setItemsPerPage={setItemsPerPage} 
+              <Pagination
+                itemsPerPage={itemsPerPage}
+                setItemsPerPage={setItemsPerPage}
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
               />
             </>
           )}
-
-          <div className="results-info" style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
-            <span>Showing {glasses.length} of {totalItems} items</span>
-          </div>
-
-          <div className="matrix-grid" style={{ opacity: loading ? 0.5 : 1, pointerEvents: loading ? 'none' : 'auto' }}>
-            {glasses.length > 0 ? (
-              glasses.map(item => (
-                <ProductCard
-                  key={item.id}
-                  item={item}
-                  onTryOnClick={() => startTryOn(item.id)}
-                />
-              ))
-            ) : (
-              <div className="no-results" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '50px' }}>
-                <h3>Không tìm thấy sản phẩm nào.</h3>
-              </div>
-            )}
-          </div>
-
-          <Pagination
-            itemsPerPage={itemsPerPage}
-            setItemsPerPage={setItemsPerPage}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
         </div>
       </main>
 
-      <ARTryOnModal 
-        isOpen={arModal.isOpen} 
-        onClose={closeTryOn} 
-        selectedItemId={arModal.itemId} 
+      <ARTryOnModal
+        isOpen={arModal.isOpen}
+        onClose={closeTryOn}
+        selectedItemId={arModal.itemId}
       />
     </div>
   );
