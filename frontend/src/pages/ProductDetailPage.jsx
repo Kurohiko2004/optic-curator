@@ -6,6 +6,7 @@ import Header from '../components/layout/Header';
 import ARTryOnModal, { GlassesModel } from './ARTryOnPage';
 import { fetchGlassById } from '../services/api';
 import { useCart } from '../context/CartContext';
+import { formatPrice } from '../utils/formatPrice';
 import { useToast } from '../context/ToastContext';
 import QuantityPopup from '../components/common/QuantityPopup';
 import './ProductDetailPage.css';
@@ -101,7 +102,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
   const selectedColorHex = selectedVariant ? (colorMap[selectedVariant.name] || '#666') : '#666';
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!user || !user.loggedIn) {
       onLoginClick();
       return;
@@ -185,7 +186,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
             </div>
 
             <h1 className="premium-gradient-text">{item.name}</h1>
-            <div className="price-label">${item.price}</div>
+            <div className="price-label">{formatPrice(Number(item.price))}</div>
 
             <div className="product-specs">
               <div className="spec-item">
@@ -216,7 +217,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                 className="button-primary ar-trigger" 
                 onClick={() => setArModal({ isOpen: true })}
               >
-                <span>Try AR</span>
+                <span>Virtual AR Try-on</span>
               </button>
               <button
                 type="button"

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import {formatPrice} from "../../utils/formatPrice.js";
 import { useToast } from '../../context/ToastContext';
 import QuantityPopup from '../common/QuantityPopup';
 
@@ -38,7 +39,7 @@ const ProductCard = ({ item, onTryOnClick }) => {
       <div className="product-info">
         <div className="info-top">
           <h4>{item.name}</h4>
-          <span className="price">${item.price}</span>
+          <span className="price">{formatPrice(item.price)}</span>
         </div>
         <p className="type">{item.type}</p>
         <p className="color">{item.color}</p>

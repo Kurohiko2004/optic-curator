@@ -2,6 +2,7 @@ import React, { useState, Suspense, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, Float, useGLTF } from '@react-three/drei';
 import { glassesItems } from '../data/shopData';
+import { formatPrice } from '../utils/formatPrice';
 import './ARTryOnPage.css';
 
 // Real 3D GLTF Model Component
@@ -142,7 +143,7 @@ const ARTryOnModal = ({ isOpen, onClose, selectedItemId }) => {
             <div className="sidebar-item-info">
               <h3>{item?.name}</h3>
               <p>{item?.type}</p>
-              <div className="price-tag">${item?.price}</div>
+              <div className="price-tag">{formatPrice(item?.price)}</div>
             </div>
           </aside>
 
