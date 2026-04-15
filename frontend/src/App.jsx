@@ -90,6 +90,9 @@ function App() {
             />
           } />
 
+          <Route path="/ar-test" element={
+            <ARTryOnTestPage />
+          } />
         </Routes>
 
         <AuthModal
