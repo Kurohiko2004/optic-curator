@@ -34,13 +34,8 @@ const findAllGlasses = async (queryParams, pagination) => {
 
     return await db.Glasses.findAndCountAll({
         where: whereCondition,
-        limit, offset,
-        attributes: {
-            include: [
-                [db.sequelize.col('glassesShapeId'), 'glassShapeId']
-            ],
-            exclude: ['glassesShapeId']
-        },
+        limit,
+        offset,
         include: [
             {
                 model: db.GlassesShape,

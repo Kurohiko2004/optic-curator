@@ -5,6 +5,7 @@ import { OrbitControls, PerspectiveCamera, Environment } from '@react-three/drei
 import Header from '../components/layout/Header';
 import ARTryOnModal, { GlassesModel } from './ARTryOnPage';
 import { fetchGlassById } from '../services/api';
+import { useCart } from '../context/CartContext';
 import './ProductDetailPage.css';
 
 // Mapping color names to hex for visual representation (Optional fallback)
@@ -39,6 +40,7 @@ const RotatingModel = ({ modelPath, color }) => {
 const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,6 +48,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const [arModal, setArModal] = useState({ isOpen: false });
   const [is3DView, setIs3DView] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     const getProductDetail = async () => {
@@ -93,6 +96,22 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   }
 
   const selectedColorHex = selectedVariant ? (colorMap[selectedVariant.name] || '#666') : '#666';
+
+  const handleAddToCart = async () => {
+    if (!user || !user.loggedIn) {
+      onLoginClick();
+      return;
+    }
+
+    setAdding(true);
+    try {
+      await addToCart(item.id, 1);
+    } catch (err) {
+      console.error('Add to cart failed:', err);
+    } finally {
+      setAdding(false);
+    }
+  };
 
   return (
     <div className="product-detail-page animate-fade-in">
@@ -161,19 +180,19 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
             <div className="product-specs">
               <div className="spec-item">
-                <span className="label">Frame Material:</span>
+                <span className="label">Frame Material</span>
                 <span className="value">{item.materialFrame}</span>
               </div>
               <div className="spec-item">
-                <span className="label">Selected Color:</span>
-                <span className="value" style={{ color: selectedColorHex }}>{selectedVariant?.name}</span>
+                <span className="label">Selected Color</span>
+                <span className="value">{selectedVariant?.name}</span>
               </div>
               <div className="spec-item">
-                <span className="label">Lens Type:</span>
+                <span className="label">Lens Type</span>
                 <span className="value">{item.lensType}</span>
               </div>
               <div className="spec-item">
-                <span className="label">Stock:</span>
+                <span className="label">Stock</span>
                 <span className="value">{item.stock} items left</span>
               </div>
             </div>
@@ -184,13 +203,19 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
             <div className="action-buttons">
               <button 
+                type="button"
                 className="button-primary ar-trigger" 
                 onClick={() => setArModal({ isOpen: true })}
               >
-                <span className="icon">🕶️</span> Virtual AR Try-On
+                <span>Virtual AR Try-on</span>
               </button>
-              <button className="secondary-button add-cart">
-                Add to Cart
+              <button
+                type="button"
+                className="secondary-button add-cart"
+                onClick={handleAddToCart}
+                disabled={adding}
+              >
+                {adding ? 'Adding...' : 'Add to Cart'}
               </button>
             </div>
 

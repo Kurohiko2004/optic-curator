@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { orderApi } from '../services/orderApi';
-import { useCart } from './useCart'; // Dùng chung hook cart để clear (nếu UI cần update ngay)
+import { useCart } from '../context/CartContext'; // Dùng CartContext chung để đồng bộ giỏ hàng
 
 export const useOrder = () => {
   const [orders, setOrders] = useState([]);
