@@ -6,6 +6,7 @@ import Header from '../components/layout/Header';
 import ARTryOnModal, { GlassesModel } from './ARTryOnPage';
 import { fetchGlassById } from '../services/api';
 import { useCart } from '../context/CartContext';
+import { formatPrice } from '../utils/formatPrice';
 import { useToast } from '../context/ToastContext';
 import QuantityPopup from '../components/common/QuantityPopup';
 import './ProductDetailPage.css';
@@ -186,7 +187,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
             </div>
 
             <h1 className="premium-gradient-text">{item.name}</h1>
-            <div className="price-label">${item.price}</div>
+            <div className="price-label">{formatPrice(Number(item.price))}</div>
 
             <div className="product-specs">
               <div className="spec-item">

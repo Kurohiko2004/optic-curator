@@ -28,7 +28,7 @@ const findAllGlasses = async (queryParams, pagination) => {
     // Lọc theo giá
     if (minPrice || maxPrice) {
         whereCondition.price = {
-            [Op.between]: [parseFloat(minPrice) || 0, parseFloat(maxPrice) || 999999999]
+            [Op.between]: [parseFloat(minPrice) || 0, parseFloat(maxPrice) || 1000000]
         };
     }
 
@@ -49,7 +49,7 @@ const findAllGlasses = async (queryParams, pagination) => {
                 through: { attributes: [] } // Ẩn dữ liệu bảng trung gian
             }
         ],
-        order: [[sortBy || 'id', sortOrder || 'DESC']],
+        order: [[sortBy || 'price', sortOrder || 'ASC']], // Changed default sortBy to 'price' and sortOrder to 'ASC'
         distinct: true // Tránh đếm trùng khi join many-to-many
     });
 };
