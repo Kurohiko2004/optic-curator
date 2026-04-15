@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
 const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
-  const { cartCount } = useCart();
+  const { cartCount = 0 } = useCart() || {};
   const location = useLocation();
   const navigate = useNavigate();
   const activePage = location.pathname;
@@ -12,8 +12,8 @@ const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
       <div className="header-content">
         <Link to="/" className="logo premium-gradient-text" style={{ textDecoration: 'none' }}>OPTIC VR</Link>
         <nav>
-          <Link to="/" className={activePage === '/' ? 'active' : ''}>Introduction</Link>
-          <Link to="/store" className={activePage === '/store' ? 'active' : ''}>Store</Link>
+          <Link to="/" className={activePage === '/' ? 'active' : ''}>About</Link>
+          <Link to="/store" className={activePage === '/store' ? 'active' : ''}>Shop</Link>
         </nav>
         <div className="header-actions">
           {user && (

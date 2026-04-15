@@ -6,7 +6,7 @@ const QuantityPopup = ({
   max = 99,
   onConfirm,
   onCancel,
-  title = 'Số lượng',
+  title = 'Quantity',
 }) => {
   const [quantity, setQuantity] = useState(initialQuantity);
 
@@ -34,8 +34,8 @@ const QuantityPopup = ({
   return (
     <div className="popup-overlay" onClick={onCancel}>
       <div className="popup-card glass-morphism" onClick={(e) => e.stopPropagation()}>
-        <h3>{title}</h3>
-        <p className="popup-description">Chọn số lượng sản phẩm để thêm vào giỏ hàng.</p>
+        <h3 className="popup-title">{title}</h3>
+        <p className="popup-description">Choose the quantity to add to your cart.</p>
         <div className="quantity-control">
           <button type="button" className="quantity-button" onClick={handleDecrease}>
             -
@@ -56,7 +56,7 @@ const QuantityPopup = ({
             Cancel
           </button>
           <button type="button" className="button-primary" onClick={() => onConfirm(quantity)}>
-            OK
+            Confirm
           </button>
         </div>
       </div>

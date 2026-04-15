@@ -24,7 +24,7 @@ const FilterSidebar = ({ price, setPrice, expandedFilters, toggleFilter, shapes,
         </div>
 
         <FilterSection 
-          title="Glasses Shape" 
+          title="Frame Shape" 
           isExpanded={expandedFilters.shape} 
           onToggle={() => toggleFilter('shape')}
         >

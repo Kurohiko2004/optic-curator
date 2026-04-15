@@ -67,9 +67,9 @@ const ARTryOnModal = ({ isOpen, onClose, selectedItemId }) => {
           streamRef.current = stream;
         }
       } catch (err) {
-        console.error("Error accessing camera:", err);
+        console.error("Camera access error:", err);
         setIsCameraActive(false);
-        alert("Could not access camera. Please check permissions.");
+        alert("Camera access denied.");
       }
     };
 
@@ -120,7 +120,7 @@ const ARTryOnModal = ({ isOpen, onClose, selectedItemId }) => {
         <div className="ar-modal-layout">
           {/* LEFT SIDEBAR: Color Variants */}
           <aside className="ar-sidebar-left">
-            <h4>Variants</h4>
+            <h4>Colors</h4>
             <div className="color-selection-grid">
               {colorVariants.map((variant) => (
                 <div 
@@ -181,14 +181,14 @@ const ARTryOnModal = ({ isOpen, onClose, selectedItemId }) => {
             {!isCameraActive && (
               <div className="camera-placeholder">
                 <div className="icon">📷</div>
-                <h3>Camera Feed Off</h3>
-                <p>Enable for real AR experience</p>
+                <h3>Camera is Off</h3>
+                <p>Turn on to experience live AR</p>
               </div>
             )}
 
             <div className="ar-ui-overlay">
               <div className={`status-badge ${isCameraActive ? 'ready' : ''}`}>
-                {isCameraActive ? '● CAMERA LIVE' : '○ CAMERA READY'}
+                {isCameraActive ? '● CAMERA ACTIVE' : '○ CAMERA READY'}
               </div>
             </div>
           </main>
@@ -202,14 +202,14 @@ const ARTryOnModal = ({ isOpen, onClose, selectedItemId }) => {
                 onClick={() => setIsCameraActive(!isCameraActive)}
                 style={{ width: '100%', marginTop: '10px' }}
               >
-                {isCameraActive ? 'Disable Camera' : 'Turn On Camera'}
+                {isCameraActive ? 'Turn Camera Off' : 'Turn Camera On'}
               </button>
              </div>
 
               <div className="control-card glass-morphism">
                 <h4>Diagnostics</h4>
                 <div className="diagnostic-stat">
-                  <span>Face Detect:</span>
+                  <span>Face detection:</span>
                   <span className={`dot ${isCameraActive ? 'green' : 'red'}`}></span>
                 </div>
                 <div className="diagnostic-stat">

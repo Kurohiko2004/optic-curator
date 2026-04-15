@@ -109,11 +109,11 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
         <div className="product-matrix-container">
           {loading ? (
-            <div className="loading-state">Đang tải sản phẩm...</div>
+            <div className="loading-state">Loading products...</div>
           ) : (
             <>
               <div className="results-info" style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
-                <span>Showing {glasses.length} of {totalItems} items</span>
+                <span>Showing {glasses.length} of {totalItems} products</span>
               </div>
               
               <div className="matrix-grid">
@@ -127,7 +127,7 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                   ))
                 ) : (
                   <div className="no-results" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '50px' }}>
-                    <h3>Không tìm thấy sản phẩm nào.</h3>
+                    <h3>No products found.</h3>
                   </div>
                 )}
               </div>
