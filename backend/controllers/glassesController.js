@@ -22,6 +22,20 @@ const getGlassById = asyncHandler(async (req, res, next) => {
     res.status(200).json({ success: true, data: glass });
 });
 
+const createGlass = asyncHandler(async (req, res, next) => {
+    const newGlass = await glassesService.create(req.body);
+    res.status(201).json({ success: true, message: 'Sản phẩm kính đã được tạo thành công', data: newGlass });
+});
+
+const updateGlass = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const updatedGlass = await glassesService.update(id, req.body);
+    if (!updatedGlass) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm để cập nhật' });
+    }
+    res.status(200).json({ success: true, message: 'Sản phẩm kính đã được cập nhật thành công', data: updatedGlass });
+});
+
 const getAllShapes = asyncHandler(async (req, res, next) => {
     const shapes = await glassesService.findAllShapes();
     res.status(200).json({ success: true, data: shapes });
@@ -32,4 +46,4 @@ const getAllColors = asyncHandler(async (req, res, next) => {
     res.status(200).json({ success: true, data: colors });
 });
 
-module.exports = { getAllGlasses, getGlassById, getAllShapes, getAllColors };
+module.exports = { getAllGlasses, getGlassById, createGlass, updateGlass, getAllShapes, getAllColors };

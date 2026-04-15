@@ -21,7 +21,8 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const { 
     price, setPrice, 
     expandedFilters, toggleFilter, 
-    itemsPerPage, setItemsPerPage 
+    itemsPerPage, setItemsPerPage,
+    selectedShape, setSelectedShape // Import selectedShape
   } = useShopFilters();
 
   const [glasses, setGlasses] = useState([]);
@@ -53,13 +54,21 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     const loadGlasses = async () => {
       setLoading(true);
       try {
-        const response = await fetchGlasses({
+        // 1. Tạo object params cơ bản
+        const params = {
           page: currentPage,
           items: itemsPerPage,
-          // You can add sortBy, sortOrder, search here later from state
-        });
-        
-        // Based on API response: { data: [], totalPages: 1, totalItems: 3, currentPage: 1 }
+          maxPrice: price,
+        };
+
+        // 2. Chỉ thêm glassesShapeId vào params NẾU selectedShape có tồn tại
+        if (selectedShape && selectedShape.id) {
+          params.glassesShapeId = Number(selectedShape.id);
+        }
+
+        // 3. Gọi API với object params đã lọc sạch
+        const response = await fetchGlasses(params);
+
         setGlasses(response.data || []);
         setTotalPages(response.totalPages || 1);
         setTotalItems(response.totalItems || 0);
@@ -71,7 +80,12 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     };
 
     loadGlasses();
-  }, [currentPage, itemsPerPage]);
+  }, [currentPage, itemsPerPage, price, selectedShape]); // selectedShape added as dependency
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [price, itemsPerPage, selectedShape]);
 
   const startTryOn = (itemId) => {
     setArModal({ isOpen: true, itemId });
@@ -105,42 +119,46 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           toggleFilter={toggleFilter}
           shapes={availableShapes}
           faceShapes={faceShapes}
+          selectedShape={selectedShape} // Pass selectedShape
+          setSelectedShape={setSelectedShape} // Pass setSelectedShape
         />
 
         <div className="product-matrix-container">
-          {loading ? (
-            <div className="loading-state">Đang tải sản phẩm...</div>
-          ) : (
-            <>
-              <div className="results-info" style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
-                <span>Showing {glasses.length} of {totalItems} items</span>
-              </div>
-              
-              <div className="matrix-grid">
-                {glasses.length > 0 ? (
-                  glasses.map(item => (
-                    <ProductCard 
-                      key={item.id} 
-                      item={item} 
-                      onTryOnClick={() => startTryOn(item.id)} 
-                    />
-                  ))
-                ) : (
-                  <div className="no-results" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '50px' }}>
-                    <h3>Không tìm thấy sản phẩm nào.</h3>
-                  </div>
-                )}
-              </div>
-
-              <Pagination 
-                itemsPerPage={itemsPerPage} 
-                setItemsPerPage={setItemsPerPage} 
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-            </>
+          {/* Loading Overlay */}
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner"></div>
+              <p>Đang tải sản phẩm...</p>
+            </div>
           )}
+
+          <div className="results-info" style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
+            <span>Showing {glasses.length} of {totalItems} items</span>
+          </div>
+
+          <div className="matrix-grid" style={{ opacity: loading ? 0.5 : 1, pointerEvents: loading ? 'none' : 'auto' }}>
+            {glasses.length > 0 ? (
+              glasses.map(item => (
+                <ProductCard
+                  key={item.id}
+                  item={item}
+                  onTryOnClick={() => startTryOn(item.id)}
+                />
+              ))
+            ) : (
+              <div className="no-results" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '50px' }}>
+                <h3>Không tìm thấy sản phẩm nào.</h3>
+              </div>
+            )}
+          </div>
+
+          <Pagination
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
       </main>
 

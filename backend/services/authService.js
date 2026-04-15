@@ -1,13 +1,18 @@
 const bcrypt = require('bcrypt');
 const db = require('../models/index.js');
-const { User, Cart } = db;
+const { User, Cart, Role } = db;
 
 const findUserByEmail = async (email) => {
-    return await User.findOne({ where: { email } });
+    return await User.findOne({ 
+        where: { email },
+        include: [{ model: Role, as: 'role' }]
+    });
 };
 
 const findUserById = async (id) => {
-    return await User.findByPk(id);
+    return await User.findByPk(id, {
+        include: [{ model: Role, as: 'role' }]
+    });
 };
 
 const comparePasswords = async (candidatePassword, userPassword) => {
@@ -46,4 +51,3 @@ module.exports = {
     findUserById,
     comparePasswords
 };
-

@@ -5,6 +5,10 @@ import { OrbitControls, PerspectiveCamera, Environment } from '@react-three/drei
 import Header from '../components/layout/Header';
 import ARTryOnModal, { GlassesModel } from './ARTryOnPage';
 import { fetchGlassById } from '../services/api';
+import { useCart } from '../context/CartContext';
+import { formatPrice } from '../utils/formatPrice';
+import { useToast } from '../context/ToastContext';
+import QuantityPopup from '../components/common/QuantityPopup';
 import './ProductDetailPage.css';
 
 // Mapping color names to hex for visual representation (Optional fallback)
@@ -39,6 +43,7 @@ const RotatingModel = ({ modelPath, color }) => {
 const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,6 +51,9 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const [arModal, setArModal] = useState({ isOpen: false });
   const [is3DView, setIs3DView] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [adding, setAdding] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const getProductDetail = async () => {
@@ -93,6 +101,28 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   }
 
   const selectedColorHex = selectedVariant ? (colorMap[selectedVariant.name] || '#666') : '#666';
+
+  const handleAddToCart = async () => {
+    if (!user || !user.loggedIn) {
+      onLoginClick();
+      return;
+    }
+
+    setIsPopupOpen(true);
+  };
+
+  const handleConfirmAddToCart = async (quantity) => {
+    setAdding(true);
+    try {
+      await addToCart(item.id, quantity);
+      showToast('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+      setIsPopupOpen(false);
+    } catch (err) {
+      showToast(err.message || 'Không thể thêm sản phẩm vào giỏ hàng', 'error');
+    } finally {
+      setAdding(false);
+    }
+  };
 
   return (
     <div className="product-detail-page animate-fade-in">
@@ -157,7 +187,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
             </div>
 
             <h1 className="premium-gradient-text">{item.name}</h1>
-            <div className="price-label">${item.price}</div>
+            <div className="price-label">{formatPrice(Number(item.price))}</div>
 
             <div className="product-specs">
               <div className="spec-item">
@@ -184,15 +214,29 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
             <div className="action-buttons">
               <button 
+                type="button"
                 className="button-primary ar-trigger" 
                 onClick={() => setArModal({ isOpen: true })}
               >
-              <span>Virtual AR Try-on</span>
+                <span>Virtual AR Try-on</span>
               </button>
-              <button className="secondary-button add-cart">
-                Add to Cart
+              <button
+                type="button"
+                className="secondary-button add-cart"
+                onClick={handleAddToCart}
+                disabled={adding}
+              >
+                {adding ? 'Adding...' : 'Add to Cart'}
               </button>
             </div>
+            <QuantityPopup
+              isOpen={isPopupOpen}
+              initialQuantity={1}
+              max={item.stock || 99}
+              onConfirm={handleConfirmAddToCart}
+              onCancel={() => setIsPopupOpen(false)}
+              title="Chọn số lượng"
+            />
 
             <div className="trust-badges">
               <span>✓ Free Shipping</span>

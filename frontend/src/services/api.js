@@ -11,3 +11,8 @@ export const getMyCart = cartApi.getCart;
 export const updateCartQuantity = cartApi.updateQuantity;
 export const removeFromCart = cartApi.removeItem;
 export const clearCart = cartApi.clearCart;
+
+// Aliases for Glasses Admin operations for compatibility
+import { glassesApi } from './glassesApi';
+export const createGlass = glassesApi.create;
+export const updateGlass = glassesApi.update;
