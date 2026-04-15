@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getMyCart, addToCart as apiAddToCart } from '../services/api';
+import { getMyCart } from '../services/api';
+import { cartApi } from '../services/cartApi';
 
 const CartContext = createContext();
 
@@ -35,8 +36,50 @@ export const CartProvider = ({ children, userToken }) => {
         throw new Error('Vui lòng đăng nhập để thêm vào giỏ hàng');
     }
     try {
-      await apiAddToCart(glassesId, quantity, userToken);
+      await cartApi.addToCart(glassesId, quantity);
       await loadCart(); // Tải lại giỏ hàng để cập nhật UI
+      return true;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const updateQuantity = async (cartItemId, quantity) => {
+    if (!userToken) {
+      throw new Error('Vui lòng đăng nhập để cập nhật số lượng');
+    }
+    try {
+      await cartApi.updateQuantity(cartItemId, quantity);
+      await loadCart();
+      return true;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const removeItem = async (cartItemId) => {
+    if (!userToken) {
+      throw new Error('Vui lòng đăng nhập để xóa sản phẩm');
+    }
+    try {
+      await cartApi.removeItem(cartItemId);
+      await loadCart();
+      return true;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const clearCart = async () => {
+    if (!userToken) {
+      throw new Error('Vui lòng đăng nhập để xóa giỏ hàng');
+    }
+    try {
+      await cartApi.clearCart();
+      await loadCart();
       return true;
     } catch (err) {
       setError(err.message);
@@ -47,7 +90,7 @@ export const CartProvider = ({ children, userToken }) => {
   const cartCount = cart ? cart.cartItems.reduce((acc, item) => acc + item.quantity, 0) : 0;
 
   return (
-    <CartContext.Provider value={{ cart, cartCount, loading, error, addToCart, loadCart }}>
+    <CartContext.Provider value={{ cart, cartCount, loading, error, addToCart, loadCart, updateQuantity, removeItem, clearCart }}>
       {children}
     </CartContext.Provider>
   );

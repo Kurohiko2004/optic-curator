@@ -6,8 +6,8 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import AuthModal from './components/auth/AuthModal';
 import { CartProvider } from './context/CartContext';
 import './index.css';
-import OrderDebugPage from "./pages/OrderDebugPage.jsx";
-import CartDebugPage from "./pages/CartDebugPage.jsx";
+import OrderPage from "./pages/OrderPage.jsx";
+import CartPage from "./pages/CartPage.jsx";
 
 function App() {
   const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
@@ -44,56 +44,56 @@ function App() {
           <div className="glow-circle" style={{ top: '10%', left: '15%', width: '300px', height: '300px', background: 'var(--accent-primary)' }}></div>
           <div className="glow-circle" style={{ bottom: '15%', right: '10%', width: '400px', height: '400px', background: 'var(--accent-secondary)' }}></div>
         </div>
-        
+
         <Routes>
           <Route path="/" element={
-            <IntroductionPage 
-              onLoginClick={openLogin} 
-              onSignupClick={openSignup} 
-              user={user} 
-              onLogout={handleLogout} 
+            <IntroductionPage
+              onLoginClick={openLogin}
+              onSignupClick={openSignup}
+              user={user}
+              onLogout={handleLogout}
             />
           } />
           <Route path="/store" element={
-            <ShopPage 
-              onLoginClick={openLogin} 
-              onSignupClick={openSignup} 
-              user={user} 
-              onLogout={handleLogout} 
+            <ShopPage
+              onLoginClick={openLogin}
+              onSignupClick={openSignup}
+              user={user}
+              onLogout={handleLogout}
             />
           } />
           <Route path="/item/:id" element={
-            <ProductDetailPage 
-              onLoginClick={openLogin} 
-              onSignupClick={openSignup} 
-              user={user} 
-              onLogout={handleLogout} 
+            <ProductDetailPage
+              onLoginClick={openLogin}
+              onSignupClick={openSignup}
+              user={user}
+              onLogout={handleLogout}
             />
           } />
 
           <Route path="/cart" element={
-            <CartDebugPage
-                onLoginClick={openLogin}
-                onSignupClick={openSignup}
-                user={user}
-                onLogout={handleLogout}
+            <CartPage
+              onLoginClick={openLogin}
+              onSignupClick={openSignup}
+              user={user}
+              onLogout={handleLogout}
             />
           } />
 
           <Route path="/orders/me" element={
-            <OrderDebugPage
-                onLoginClick={openLogin}
-                onSignupClick={openSignup}
-                user={user}
-                onLogout={handleLogout}
+            <OrderPage
+              onLoginClick={openLogin}
+              onSignupClick={openSignup}
+              user={user}
+              onLogout={handleLogout}
             />
           } />
 
         </Routes>
-        
-        <AuthModal 
-          isOpen={authModal.isOpen} 
-          initialMode={authModal.mode} 
+
+        <AuthModal
+          isOpen={authModal.isOpen}
+          initialMode={authModal.mode}
           onClose={closeAuthModal}
           onSuccess={handleAuthSuccess}
         />

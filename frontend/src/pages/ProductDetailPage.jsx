@@ -161,19 +161,19 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
             <div className="product-specs">
               <div className="spec-item">
-                <span className="label">Frame Material:</span>
+                <span className="label">Frame Material</span>
                 <span className="value">{item.materialFrame}</span>
               </div>
               <div className="spec-item">
-                <span className="label">Selected Color:</span>
-                <span className="value" style={{ color: selectedColorHex }}>{selectedVariant?.name}</span>
+                <span className="label">Selected Color</span>
+                <span className="value">{selectedVariant?.name}</span>
               </div>
               <div className="spec-item">
-                <span className="label">Lens Type:</span>
+                <span className="label">Lens Type</span>
                 <span className="value">{item.lensType}</span>
               </div>
               <div className="spec-item">
-                <span className="label">Stock:</span>
+                <span className="label">Stock</span>
                 <span className="value">{item.stock} items left</span>
               </div>
             </div>
@@ -187,7 +187,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                 className="button-primary ar-trigger" 
                 onClick={() => setArModal({ isOpen: true })}
               >
-                <span className="icon">🕶️</span> Virtual AR Try-On
+              <span>Virtual AR Try-on</span>
               </button>
               <button className="secondary-button add-cart">
                 Add to Cart

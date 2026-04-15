@@ -36,12 +36,6 @@ const findAllGlasses = async (queryParams, pagination) => {
         where: whereCondition,
         limit,
         offset,
-        attributes: {
-            include: [
-                [db.sequelize.col('glassesShapeId'), 'glassShapeId']
-            ],
-            exclude: ['glassesShapeId']
-        },
         include: [
             {
                 model: db.GlassesShape,

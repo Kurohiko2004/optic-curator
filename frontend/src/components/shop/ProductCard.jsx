@@ -37,13 +37,13 @@ const ProductCard = ({ item, onTryOnClick }) => {
           <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
             <button 
                 className="secondary-button" 
-                style={{ flex: 1 }}
+                style={{ flex: 1, padding: '10px 12px' }}
                 onClick={() => navigate(`/item/${item.id}`)}
             >
-                Details
+                View
             </button>
-            <button className="button-primary" style={{ flex: 1, padding: '10px' }} onClick={onTryOnClick}>
-                AR Try-On
+            <button className="button-primary" style={{ flex: 1, padding: '10px 12px' }} onClick={onTryOnClick}>
+                Try AR
             </button>
           </div>
           <button 

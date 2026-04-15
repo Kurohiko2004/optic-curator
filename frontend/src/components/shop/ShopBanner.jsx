@@ -7,7 +7,6 @@ const ShopBanner = () => {
       <div className="banner-overlay">
         <div className="exclusive-badge">SEASON 2026</div>
         <h2>THE VISIONARY COLLECTION</h2>
-        <button className="button-primary">Experience the Look</button>
       </div>
     </div>
   );
