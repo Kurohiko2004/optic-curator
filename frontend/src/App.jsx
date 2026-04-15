@@ -8,6 +8,7 @@ import { CartProvider } from './context/CartContext';
 import './index.css';
 import OrderPage from "./pages/OrderPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 
 function App() {
   const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
