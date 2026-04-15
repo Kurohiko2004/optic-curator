@@ -4,7 +4,31 @@ import { cartApi } from '../services/cartApi';
 
 const CartContext = createContext();
 
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    return {
+      cart: null,
+      cartCount: 0,
+      loading: false,
+      error: null,
+      addToCart: async () => {
+        throw new Error('CartProvider is missing. Wrap the component tree with CartProvider.');
+      },
+      loadCart: async () => {},
+      updateQuantity: async () => {
+        throw new Error('CartProvider is missing. Wrap the component tree with CartProvider.');
+      },
+      removeItem: async () => {
+        throw new Error('CartProvider is missing. Wrap the component tree with CartProvider.');
+      },
+      clearCart: async () => {
+        throw new Error('CartProvider is missing. Wrap the component tree with CartProvider.');
+      },
+    };
+  }
+  return context;
+};
 
 export const CartProvider = ({ children, userToken }) => {
   const [cart, setCart] = useState(null);
@@ -33,7 +57,7 @@ export const CartProvider = ({ children, userToken }) => {
 
   const addToCart = async (glassesId, quantity = 1) => {
     if (!userToken) {
-        throw new Error('Vui lòng đăng nhập để thêm vào giỏ hàng');
+        throw new Error('Please log in to add items to the cart');
     }
     try {
       await cartApi.addToCart(glassesId, quantity);
@@ -47,7 +71,7 @@ export const CartProvider = ({ children, userToken }) => {
 
   const updateQuantity = async (cartItemId, quantity) => {
     if (!userToken) {
-      throw new Error('Vui lòng đăng nhập để cập nhật số lượng');
+      throw new Error('Please log in to update quantity');
     }
     try {
       await cartApi.updateQuantity(cartItemId, quantity);
@@ -61,7 +85,7 @@ export const CartProvider = ({ children, userToken }) => {
 
   const removeItem = async (cartItemId) => {
     if (!userToken) {
-      throw new Error('Vui lòng đăng nhập để xóa sản phẩm');
+      throw new Error('Please log in to remove items');
     }
     try {
       await cartApi.removeItem(cartItemId);
@@ -75,7 +99,7 @@ export const CartProvider = ({ children, userToken }) => {
 
   const clearCart = async () => {
     if (!userToken) {
-      throw new Error('Vui lòng đăng nhập để xóa giỏ hàng');
+      throw new Error('Please log in to clear the cart');
     }
     try {
       await cartApi.clearCart();

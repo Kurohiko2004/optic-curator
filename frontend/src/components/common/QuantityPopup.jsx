@@ -6,7 +6,7 @@ const QuantityPopup = ({
   max = 99,
   onConfirm,
   onCancel,
-  title = 'Số lượng',
+  title = 'Quantity',
 }) => {
   const [quantity, setQuantity] = useState(initialQuantity);
 
@@ -56,7 +56,7 @@ const QuantityPopup = ({
             Cancel
           </button>
           <button type="button" className="button-primary" onClick={() => onConfirm(quantity)}>
-            OK
+            Confirm
           </button>
         </div>
       </div>

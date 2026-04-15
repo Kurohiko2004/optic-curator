@@ -68,7 +68,7 @@ const AuthModal = ({ isOpen, initialMode, onClose, onSuccess }) => {
             <input 
               type="email" 
               name="email" 
-              placeholder="Email Address" 
+              placeholder="Email" 
               value={formData.email}
               onChange={handleInputChange}
               required 
@@ -108,7 +108,7 @@ const AuthModal = ({ isOpen, initialMode, onClose, onSuccess }) => {
 
         {mode === 'login' ? (
           <p className="signup-link">
-            New to OPTIC? <span className="premium-gradient-text" onClick={() => setMode('signup')} style={{ cursor: 'pointer' }}>Create account</span>
+            New to OPTIC? <span className="premium-gradient-text" onClick={() => setMode('signup')} style={{ cursor: 'pointer' }}>Create Account</span>
           </p>
         ) : (
           <p className="signup-link">

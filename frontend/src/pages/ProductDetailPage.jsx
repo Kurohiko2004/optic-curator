@@ -68,7 +68,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         }
       } catch (err) {
         console.error("Error fetching product:", err);
-        setError("Không tìm thấy sản phẩm hoặc có lỗi xảy ra.");
+        setError("Product not found or an error occurred.");
       } finally {
         setLoading(false);
       }
@@ -82,7 +82,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
       <div className="product-detail-page">
         <Header onLoginClick={onLoginClick} onSignupClick={onSignupClick} user={user} onLogout={onLogout} />
         <div className="loading-container" style={{ textAlign: 'center', marginTop: '100px' }}>
-          <h2>Đang tải thông tin sản phẩm...</h2>
+          <h2>Loading product details...</h2>
         </div>
       </div>
     );
@@ -115,11 +115,10 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     setAdding(true);
     try {
       await addToCart(item.id, quantity);
-      showToast('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+      showToast('Product added to cart!', 'success');
       setIsPopupOpen(false);
     } catch (err) {
-      showToast(err.message || 'Không thể thêm sản phẩm vào giỏ hàng', 'error');
-    } finally {
+      showToast(err.message || 'Unable to add product to cart', 'error');
       setAdding(false);
     }
   };
@@ -176,7 +175,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                 className="view-toggle-btn"
                 onClick={() => setIs3DView(!is3DView)}
               >
-                {is3DView ? 'Show Image' : 'View 3D Preview'}
+                {is3DView ? 'View Image' : 'Preview 3D'}
               </button>
             </div>
           </div>
@@ -195,7 +194,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                 <span className="value">{item.materialFrame}</span>
               </div>
               <div className="spec-item">
-                <span className="label">Selected Color</span>
+                <span className="label">Color</span>
                 <span className="value">{selectedVariant?.name}</span>
               </div>
               <div className="spec-item">
@@ -204,7 +203,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
               </div>
               <div className="spec-item">
                 <span className="label">Stock</span>
-                <span className="value">{item.stock} items left</span>
+                <span className="value">{item.stock} left</span>
               </div>
             </div>
 
@@ -235,13 +234,13 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
               max={item.stock || 99}
               onConfirm={handleConfirmAddToCart}
               onCancel={() => setIsPopupOpen(false)}
-              title="Chọn số lượng"
+              title="Choose quantity"
             />
 
             <div className="trust-badges">
               <span>✓ Free Shipping</span>
-              <span>✓ 2 Year Warranty</span>
-              <span>✓ AR Certified</span>
+              <span>✓ 2-year Warranty</span>
+              <span>✓ AR Ready</span>
             </div>
           </div>
         </div>

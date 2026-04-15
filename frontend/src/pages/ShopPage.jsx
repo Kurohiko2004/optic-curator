@@ -124,12 +124,38 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         />
 
         <div className="product-matrix-container">
-          {/* Loading Overlay */}
-          {loading && (
-            <div className="loading-overlay">
-              <div className="spinner"></div>
-              <p>Đang tải sản phẩm...</p>
-            </div>
+          {loading ? (
+            <div className="loading-state">Loading products...</div>
+          ) : (
+            <>
+              <div className="results-info" style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
+                <span>Showing {glasses.length} of {totalItems} products</span>
+              </div>
+              
+              <div className="matrix-grid">
+                {glasses.length > 0 ? (
+                  glasses.map(item => (
+                    <ProductCard 
+                      key={item.id} 
+                      item={item} 
+                      onTryOnClick={() => startTryOn(item.id)} 
+                    />
+                  ))
+                ) : (
+                  <div className="no-results" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '50px' }}>
+                    <h3>No products found.</h3>
+                  </div>
+                )}
+              </div>
+
+              <Pagination 
+                itemsPerPage={itemsPerPage} 
+                setItemsPerPage={setItemsPerPage} 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </>
           )}
 
           <div className="results-info" style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>

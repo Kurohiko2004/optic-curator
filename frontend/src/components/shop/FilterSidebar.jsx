@@ -43,7 +43,7 @@ const FilterSidebar = ({
 
         {/* Glasses Shape Filter - Custom Round Radio Buttons */}
         <FilterSection 
-          title="Glasses Shape" 
+          title="Frame Shape" 
           isExpanded={expandedFilters.shape} 
           onToggle={() => toggleFilter('shape')}
         >

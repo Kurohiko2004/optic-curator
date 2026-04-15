@@ -21,7 +21,7 @@ const fetchOrderApi = async (url, method = 'GET', body = null) => {
     const data = await response.json();
     
     if (!response.ok) {
-        throw new Error(data.message || 'Lỗi hệ thống khi gọi API Order');
+        throw new Error(data.message || 'Order API request failed');
     }
     return data;
 };

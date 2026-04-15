@@ -24,7 +24,7 @@ export const fetchApi = async (url, method = 'GET', body = null, withAuth = fals
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || 'Lỗi hệ thống khi gọi API');
+    throw new Error(data.message || 'API request failed');
   }
   return data;
 };
