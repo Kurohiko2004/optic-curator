@@ -39,9 +39,9 @@ const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         <Header onLoginClick={onLoginClick} onSignupClick={onSignupClick} user={user} onLogout={onLogout} />
         <div className="empty-cart-container glass-morphism log-in-prompt">
           <div className="empty-cart-icon">🛒</div>
-          <h2>Access Required</h2>
-          <p>Please log in to view and manage your cart.</p>
-          <button className="button-primary" onClick={onLoginClick}>Log in Now</button>
+          <h2>Authentication Required</h2>
+          <p>Please log in to view and manage your shopping cart.</p>
+          <button className="button-primary" onClick={onLoginClick}>Log In Now</button>
         </div>
       </div>
     );
@@ -56,7 +56,7 @@ const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         <div className="payment-modal-overlay">
           <div className="payment-modal glass-morphism">
             <h2 className="premium-gradient-text">Confirm Order</h2>
-            <p>Please select your payment method to continue.</p>
+            <p>Please select your payment method to proceed.</p>
 
             <div className="payment-options">
               <label className={`payment-option ${paymentMethod === 'COD' ? 'selected' : ''}`}>
@@ -69,7 +69,7 @@ const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                 />
                 <div className="payment-info">
                   <strong>Cash on Delivery (COD)</strong>
-                  <span>Pay with cash upon delivery</span>
+                  <span>Pay with cash when the order is delivered</span>
                 </div>
               </label>
 
@@ -82,8 +82,8 @@ const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                   onChange={(e) => setPaymentMethod(e.target.value)}
                 />
                 <div className="payment-info">
-                  <strong>VNPay Payment Gateway</strong>
-                  <span>Secure payment by QR code, ATM, or credit card</span>
+                  <strong>VNPay Gateway</strong>
+                  <span>Pay securely via QR code, ATM, or credit card</span>
                 </div>
               </label>
             </div>
@@ -101,11 +101,11 @@ const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
       )}
 
       <main>
-        <h1 className="cart-header-title premium-gradient-text">Shopping Cart</h1>
+        <h1 className="cart-header-title premium-gradient-text">Your Cart</h1>
         
         {loading && !cart ? (
           <div className="cart-loading">
-            <span style={{ marginRight: '10px' }}>⏳</span> Loading cart...
+            <span style={{ marginRight: '10px' }}>⏳</span> Loading your cart...
           </div>
         ) : (
           <>
@@ -116,7 +116,7 @@ const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                 {/* Left side: Item list */}
                 <div className="cart-items-container">
                   <div className="cart-header-actions">
-                    <span>{cart.totalItems} items in cart</span>
+                    <span>{cart.totalItems} items in your cart</span>
                     <button className="clear-cart-btn" onClick={clearCart}>
                       Clear Cart
                     </button>
@@ -132,7 +132,7 @@ const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                         <div className="item-name-group">
                           <div>
                             <h3 className="item-name">{item.glasses.name}</h3>
-                            <span className="item-total-line">Unit Price: {formatPrice(item.glasses.price)}</span>
+                            <span className="item-total-line">Giá đơn vị: {formatPrice(item.glasses.price)}</span>
                           </div>
                           <div className="item-price">
                             {formatPrice(item.glasses.price * item.quantity)}
@@ -162,7 +162,7 @@ const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                               <polyline points="3 6 5 6 21 6"></polyline>
                               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
-                            Remove item
+                            Remove
                           </button>
                         </div>
                       </div>
@@ -186,7 +186,7 @@ const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                     </div>
 
                     <div className="summary-row total-row">
-                      <span>Total</span>
+                      <span>Total Amount</span>
                       <span className="summary-total-price">{formatPrice(cart.totalPrice)}</span>
                     </div>
 
@@ -199,8 +199,8 @@ const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
             ) : (
               <div className="empty-cart-container glass-morphism">
                 <div className="empty-cart-icon">🛒</div>
-                <h2>Your cart is empty</h2>
-                <p>You haven't added any items to your cart yet. Explore our premium eyewear collection.</p>
+                <h2>Your cart is currently empty</h2>
+                <p>Looks like you haven't added anything to your cart yet. Discover our premium collection of eyewear.</p>
                 <Link to="/store" className="button-primary continue-shopping-btn">
                   Continue Shopping
                 </Link>

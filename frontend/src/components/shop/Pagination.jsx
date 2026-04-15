@@ -44,7 +44,7 @@ const Pagination = ({
       </div>
       
       <div className="page-limit">
-        <span>Products per page:</span>
+        <span>Items per page:</span>
         <select 
           className="limit-select" 
           value={itemsPerPage} 

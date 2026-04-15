@@ -27,10 +27,10 @@ const IntroductionPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         />
         <div className="intro-banner-overlay">
           <div className="banner-logo">OPTIC</div>
-          <h2>AR Eyewear Experience</h2>
+          <h2>Công Nghệ Thử Kính AR</h2>
           <div className="banner-actions">
             <div className="action-item">
-              <span className="icon">📞</span> Contact us<br /><strong>0961 452 578</strong>
+              <span className="icon">📞</span> Tư vấn ngay<br /><strong>0961 452 578</strong>
             </div>
             <div className="action-item">
               <span className="icon">🌐</span> www.optic-curator.vn
@@ -47,8 +47,8 @@ const IntroductionPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
       {/* TIN TỨC */}
       <section className="intro-news">
-        <h2 className="section-title text-center text-gradient">NEWS</h2>
-        <p className="section-subtitle text-center">TOP STORIES OF THE WEEK</p>
+        <h2 className="section-title text-center text-gradient">TIN TỨC</h2>
+        <p className="section-subtitle text-center">NỔI BẬT NHẤT TRONG TUẦN</p>
 
         <div className="news-grid">
           {/* Card 1 */}
@@ -61,12 +61,12 @@ const IntroductionPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
               </div>
             </div>
             <div className="news-content">
-              <h3>Launch of Virtual Try-On: Try glasses at home with 99% accuracy</h3>
+              <h3>Ra mắt tính năng Virtual Try-On: Thử kính tại nhà chuẩn xác 99%</h3>
               <div className="news-meta">
-                <span>💬 12 comments</span>
+                <span>💬 12 bình luận</span>
                 <span>👤 Optic Admin</span>
               </div>
-              <p>Shopping for eyewear has never been easier. With Optic's AR technology, you can try hundreds of frames on your face directly in the browser using a phone or laptop camera...</p>
+              <p>Trải nghiệm mua sắm kính mắt chưa bao giờ dễ dàng đến thế. Với công nghệ AR (Thực tế tăng cường) của Optic, bạn có thể ướm thử hàng trăm mẫu kính lên khuôn mặt ngay trên trình duyệt web chỉ bằng camera điện thoại hoặc laptop...</p>
             </div>
           </div>
 
@@ -80,12 +80,12 @@ const IntroductionPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
               </div>
             </div>
             <div className="news-content">
-              <h3>Summer 2026 Collection: Minimal style with a modern edge</h3>
+              <h3>Bộ sưu tập Hè 2026: Phong cách Tối giản mang hơi thở Hiện đại</h3>
               <div className="news-meta">
-                <span>💬 5 comments</span>
+                <span>💬 5 bình luận</span>
                 <span>👤 Hoa Lê</span>
               </div>
-              <p>Discover Optic's latest sunglasses collection inspired by minimalist lines and refined craftsmanship. These ultra-light titanium frames promise to impress fashion lovers this summer...</p>
+              <p>Khám phá bộ sưu tập kính mát mới nhất từ Optic lấy cảm hứng từ những đường nét tối giản (Minimalism) và độ hoàn thiện tinh xảo. Các thiết kế gọng Titan siêu nhẹ hứa hẹn làm chao đảo giới mộ điệu thời trang hè năm nay...</p>
             </div>
           </div>
 
@@ -99,12 +99,12 @@ const IntroductionPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
               </div>
             </div>
             <div className="news-content">
-              <h3>The secret to choosing the perfect frame for every face shape</h3>
+              <h3>Bí quyết chọn khuôn kính phù hợp với mọi dáng mặt</h3>
               <div className="news-meta">
-                <span>💬 24 comments</span>
+                <span>💬 24 bình luận</span>
                 <span>👤 Optic Admin</span>
               </div>
-              <p>Do you have a round, square, or oval face? How do you pick frames that enhance your best features? Our AI system scans and recommends the most suitable styles automatically...</p>
+              <p>Bạn có khuôn mặt tròn, vuông, hay trái xoan? Làm thế nào để chọn một chiếc kính giúp tôn lên các đường nét hoàn hảo của bạn? Hệ thống AI của chúng tôi sẽ quét và tự động đề xuất những mẫu gọng phù hợp nhất...</p>
             </div>
           </div>
         </div>
@@ -112,18 +112,18 @@ const IntroductionPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
       {/* VỀ CHÚNG TÔI */}
       <section className="intro-about">
-        <h2 className="section-title text-center text-gradient">ABOUT US</h2>
-        <p className="section-subtitle text-center">WELCOME TO OPTIC CURATOR</p>
+        <h2 className="section-title text-center text-gradient">VỀ CHÚNG TÔI</h2>
+        <p className="section-subtitle text-center">CHÀO MỪNG BẠN ĐẾN VỚI OPTIC CURATOR</p>
 
         <div className="about-container glass-morphism">
           <div className="about-img-wrapper">
             <img src={imgAbout} alt="Optic Store" />
           </div>
           <div className="about-content">
-            <p>Optic Curator is an authorized eyewear retailer and a pioneer in applying augmented reality (AR) to sunglasses and frame shopping in Vietnam.</p>
-            <p>Founded in 2020, we continually improve our "Virtual Try-On" feature, allowing customers to try frames in real time via camera. All displayed products are meticulously designed with 3D models accurate to the millimeter, helping measure face angles and eye spacing while recommending the best proportions for you.</p>
-            <p>Our mission is to transform traditional online shopping into a beautiful, precise, and fast frame selection experience from home.</p>
-            <button className="read-more-btn">READ MORE</button>
+            <p>Optic Curator là hệ thống cửa hàng phân phối kính mắt chính hãng, đồng thời là nhà tiên phong ứng dụng công nghệ trực quan Thực tế tăng cường (AR - Augmented Reality) vào trải nghiệm mua sắm kính mát và gọng kính tại Việt Nam.</p>
+            <p>Được thành lập vào năm 2020, chúng tôi không ngừng cải tiến tính năng "Virtual Try-On", cho phép khách hàng sử dụng camera để ướm thử kính thời gian thực. Toàn bộ các sản phẩm trưng bày đều được thiết kế tỉ mỉ, có mô hình 3D chuẩn xác đến từng milimet, giúp đo góc mặt, khoảng cách hai mắt đồng thời gợi ý tỷ lệ chuẩn nhất dành cho bạn.</p>
+            <p>Sứ mệnh của chúng tôi là thay đổi thói quen mua sắm trực tuyến truyền thống, đem lại quy trình chọn kính Đẹp - Chuẩn xác - Nhanh chóng ngay tại nhà.</p>
+            <button className="read-more-btn">ĐỌC THÊM</button>
           </div>
         </div>
       </section>

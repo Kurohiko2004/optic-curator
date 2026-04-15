@@ -24,7 +24,7 @@ const fetchCartApi = async (url, method = 'GET', body = null) => {
     
     // Nếu status trả về không phải 200/201 (Lỗi token, lỗi logic,...)
     if (!response.ok) {
-        throw new Error(data.message || 'Cart API request failed');
+        throw new Error(data.message || 'Lỗi hệ thống khi gọi API Giỏ hàng');
     }
     return data;
 };

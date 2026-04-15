@@ -21,10 +21,10 @@ const ProductCard = ({ item, onTryOnClick }) => {
     setAdding(true);
     try {
       await addToCart(item.id, quantity);
-      showToast('Product added to cart!', 'success');
+      showToast('Đã thêm sản phẩm vào giỏ hàng!', 'success');
       setIsPopupOpen(false);
     } catch (err) {
-      showToast(err.message || 'Please log in to use this feature', 'error');
+      showToast(err.message || 'Cần đăng nhập để thực hiện tính năng này', 'error');
     } finally {
       setAdding(false);
     }
@@ -50,7 +50,7 @@ const ProductCard = ({ item, onTryOnClick }) => {
                 style={{ flex: 1, padding: '10px 12px' }}
                 onClick={() => navigate(`/item/${item.id}`)}
             >
-                Details
+                View
             </button>
             <button className="button-primary" style={{ flex: 1, padding: '10px 12px' }} onClick={onTryOnClick}>
                 Try AR
@@ -72,7 +72,7 @@ const ProductCard = ({ item, onTryOnClick }) => {
         max={item.stock || 99}
         onConfirm={handleConfirmAddToCart}
         onCancel={() => setIsPopupOpen(false)}
-        title="Choose quantity"
+        title="Chọn số lượng"
       />
     </div>
   );

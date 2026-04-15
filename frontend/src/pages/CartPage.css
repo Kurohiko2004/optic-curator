@@ -168,9 +168,9 @@
 }
 
 .item-controls {
-  display: inline-flex;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
   margin-top: 15px;
 }
 
