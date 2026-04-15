@@ -34,8 +34,7 @@ const findAllGlasses = async (queryParams, pagination) => {
 
     return await db.Glasses.findAndCountAll({
         where: whereCondition,
-        limit,
-        offset,
+        limit, offset,
         attributes: {
             include: [
                 [db.sequelize.col('glassesShapeId'), 'glassShapeId']
@@ -55,7 +54,7 @@ const findAllGlasses = async (queryParams, pagination) => {
                 through: { attributes: [] } // Ẩn dữ liệu bảng trung gian
             }
         ],
-        order: [[sortBy || 'price', sortOrder || 'ASC']],
+        order: [[sortBy || 'id', sortOrder || 'DESC']],
         distinct: true // Tránh đếm trùng khi join many-to-many
     });
 };
@@ -79,6 +78,26 @@ const findById = async (id) => {
     });
 };
 
+const create = async (glassData) => {
+    const { colorIds, ...data } = glassData;
+    const newGlass = await db.Glasses.create(data);
+    if (colorIds && colorIds.length > 0) {
+        await newGlass.setColors(colorIds);
+    }
+    return findById(newGlass.id);
+};
+
+const update = async (id, glassData) => {
+    const glass = await db.Glasses.findByPk(id);
+    if (!glass) return null;
+    const { colorIds, ...data } = glassData;
+    await glass.update(data);
+    if (colorIds) {
+        await glass.setColors(colorIds);
+    }
+    return findById(id);
+};
+
 const findAllShapes = async () => {
     return await db.GlassesShape.findAll({
         attributes: ['id', 'name']
@@ -94,6 +113,8 @@ const findAllColors = async () => {
 module.exports = {
     findAllGlasses,
     findById,
+    create,
+    update,
     findAllShapes,
     findAllColors
 };
