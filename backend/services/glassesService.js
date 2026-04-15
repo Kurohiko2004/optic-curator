@@ -28,7 +28,7 @@ const findAllGlasses = async (queryParams, pagination) => {
     // Lọc theo giá
     if (minPrice || maxPrice) {
         whereCondition.price = {
-            [Op.between]: [parseFloat(minPrice) || 0, parseFloat(maxPrice) || 999999999]
+            [Op.between]: [parseFloat(minPrice) || 0, parseFloat(maxPrice) || 1000000]
         };
     }
 
