@@ -49,7 +49,7 @@ const findAllGlasses = async (queryParams, pagination) => {
                 through: { attributes: [] } // Ẩn dữ liệu bảng trung gian
             }
         ],
-        order: [[sortBy || 'id', sortOrder || 'DESC']],
+        order: [[sortBy || 'price', sortOrder || 'ASC']], // Changed default sortBy to 'price' and sortOrder to 'ASC'
         distinct: true // Tránh đếm trùng khi join many-to-many
     });
 };
