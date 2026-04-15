@@ -19,6 +19,7 @@ const protect = asyncHandler(async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Kiểm tra User còn tồn tại không qua service
+    // Cần đảm bảo authService.findUserById tải cả thông tin role
     const currentUser = await authService.findUserById(decoded.id);
     if (!currentUser) {
         const error = new Error('Người dùng không còn tồn tại!');
@@ -32,7 +33,8 @@ const protect = asyncHandler(async (req, res, next) => {
 });
 
 const admin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
+    // Kiểm tra nếu user tồn tại và role của user là 'Admin'
+    if (req.user && req.user.role && req.user.role.roleName === 'Admin') {
         next();
     } else {
         res.status(403).json({ success: false, message: 'Quyền truy cập bị từ chối. Chỉ dành cho quản trị viên.' });

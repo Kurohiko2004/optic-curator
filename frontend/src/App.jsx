@@ -8,18 +8,19 @@ import { CartProvider } from './context/CartContext';
 import './index.css';
 import OrderDebugPage from "./pages/OrderDebugPage.jsx";
 import CartDebugPage from "./pages/CartDebugPage.jsx";
-import AdminDashboard from "./pages/AdminDashboard.jsx"; // Import AdminDashboard
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 
 function App() {
   const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
-  const [user, setUser] = useState(null);
+  
+  // Khởi tạo token từ localStorage
   const [token, setToken] = useState(localStorage.getItem('token'));
-
-  useEffect(() => {
-    if (token) {
-      setUser({ loggedIn: true });
-    }
-  }, [token]);
+  
+  // Khởi tạo user đồng bộ với token ngay từ lần render đầu tiên
+  const [user, setUser] = useState(() => {
+    const savedToken = localStorage.getItem('token');
+    return savedToken ? { loggedIn: true } : null;
+  });
 
   const openLogin = () => setAuthModal({ isOpen: true, mode: 'login' });
   const openSignup = () => setAuthModal({ isOpen: true, mode: 'signup' });
@@ -28,7 +29,7 @@ function App() {
   const handleAuthSuccess = (userData) => {
     const newToken = localStorage.getItem('token');
     setToken(newToken);
-    setUser(userData);
+    setUser(userData); // Lưu thông tin user từ API trả về
     closeAuthModal();
   };
 
@@ -75,7 +76,7 @@ function App() {
           <Route path="/cart" element={
             <CartDebugPage
                 onLoginClick={openLogin}
-                onSignupClick={onSignupClick}
+                onSignupClick={openSignup}
                 user={user}
                 onLogout={handleLogout}
             />
@@ -84,22 +85,20 @@ function App() {
           <Route path="/orders/me" element={
             <OrderDebugPage
                 onLoginClick={openLogin}
-                onSignupClick={onSignupClick}
+                onSignupClick={openSignup}
                 user={user}
                 onLogout={handleLogout}
             />
           } />
 
-          {/* Admin Dashboard Route */}
           <Route path="/admin" element={
             <AdminDashboard
                 onLoginClick={openLogin}
-                onSignupClick={onSignupClick}
+                onSignupClick={openSignup}
                 user={user}
                 onLogout={handleLogout}
             />
           } />
-
         </Routes>
         
         <AuthModal 
