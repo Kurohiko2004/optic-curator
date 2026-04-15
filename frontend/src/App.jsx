@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import ShopPage from './pages/ShopPage';
 import IntroductionPage from './pages/IntroductionPage';
 import ProductDetailPage from './pages/ProductDetailPage';
+import ARTryOnTestPage from './pages/ARTryOnTestPage';
 import AuthModal from './components/auth/AuthModal';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
@@ -93,6 +94,8 @@ function App() {
             />
           } />
 
+          <Route path="/ar-test" element={
+            <ARTryOnTestPage />
           <Route path="/admin" element={
             <AdminDashboard
                 onLoginClick={openLogin}
