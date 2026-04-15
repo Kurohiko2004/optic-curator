@@ -9,17 +9,19 @@ import { ToastProvider } from './context/ToastContext';
 import './index.css';
 import OrderPage from "./pages/OrderPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 
 function App() {
   const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
-  const [user, setUser] = useState(null);
+  
+  // Khởi tạo token từ localStorage
   const [token, setToken] = useState(localStorage.getItem('token'));
-
-  useEffect(() => {
-    if (token) {
-      setUser({ loggedIn: true });
-    }
-  }, [token]);
+  
+  // Khởi tạo user đồng bộ với token ngay từ lần render đầu tiên
+  const [user, setUser] = useState(() => {
+    const savedToken = localStorage.getItem('token');
+    return savedToken ? { loggedIn: true } : null;
+  });
 
   const openLogin = () => setAuthModal({ isOpen: true, mode: 'login' });
   const openSignup = () => setAuthModal({ isOpen: true, mode: 'signup' });
@@ -28,7 +30,7 @@ function App() {
   const handleAuthSuccess = (userData) => {
     const newToken = localStorage.getItem('token');
     setToken(newToken);
-    setUser(userData);
+    setUser(userData); // Lưu thông tin user từ API trả về
     closeAuthModal();
   };
 
@@ -91,6 +93,14 @@ function App() {
             />
           } />
 
+          <Route path="/admin" element={
+            <AdminDashboard
+                onLoginClick={openLogin}
+                onSignupClick={openSignup}
+                user={user}
+                onLogout={handleLogout}
+            />
+          } />
         </Routes>
 
         <AuthModal

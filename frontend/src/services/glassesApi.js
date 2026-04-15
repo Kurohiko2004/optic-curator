@@ -8,6 +8,10 @@ export const glassesApi = {
   },
   getById: (id) => fetchApi(API_ENDPOINTS.GLASSES.DETAIL(id)),
   getShapes: () => fetchApi(API_ENDPOINTS.GLASSES.SHAPES),
+  
+  // Admin functions
+  create: (data) => fetchApi(API_ENDPOINTS.GLASSES.LIST, 'POST', data, true),
+  update: (id, data) => fetchApi(API_ENDPOINTS.GLASSES.DETAIL(id), 'PUT', data, true),
 };
 
 // Aliases for compatibility

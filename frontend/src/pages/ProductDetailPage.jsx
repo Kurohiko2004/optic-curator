@@ -101,7 +101,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
   const selectedColorHex = selectedVariant ? (colorMap[selectedVariant.name] || '#666') : '#666';
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!user || !user.loggedIn) {
       onLoginClick();
       return;
