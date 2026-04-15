@@ -7,6 +7,8 @@ import ARTryOnModal, { GlassesModel } from './ARTryOnPage';
 import { fetchGlassById } from '../services/api';
 import { useCart } from '../context/CartContext';
 import { formatPrice } from '../utils/formatPrice';
+import { useToast } from '../context/ToastContext';
+import QuantityPopup from '../components/common/QuantityPopup';
 import './ProductDetailPage.css';
 
 // Mapping color names to hex for visual representation (Optional fallback)
@@ -50,6 +52,8 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const [is3DView, setIs3DView] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [adding, setAdding] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const getProductDetail = async () => {
@@ -104,11 +108,17 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
       return;
     }
 
+    setIsPopupOpen(true);
+  };
+
+  const handleConfirmAddToCart = async (quantity) => {
     setAdding(true);
     try {
-      await addToCart(item.id, 1);
+      await addToCart(item.id, quantity);
+      showToast('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+      setIsPopupOpen(false);
     } catch (err) {
-      console.error('Add to cart failed:', err);
+      showToast(err.message || 'Không thể thêm sản phẩm vào giỏ hàng', 'error');
     } finally {
       setAdding(false);
     }
@@ -219,6 +229,14 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                 {adding ? 'Adding...' : 'Add to Cart'}
               </button>
             </div>
+            <QuantityPopup
+              isOpen={isPopupOpen}
+              initialQuantity={1}
+              max={item.stock || 99}
+              onConfirm={handleConfirmAddToCart}
+              onCancel={() => setIsPopupOpen(false)}
+              title="Chọn số lượng"
+            />
 
             <div className="trust-badges">
               <span>✓ Free Shipping</span>

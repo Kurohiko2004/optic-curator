@@ -54,15 +54,21 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     const loadGlasses = async () => {
       setLoading(true);
       try {
-        const response = await fetchGlasses({
+        // 1. Tạo object params cơ bản
+        const params = {
           page: currentPage,
           items: itemsPerPage,
-          maxPrice: price, // Add maxPrice filter
-          glassesShapeId: selectedShape ? selectedShape.id : undefined, // Add selectedShape filter
-          // You can add sortBy, sortOrder, search here later from state
-        });
-        
-        // Based on API response: { data: [], totalPages: 1, totalItems: 3, currentPage: 1 }
+          maxPrice: price,
+        };
+
+        // 2. Chỉ thêm glassesShapeId vào params NẾU selectedShape có tồn tại
+        if (selectedShape && selectedShape.id) {
+          params.glassesShapeId = Number(selectedShape.id);
+        }
+
+        // 3. Gọi API với object params đã lọc sạch
+        const response = await fetchGlasses(params);
+
         setGlasses(response.data || []);
         setTotalPages(response.totalPages || 1);
         setTotalItems(response.totalItems || 0);
@@ -129,14 +135,14 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           <div className="results-info" style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
             <span>Showing {glasses.length} of {totalItems} items</span>
           </div>
-          
+
           <div className="matrix-grid" style={{ opacity: loading ? 0.5 : 1, pointerEvents: loading ? 'none' : 'auto' }}>
             {glasses.length > 0 ? (
               glasses.map(item => (
-                <ProductCard 
-                  key={item.id} 
-                  item={item} 
-                  onTryOnClick={() => startTryOn(item.id)} 
+                <ProductCard
+                  key={item.id}
+                  item={item}
+                  onTryOnClick={() => startTryOn(item.id)}
                 />
               ))
             ) : (
@@ -146,9 +152,9 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
             )}
           </div>
 
-          <Pagination 
-            itemsPerPage={itemsPerPage} 
-            setItemsPerPage={setItemsPerPage} 
+          <Pagination
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={handlePageChange}

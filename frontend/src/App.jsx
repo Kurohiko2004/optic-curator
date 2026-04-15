@@ -5,6 +5,7 @@ import IntroductionPage from './pages/IntroductionPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import AuthModal from './components/auth/AuthModal';
 import { CartProvider } from './context/CartContext';
+import { ToastProvider } from './context/ToastContext';
 import './index.css';
 import OrderPage from "./pages/OrderPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
@@ -40,9 +41,10 @@ function App() {
   };
 
   return (
-    <CartProvider userToken={token}>
-      <div className="app-container">
-        <div className="hero-background">
+    <ToastProvider>
+      <CartProvider userToken={token}>
+        <div className="app-container">
+          <div className="hero-background">
           <div className="glow-circle" style={{ top: '10%', left: '15%', width: '300px', height: '300px', background: 'var(--accent-primary)' }}></div>
           <div className="glow-circle" style={{ bottom: '15%', right: '10%', width: '400px', height: '400px', background: 'var(--accent-secondary)' }}></div>
         </div>
@@ -109,6 +111,7 @@ function App() {
         />
       </div>
     </CartProvider>
+    </ToastProvider>
   );
 }
 
