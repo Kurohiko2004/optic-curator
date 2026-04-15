@@ -1,21 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import {formatPrice} from "../../utils/formatPrice.js";
+import { useToast } from '../../context/ToastContext';
+import QuantityPopup from '../common/QuantityPopup';
 
 const ProductCard = ({ item, onTryOnClick }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const [adding, setAdding] = React.useState(false);
+  const { showToast } = useToast();
+  const [adding, setAdding] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  const handleAddToCart = async (e) => {
+  const handleAddToCart = (e) => {
     e.stopPropagation();
+    setIsPopupOpen(true);
+  };
+
+  const handleConfirmAddToCart = async (quantity) => {
     setAdding(true);
     try {
-      await addToCart(item.id, 1);
-      alert('Đã thêm sản phẩm vào giỏ hàng!');
+      await addToCart(item.id, quantity);
+      showToast('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+      setIsPopupOpen(false);
     } catch (err) {
-      alert(err.message || 'Cần đăng nhập để thực hiện tính năng này');
+      showToast(err.message || 'Cần đăng nhập để thực hiện tính năng này', 'error');
     } finally {
       setAdding(false);
     }
@@ -57,6 +66,14 @@ const ProductCard = ({ item, onTryOnClick }) => {
           </button>
         </div>
       </div>
+      <QuantityPopup
+        isOpen={isPopupOpen}
+        initialQuantity={1}
+        max={item.stock || 99}
+        onConfirm={handleConfirmAddToCart}
+        onCancel={() => setIsPopupOpen(false)}
+        title="Chọn số lượng"
+      />
     </div>
   );
 };
