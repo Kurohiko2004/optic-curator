@@ -11,6 +11,7 @@ import './index.css';
 import OrderPage from "./pages/OrderPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import PaymentResultPage from "./pages/PaymentResultPage.jsx";
 
 function App() {
   const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
@@ -92,6 +93,10 @@ function App() {
                 user={user}
                 onLogout={handleLogout}
               />
+            } />
+
+            <Route path="/payment/result" element={
+              <PaymentResultPage />
             } />
 
             <Route path="/ar-test" element={
