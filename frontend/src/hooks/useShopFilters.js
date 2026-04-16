@@ -27,6 +27,8 @@ export const useShopFilters = () => {
 
   return {
     price, setPrice,
+    isPriceFilterActive, setIsPriceFilterActive,
+    togglePriceFilter,
     expandedFilters, toggleFilter,
     itemsPerPage, setItemsPerPage,
     currentPage, setCurrentPage,

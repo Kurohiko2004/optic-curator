@@ -4,6 +4,7 @@ import { formatPrice } from '../../utils/formatPrice';
 
 const FilterSidebar = ({ 
   price, setPrice, 
+  isPriceFilterActive, togglePriceFilter,
   expandedFilters, toggleFilter, 
   shapes, colors = [],
   faceShapes = [],
@@ -42,21 +43,56 @@ const FilterSidebar = ({
           </button>
         </div>
         
-        {/* Price Filter */}
+        {/* Price Filter with Toggle Switch */}
         <div className="filter-section">
-          <label>Price Range: <span className="premium-gradient-text">{price < 1000000 ? formatPrice(price) : 'Any'}</span></label>
-          <input 
-            type="range" 
-            min="100000"
-            max="1000000"
-            step="50000"
-            value={price} 
-            onChange={(e) => setPrice(Number(e.target.value))}
-            className="price-slider"
-          />
-          <div className="price-labels">
-            <span>{formatPrice(100000)}</span>
-            <span>Any</span>
+          <div className="filter-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <span>Price Range</span>
+            <div 
+              className={`toggle-switch ${isPriceFilterActive ? 'active' : ''}`}
+              onClick={togglePriceFilter}
+              style={{
+                width: '40px',
+                height: '20px',
+                background: isPriceFilterActive ? '#6366f1' : '#4a5568',
+                borderRadius: '20px',
+                position: 'relative',
+                cursor: 'pointer',
+                transition: 'all 0.3s'
+              }}
+            >
+              <div style={{
+                width: '16px',
+                height: '16px',
+                background: 'white',
+                borderRadius: '50%',
+                position: 'absolute',
+                top: '2px',
+                left: isPriceFilterActive ? '22px' : '2px',
+                transition: 'all 0.3s'
+              }}></div>
+            </div>
+          </div>
+          
+          <div className="price-filter-content" style={{ 
+            opacity: isPriceFilterActive ? 1 : 0.4,
+            pointerEvents: isPriceFilterActive ? 'auto' : 'none',
+            transition: 'all 0.3s'
+          }}>
+            <label><span className="premium-gradient-text">{formatPrice(price)}</span></label>
+            <input 
+              type="range" 
+              min="100000"
+              max="1000000"
+              step="100000"
+              value={price} 
+              onChange={(e) => setPrice(Number(e.target.value))}
+              className="price-slider"
+              disabled={!isPriceFilterActive}
+            />
+            <div className="price-labels">
+              <span>{formatPrice(100000)}</span>
+              <span>{formatPrice(1000000)}</span>
+            </div>
           </div>
         </div>
 
