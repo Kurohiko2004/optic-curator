@@ -103,7 +103,8 @@ const ARFeature = ({
 
 
       // ── STEP 4: Model Caching & Handling ─────────────────────────────
-      const modelPath = item?.modelPath || '/model/glasses/glass1.glb';
+      const FAILSAFE_MODEL = 'https://res.cloudinary.com/dfg9uh4cc/image/upload/v1776324744/glass1_sqdfcb.glb';
+      const modelPath = item?.modelPath || FAILSAFE_MODEL;
 
       const setupModel = (model) => {
         arModelRef.current = model;
@@ -138,18 +139,33 @@ const ARFeature = ({
         mainAnchorGroup.add(model);
       };
 
+      const loadModelWithFailsafe = (path, isFallback = false) => {
+        onLog(`${isFallback ? 'Loading failsafe' : 'Loading 3D'} model...`);
+        const loader = new GLTFLoader();
+        loader.load(
+          path,
+          (gltf) => {
+            cachedModelRef.current = gltf.scene;
+            currentModelPathRef.current = path;
+            setupModel(gltf.scene);
+          },
+          undefined,
+          (err) => {
+            onLog(`Load Error: ${err.message}`);
+            if (!isFallback && path !== FAILSAFE_MODEL) {
+              onLog('Attempting failsafe recovery...');
+              loadModelWithFailsafe(FAILSAFE_MODEL, true);
+            }
+          }
+        );
+      };
+
       // Reuse cache if path matches, else load new
       if (cachedModelRef.current && currentModelPathRef.current === modelPath) {
         onLog('Reusing cached 3D model...');
         setupModel(cachedModelRef.current);
       } else {
-        onLog('Loading 3D model...');
-        const loader = new GLTFLoader();
-        loader.load(modelPath, (gltf) => {
-          cachedModelRef.current = gltf.scene;
-          currentModelPathRef.current = modelPath;
-          setupModel(gltf.scene);
-        }, undefined, (err) => onLog('Load Error: ' + err.message));
+        loadModelWithFailsafe(modelPath);
       }
 
       // ── STEP 5: Lighting ─────────────────────────────────────────────

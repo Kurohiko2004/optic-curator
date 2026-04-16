@@ -53,9 +53,9 @@ const Pagination = ({
             onPageChange(1); // Reset to first page when limit changes
           }}
         >
-          <option value={9}>9</option>
-          <option value={18}>18</option>
-          <option value={27}>27</option>
+          <option value={12}>12</option>
+          <option value={24}>24</option>
+          <option value={60}>60</option>
         </select>
       </div>
     </footer>

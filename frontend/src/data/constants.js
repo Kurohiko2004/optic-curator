@@ -20,5 +20,6 @@ export const API_ENDPOINTS = {
     LIST: `${BASE_API_URL}/glasses`,
     DETAIL: (id) => `${BASE_API_URL}/glasses/${id}`,
     SHAPES: `${BASE_API_URL}/glasses/shapes`,
+    COLORS: `${BASE_API_URL}/glasses/colors`,
   },
 };

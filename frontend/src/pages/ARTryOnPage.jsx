@@ -47,10 +47,7 @@ const ARTryOnPage = ({ isOpen, onClose, selectedItemId }) => {
       try {
         const response = await fetchGlassById(selectedItemId || 1);
         const data = response.data || response;
-        setItem({
-          ...data,
-          modelPath: 'https://res.cloudinary.com/dfg9uh4cc/image/upload/v1776324744/glass1_sqdfcb.glb'
-        });
+        setItem(data);
         if (data.colors && data.colors.length > 0) {
           setSelectedColor(colorMap[data.colors[0].name] || '#1a1a1a');
         }

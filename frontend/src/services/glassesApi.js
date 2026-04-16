@@ -8,6 +8,7 @@ export const glassesApi = {
   },
   getById: (id) => fetchApi(API_ENDPOINTS.GLASSES.DETAIL(id)),
   getShapes: () => fetchApi(API_ENDPOINTS.GLASSES.SHAPES),
+  getColors: () => fetchApi(API_ENDPOINTS.GLASSES.COLORS),
   
   // Admin functions
   create: (data) => fetchApi(API_ENDPOINTS.GLASSES.LIST, 'POST', data, true),
@@ -18,3 +19,4 @@ export const glassesApi = {
 export const fetchGlasses = glassesApi.getList;
 export const fetchGlassById = glassesApi.getById;
 export const fetchShapes = glassesApi.getShapes;
+export const fetchColors = glassesApi.getColors;
