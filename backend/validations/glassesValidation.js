@@ -2,7 +2,8 @@ const Joi = require('joi');
 
 const getGlassesSchema = Joi.object({
     page: Joi.number().integer().min(1).default(1),
-    items: Joi.number().integer().valid(5, 10, 15, 20).default(10),
+    // Update to match requested values: 9, 18, 27
+    items: Joi.number().integer().valid(9, 18, 27).default(9),
     
     // Tìm kiếm theo tên kính
     search: Joi.string().max(100).optional().allow('', null),
