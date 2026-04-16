@@ -16,6 +16,11 @@ const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           <Link to="/store" className={activePage === '/store' ? 'active' : ''}>Shop</Link>
         </nav>
         <div className="header-actions">
+
+          <span className="user-info" style={{ marginRight: '1rem', color: 'var(--text-muted)' }}>
+                Hi, {user.username || 'User'}
+              </span>
+
           {user && (
             <button 
               className="icon-button cart-btn" 
@@ -46,9 +51,6 @@ const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           )}
           {user ? (
             <>
-              <span className="user-info" style={{ marginRight: '1rem', color: 'var(--text-muted)' }}>
-                Hi, {user.username || 'User'}
-              </span>
               <button 
                 className="secondary-button" 
                 style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }} 

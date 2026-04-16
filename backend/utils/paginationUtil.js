@@ -1,7 +1,7 @@
 'use strict';
 
-
-const ALLOWED_ITEMS = [5, 10, 15, 20];
+// Cập nhật danh sách items cho phép để khớp với yêu cầu lưới 3x3
+const ALLOWED_ITEMS = [9, 18, 27];
 
 /**
  * Bước 1: Xử lý và làm sạch tham số đầu vào từ Request Query
@@ -12,7 +12,7 @@ const ALLOWED_ITEMS = [5, 10, 15, 20];
 const getPagination = (page, items) => {
     let limit = parseInt(items);
     if (isNaN(limit) || !ALLOWED_ITEMS.includes(limit)) {
-        limit = 10; // Default limit 
+        limit = 9; // Đổi mặc định thành 9 để khớp với yêu cầu
     }
 
     let currentPage = parseInt(page);
