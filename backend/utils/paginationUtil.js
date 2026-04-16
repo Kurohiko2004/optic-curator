@@ -1,7 +1,7 @@
 'use strict';
 
 
-const ALLOWED_ITEMS = [5, 10, 15, 20];
+const ALLOWED_ITEMS = [12, 24, 60];
 
 /**
  * Bước 1: Xử lý và làm sạch tham số đầu vào từ Request Query
@@ -12,7 +12,7 @@ const ALLOWED_ITEMS = [5, 10, 15, 20];
 const getPagination = (page, items) => {
     let limit = parseInt(items);
     if (isNaN(limit) || !ALLOWED_ITEMS.includes(limit)) {
-        limit = 10; // Default limit 
+        limit = 12; // Default limit 
     }
 
     let currentPage = parseInt(page);

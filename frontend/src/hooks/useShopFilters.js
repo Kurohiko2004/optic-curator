@@ -1,14 +1,28 @@
 import { useState } from 'react';
 
 export const useShopFilters = () => {
-  const [price, setPrice] = useState(300000);
+  const [price, setPrice] = useState(1000000);
   const [expandedFilters, setExpandedFilters] = useState({ shape: true, face: true });
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedShape, setSelectedShape] = useState(null); // New state for single shape selection, default to null
+  const [selectedShape, setSelectedShape] = useState(null); 
+  const [selectedColors, setSelectedColors] = useState([]);
 
   const toggleFilter = (filter) => {
     setExpandedFilters(prev => ({ ...prev, [filter]: !prev[filter] }));
+  };
+
+  const toggleColor = (colorId) => {
+    setSelectedColors(prev => 
+      prev.includes(colorId) ? prev.filter(id => id !== colorId) : [...prev, colorId]
+    );
+  };
+
+  const resetFilters = () => {
+    setPrice(1000000);
+    setSelectedShape(null);
+    setSelectedColors([]);
+    setCurrentPage(1);
   };
 
   return {
@@ -16,6 +30,8 @@ export const useShopFilters = () => {
     expandedFilters, toggleFilter,
     itemsPerPage, setItemsPerPage,
     currentPage, setCurrentPage,
-    selectedShape, setSelectedShape // Export new state
+    selectedShape, setSelectedShape,
+    selectedColors, setSelectedColors,
+    toggleColor, resetFilters
   };
 };
