@@ -13,11 +13,12 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@types/three": "^0.183.1",
+    "lucide-react": "^1.8.0",
     "mind-ar": "^1.2.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.14.0",
-    "three": "^0.183.2"
+    "three": "^0.160.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

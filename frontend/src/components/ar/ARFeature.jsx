@@ -69,34 +69,7 @@ const ARFeature = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive]);
 
-  // Helper to create anchor and dot
-  const createAnchorDot = (id, mindarThree) => {
-    if (anchorGroupsRef.current[id]) return anchorGroupsRef.current[id];
 
-    const anchor = mindarThree.addAnchor(id);
-    anchorGroupsRef.current[id] = anchor.group;
-
-    const dotGeo = new THREE.SphereGeometry(0.015, 8, 8);
-    const dotMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const dot = new THREE.Mesh(dotGeo, dotMat);
-    dot.userData = { id };
-    dot.visible = configRef.current.showAnchors;
-    anchor.group.add(dot);
-    anchorDotsRef.current.push(dot);
-    return anchor.group;
-  };
-
-  // Dynamic anchor expansion
-  useEffect(() => {
-    if (showAnchors && mindARRef.current && !fullAnchorsCreatedRef.current) {
-      onLog('Generating all 468 anchors...');
-      for (let i = 0; i < 468; i++) {
-        createAnchorDot(i, mindARRef.current);
-      }
-      fullAnchorsCreatedRef.current = true;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showAnchors]);
 
   const startAR = async () => {
     try {
@@ -119,49 +92,15 @@ const ARFeature = ({
       faceMesh.material = new THREE.MeshBasicMaterial({ colorWrite: false });
       scene.add(faceMesh);
 
-      // ── STEP 3: Setup Core Anchors ──────────────────────────────────
-      anchorGroupsRef.current = new Array(468);
-      anchorDotsRef.current = [];
-      fullAnchorsCreatedRef.current = false;
+      const mainAnchor = mindarThree.addAnchor(168);
+      anchorGroupsRef.current[168] = mainAnchor.group;
+      const anchor127 = mindarThree.addAnchor(127);
+      anchorGroupsRef.current[127] = anchor127.group;
+      const anchor356 = mindarThree.addAnchor(356);
+      anchorGroupsRef.current[356] = anchor356.group;
 
-      const mainAnchorGroup = createAnchorDot(168, mindarThree);
-      createAnchorDot(127, mindarThree);
-      createAnchorDot(356, mindarThree);
+      const mainAnchorGroup = mainAnchor.group;
 
-      if (showAnchors) {
-        for (let i = 0; i < 468; i++) createAnchorDot(i, mindarThree);
-        fullAnchorsCreatedRef.current = true;
-      }
-
-      // Tooltip logic
-      const raycaster = new THREE.Raycaster();
-      const mouse = new THREE.Vector2();
-      const tooltip = document.getElementById('ar-tooltip');
-      const onMouseMove = (event) => {
-        if (!configRef.current.showAnchors) return;
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (!rect) return;
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        raycaster.setFromCamera(mouse, camera);
-        const hits = raycaster.intersectObjects(anchorDotsRef.current);
-        if (hits.length > 0) {
-          const id = hits[0].object.userData.id;
-          if (tooltip) {
-            tooltip.style.display = 'block';
-            tooltip.style.left = (event.clientX + 10) + 'px';
-            tooltip.style.top = (event.clientY + 10) + 'px';
-            tooltip.innerText = `Anchor #${id}`;
-          }
-          anchorDotsRef.current.forEach(d => d.material.color.set(0xff0000));
-          hits[0].object.material.color.set(0x00ff00);
-        } else if (tooltip) {
-          tooltip.style.display = 'none';
-          anchorDotsRef.current.forEach(d => d.material.color.set(0xff0000));
-        }
-      };
-      window.addEventListener('mousemove', onMouseMove);
-      mouseMoveRef.current = onMouseMove;
 
       // ── STEP 4: Model Caching & Handling ─────────────────────────────
       const modelPath = item?.modelPath || '/model/glasses/glass1.glb';
@@ -322,7 +261,6 @@ const ARFeature = ({
     });
   }, [selectedColor]);
 
-  useEffect(() => { anchorDotsRef.current.forEach(d => { d.visible = showAnchors; }); }, [showAnchors]);
 
   return (
     <div ref={containerRef} style={{

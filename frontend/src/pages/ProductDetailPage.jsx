@@ -3,7 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment } from '@react-three/drei';
 import Header from '../components/layout/Header';
-import ARTryOnModal, { GlassesModel } from './ARTryOnPage';
+import ARTryOnPage from './ARTryOnPage';
+import GlassesModel from '../components/ar/GlassesModel';
 import { fetchGlassById } from '../services/api';
 import { useCart } from '../context/CartContext';
 import { formatPrice } from '../utils/formatPrice';
@@ -35,7 +36,11 @@ const RotatingModel = ({ modelPath, color }) => {
 
   return (
     <group ref={meshRef}>
-      <GlassesModel modelPath={modelPath} color={color} />
+      {/* TWEAK HERE: position[2] is the Z-offset for the rotation anchor (-1 in Z means move model to +1) */}
+      {/* TWEAK HERE: scale={10} increases the model size ONLY on this page */}
+      <group position={[0, 1.5, 1]} scale={8}>
+        <GlassesModel modelPath={modelPath} color={color} />
+      </group>
     </group>
   );
 };
@@ -44,7 +49,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  
+
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -60,9 +65,9 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
       setLoading(true);
       try {
         const response = await fetchGlassById(id);
-        const productData = response.data || response; 
+        const productData = response.data || response;
         setItem(productData);
-        
+
         if (productData.colors && productData.colors.length > 0) {
           setSelectedVariant(productData.colors[0]);
         }
@@ -125,12 +130,12 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
   return (
     <div className="product-detail-page animate-fade-in">
-      <Header 
-        onLoginClick={onLoginClick} 
-        onSignupClick={onSignupClick} 
-        user={user} 
-        onLogout={onLogout} 
-        activePage="store" 
+      <Header
+        onLoginClick={onLoginClick}
+        onSignupClick={onSignupClick}
+        user={user}
+        onLogout={onLogout}
+        activePage="store"
       />
 
       <main className="detail-container">
@@ -142,8 +147,8 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           <div className="product-visuals">
             <div className="variant-sidebar">
               {item.colors && item.colors.map((color) => (
-                <div 
-                  key={color.id} 
+                <div
+                  key={color.id}
                   className={`variant-dot ${selectedVariant?.id === color.id ? 'active' : ''}`}
                   onClick={() => setSelectedVariant(color)}
                   title={color.name}
@@ -170,8 +175,8 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
               ) : (
                 <img src={item.image} alt={item.name} className="main-product-img" />
               )}
-              
-              <button 
+
+              <button
                 className="view-toggle-btn"
                 onClick={() => setIs3DView(!is3DView)}
               >
@@ -212,9 +217,9 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
             </p>
 
             <div className="action-buttons">
-              <button 
+              <button
                 type="button"
-                className="button-primary ar-trigger" 
+                className="button-primary ar-trigger"
                 onClick={() => setArModal({ isOpen: true })}
               >
                 <span>Virtual AR Try-on</span>
@@ -246,10 +251,10 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         </div>
       </main>
 
-      <ARTryOnModal 
-        isOpen={arModal.isOpen} 
-        onClose={() => setArModal({ isOpen: false })} 
-        selectedItemId={item.id} 
+      <ARTryOnPage
+        isOpen={arModal.isOpen}
+        onClose={() => setArModal({ isOpen: false })}
+        selectedItemId={item.id}
       />
     </div>
   );
