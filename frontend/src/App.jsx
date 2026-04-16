@@ -99,6 +99,10 @@ function App() {
               <PaymentResultPage />
             } />
 
+            <Route path="/ar-test" element={
+              <ARTryOnPage />
+            } />
+
             <Route path="/admin" element={
               <AdminDashboard
                 onLoginClick={openLogin}
