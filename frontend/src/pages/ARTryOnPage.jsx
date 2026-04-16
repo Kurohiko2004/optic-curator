@@ -191,7 +191,7 @@ const ARTryOnPage = ({ isOpen, onClose, selectedItemId }) => {
                     <span>{isDevOpen ? '▲' : '▼'}</span>
                   </button>
 
-                  {isDevOpen && (
+                    {isDevOpen && (
                     <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                       <div style={{ padding: '10px', background: autoFit ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.04)', borderRadius: '8px', border: `1px solid ${autoFit ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.1)'}` }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600', color: autoFit ? '#10b981' : '#cbd5e1' }}>
