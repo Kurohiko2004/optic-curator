@@ -8,7 +8,7 @@ import Pagination from '../components/shop/Pagination';
 import ARTryOnModal from './ARTryOnPage';
 
 // Services
-import { fetchGlasses, fetchShapes } from '../services/api';
+import { fetchGlasses, fetchShapes, fetchColors } from '../services/api';
 
 // Extracted Data & Hooks
 import { faceShapes } from '../data/shopData';
@@ -22,11 +22,14 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     price, setPrice,
     expandedFilters, toggleFilter,
     itemsPerPage, setItemsPerPage,
-    selectedShape, setSelectedShape // Import selectedShape
+    selectedShape, setSelectedShape,
+    selectedColors, setSelectedColors,
+    toggleColor, resetFilters
   } = useShopFilters();
 
   const [glasses, setGlasses] = useState([]);
   const [availableShapes, setAvailableShapes] = useState([]);
+  const [availableColors, setAvailableColors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [arModal, setArModal] = useState({ isOpen: false, itemId: null });
 
@@ -39,11 +42,11 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   useEffect(() => {
     const loadStaticData = async () => {
       try {
-        const shapesData = await fetchShapes();
-        // Adjust based on shapes API response structure
+        const [shapesData, colorsData] = await Promise.all([fetchShapes(), fetchColors()]);
         setAvailableShapes(shapesData.data || shapesData);
+        setAvailableColors(colorsData.data || colorsData);
       } catch (error) {
-        console.error("Error fetching shapes:", error);
+        console.error("Error fetching filter data:", error);
       }
     };
     loadStaticData();
@@ -60,6 +63,10 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           items: itemsPerPage,
           maxPrice: price,
         };
+
+        if (selectedColors.length > 0) {
+          params.colorIds = selectedColors.join(',');
+        }
 
         // 2. Chỉ thêm glassesShapeId vào params NẾU selectedShape có tồn tại
         if (selectedShape && selectedShape.id) {
@@ -80,12 +87,12 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     };
 
     loadGlasses();
-  }, [currentPage, itemsPerPage, price, selectedShape]); // selectedShape added as dependency
+  }, [currentPage, itemsPerPage, price, selectedShape, selectedColors]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [price, itemsPerPage, selectedShape]);
+  }, [price, itemsPerPage, selectedShape, selectedColors]);
 
   const startTryOn = (itemId) => {
     setArModal({ isOpen: true, itemId });
@@ -118,9 +125,13 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           expandedFilters={expandedFilters}
           toggleFilter={toggleFilter}
           shapes={availableShapes}
+          colors={availableColors}
           faceShapes={faceShapes}
-          selectedShape={selectedShape} // Pass selectedShape
-          setSelectedShape={setSelectedShape} // Pass setSelectedShape
+          selectedShape={selectedShape}
+          setSelectedShape={setSelectedShape}
+          selectedColors={selectedColors}
+          toggleColor={toggleColor}
+          onReset={resetFilters}
         />
 
         <div className="product-matrix-container">

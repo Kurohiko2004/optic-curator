@@ -8,10 +8,16 @@ const { Op } = require('sequelize');
  * @returns {object} { count, rows }
  */
 const findAllGlasses = async (queryParams, pagination) => {
-    const { glassesShapeId, minPrice, maxPrice, search, sortBy, sortOrder } = queryParams;
+    const { glassesShapeId, minPrice, maxPrice, colorIds, search, sortBy, sortOrder } = queryParams;
     const { limit, offset } = pagination;
 
     const whereCondition = {};
+    const colorInclude = {
+        model: db.Color,
+        as: 'colors',
+        attributes: ['id', 'name'],
+        through: { attributes: [] }
+    };
 
     // Tìm kiếm theo tên
     if (search) {
@@ -25,10 +31,22 @@ const findAllGlasses = async (queryParams, pagination) => {
         whereCondition.glassesShapeId = glassesShapeId;
     }
 
-    // Lọc theo giá
-    if (minPrice || maxPrice) {
+    // Lọc theo giá - Only if maxPrice is less than 1,000,000 (meaning it's actively filtered)
+    if (maxPrice && parseFloat(maxPrice) < 1000000) {
         whereCondition.price = {
-            [Op.between]: [parseFloat(minPrice) || 0, parseFloat(maxPrice) || 1000000]
+            [Op.between]: [parseFloat(minPrice) || 0, parseFloat(maxPrice)]
+        };
+    } else if (minPrice) {
+        whereCondition.price = {
+            [Op.gte]: parseFloat(minPrice)
+        };
+    }
+
+    // Lọc theo màu sắc
+    if (colorIds) {
+        const ids = Array.isArray(colorIds) ? colorIds : String(colorIds).split(',');
+        colorInclude.where = {
+            id: { [Op.in]: ids }
         };
     }
 
@@ -42,14 +60,9 @@ const findAllGlasses = async (queryParams, pagination) => {
                 as: 'shape',
                 attributes: ['id', 'name']
             },
-            {
-                model: db.Color,
-                as: 'colors',
-                attributes: ['id', 'name'],
-                through: { attributes: [] } // Ẩn dữ liệu bảng trung gian
-            }
+            colorInclude
         ],
-        order: [[sortBy || 'price', sortOrder || 'ASC']], // Changed default sortBy to 'price' and sortOrder to 'ASC'
+        order: [[sortBy || 'id', sortOrder || 'ASC']], 
         distinct: true // Tránh đếm trùng khi join many-to-many
     });
 };

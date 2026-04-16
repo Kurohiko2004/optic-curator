@@ -5,12 +5,14 @@ import { formatPrice } from '../../utils/formatPrice';
 const FilterSidebar = ({ 
   price, setPrice, 
   expandedFilters, toggleFilter, 
-  shapes, faceShapes,
-  selectedShape, setSelectedShape 
+  shapes, colors = [],
+  faceShapes = [],
+  selectedShape, setSelectedShape,
+  selectedColors, toggleColor,
+  onReset
 }) => {
   
   const handleShapeChange = (shape) => {
-    // If clicking the already selected shape, deselect it (toggle off)
     if (selectedShape && selectedShape.id === shape.id) {
       setSelectedShape(null);
     } else {
@@ -21,27 +23,44 @@ const FilterSidebar = ({
   return (
     <aside className="filters-sidebar">
       <div className="filter-group glass-morphism">
-        <h3>Filters</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h3 style={{ margin: 0 }}>Filters</h3>
+          <button 
+            className="reset-btn" 
+            onClick={onReset}
+            style={{ 
+              background: 'none', 
+              border: '1px solid var(--accent-primary)', 
+              color: 'var(--accent-primary)',
+              padding: '4px 12px',
+              borderRadius: '8px',
+              fontSize: '0.8rem',
+              cursor: 'pointer'
+            }}
+          >
+            Reset
+          </button>
+        </div>
         
         {/* Price Filter */}
         <div className="filter-section">
-          <label>Price Range: <span className="premium-gradient-text">{formatPrice(price)}</span></label>
+          <label>Price Range: <span className="premium-gradient-text">{price < 1000000 ? formatPrice(price) : 'Any'}</span></label>
           <input 
             type="range" 
-            min="300000"
+            min="100000"
             max="1000000"
-            step="100000"
+            step="50000"
             value={price} 
             onChange={(e) => setPrice(Number(e.target.value))}
             className="price-slider"
           />
           <div className="price-labels">
-            <span>{formatPrice(300000)}</span>
-            <span>{formatPrice(1000000)}</span>
+            <span>{formatPrice(100000)}</span>
+            <span>Any</span>
           </div>
         </div>
 
-        {/* Glasses Shape Filter - Custom Round Radio Buttons */}
+        {/* Glasses Shape Filter */}
         <FilterSection 
           title="Frame Shape" 
           isExpanded={expandedFilters.shape} 
@@ -57,7 +76,6 @@ const FilterSidebar = ({
                   checked={selectedShape?.id === shape.id}
                   onChange={() => handleShapeChange(shape)}
                   onClick={(e) => {
-                    // Allow deselecting radio button by clicking again
                     if (selectedShape?.id === shape.id) {
                       e.preventDefault();
                       setSelectedShape(null);
@@ -66,6 +84,29 @@ const FilterSidebar = ({
                 />
                 <span className="radio-circle"></span>
                 <span className="label-text">{shape.name}</span>
+              </label>
+            ))}
+          </div>
+        </FilterSection>
+
+        {/* Color Filter */}
+        <FilterSection 
+          title="Frame Color" 
+          isExpanded={expandedFilters.color || true} 
+          onToggle={() => toggleFilter('color')}
+        >
+          <div className="filter-options">
+            {colors.map((color) => (
+              <label key={color.id} className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input
+                  type="checkbox"
+                  checked={selectedColors.includes(String(color.id))}
+                  onChange={() => toggleColor(String(color.id))}
+                  style={{ width: '16px', height: '16px', accentColor: 'var(--accent-primary)' }}
+                />
+                <span className="label-text" style={{ color: selectedColors.includes(String(color.id)) ? 'white' : '#a0aec0' }}>
+                  {color.name}
+                </span>
               </label>
             ))}
           </div>
