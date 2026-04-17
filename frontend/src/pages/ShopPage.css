@@ -334,7 +334,7 @@ nav a:hover, nav a.active {
   min-height: 500px;
 }
 
-.loading-overlay {
+.matrix-loading-overlay {
   position: absolute;
   inset: 0;
   z-index: 10;
@@ -362,42 +362,57 @@ nav a:hover, nav a.active {
 }
 
 /* Custom Radio Button Styles for Glasses Shape */
-.custom-radio-container {
+.custom-radio-container, .custom-checkbox-container {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
   cursor: pointer;
   font-size: 14px;
-  color: #a0aec0; /* Màu text nhạt như trong hình */
+  color: #a0aec0;
   transition: all 0.2s;
 }
 
-.custom-radio-container:hover {
+.custom-radio-container:hover, .custom-checkbox-container:hover {
   color: #fff;
 }
 
-/* Ẩn radio button mặc định */
-.custom-radio-container input[type="radio"] {
+.custom-radio-container:hover .radio-circle,
+.custom-checkbox-container:hover .checkbox-square {
+  border-color: #718096;
+}
+
+/* Ẩn radio và checkbox button mặc định */
+.custom-radio-container input[type="radio"],
+.custom-checkbox-container input[type="checkbox"] {
   display: none;
 }
 
-/* Tạo vòng tròn bên ngoài */
-.radio-circle {
+/* Tạo vòng tròn bên ngoài cho radio và ô vuông cho checkbox */
+.radio-circle, .checkbox-square {
   height: 18px;
   width: 18px;
   border: 2px solid #4a5568;
-  border-radius: 50%; /* Làm hình tròn */
   margin-right: 12px;
   position: relative;
   transition: all 0.2s ease-in-out;
 }
 
-/* Khi được chọn: Đổi màu viền và hiện chấm tròn ở giữa */
-.custom-radio-container input[type="radio"]:checked + .radio-circle {
-  border-color: #6366f1; /* Màu tím/blue premium */
+.radio-circle {
+  border-radius: 50%;
+}
+
+.checkbox-square {
+  border-radius: 4px;
+}
+
+/* Khi được chọn: Đổi màu viền và hiện chấm tròn/hoặc tích ở giữa */
+.custom-radio-container input[type="radio"]:checked + .radio-circle,
+.custom-checkbox-container input[type="checkbox"]:checked + .checkbox-square {
+  border-color: #6366f1;
   background-color: transparent;
 }
 
+/* Chấm tròn cho radio */
 .custom-radio-container input[type="radio"]:checked + .radio-circle::after {
   content: "";
   position: absolute;
@@ -407,12 +422,25 @@ nav a:hover, nav a.active {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #6366f1; /* Chấm tròn màu chính */
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5); /* Hiệu ứng phát sáng nhẹ */
+  background: #6366f1;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+/* Dấu tích cho checkbox */
+.custom-checkbox-container input[type="checkbox"]:checked + .checkbox-square::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  color: #6366f1;
+  font-weight: bold;
 }
 
 /* Hiệu ứng cho chữ khi chọn */
-.custom-radio-container input[type="radio"]:checked ~ .label-text {
+.custom-radio-container input[type="radio"]:checked ~ .label-text,
+.custom-checkbox-container input[type="checkbox"]:checked ~ .label-text {
   color: #fff;
   font-weight: 500;
 }

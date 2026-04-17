@@ -82,6 +82,11 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           params.glassesShapeId = Number(selectedShape.id);
         }
 
+        // 3. Thêm lọc giá nếu đang active
+        if (isPriceFilterActive) {
+          params.maxPrice = debouncedPrice;
+        }
+
         const response = await fetchGlasses(params);
         setGlasses(response.data || []);
         setTotalPages(response.totalPages || 1);
@@ -94,12 +99,12 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     };
 
     loadGlasses();
-  }, [currentPage, itemsPerPage, price, selectedShape, selectedColors]);
+  }, [currentPage, itemsPerPage, debouncedPrice, isPriceFilterActive, selectedShape, selectedColors]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [price, itemsPerPage, selectedShape, selectedColors]);
+  }, [debouncedPrice, isPriceFilterActive, itemsPerPage, selectedShape, selectedColors]);
 
   const startTryOn = (itemId) => {
     setArModal({ isOpen: true, itemId });

@@ -8,8 +8,14 @@ export const useShopFilters = () => {
   const [selectedShape, setSelectedShape] = useState(null); 
   const [selectedColors, setSelectedColors] = useState([]);
 
+  const [isPriceFilterActive, setIsPriceFilterActive] = useState(false);
+
   const toggleFilter = (filter) => {
     setExpandedFilters(prev => ({ ...prev, [filter]: !prev[filter] }));
+  };
+
+  const togglePriceFilter = () => {
+    setIsPriceFilterActive(prev => !prev);
   };
 
   const toggleColor = (colorId) => {
@@ -20,6 +26,7 @@ export const useShopFilters = () => {
 
   const resetFilters = () => {
     setPrice(1000000);
+    setIsPriceFilterActive(false);
     setSelectedShape(null);
     setSelectedColors([]);
     setCurrentPage(1);
