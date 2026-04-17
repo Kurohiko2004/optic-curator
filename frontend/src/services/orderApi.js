@@ -28,5 +28,6 @@ const fetchOrderApi = async (url, method = 'GET', body = null) => {
 
 export const orderApi = {
     createOrder: (orderDetails) => fetchOrderApi(API_ENDPOINTS.ORDER.POST, 'POST', orderDetails),
-    getMyOrders: () => fetchOrderApi(API_ENDPOINTS.ORDER.GET_ME, 'GET'),
+    getMyOrders: (page = 1, limit = 10) => 
+        fetchOrderApi(`${API_ENDPOINTS.ORDER.GET_ME}?page=${page}&limit=${limit}`, 'GET'),
 };

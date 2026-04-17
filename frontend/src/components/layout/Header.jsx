@@ -14,12 +14,15 @@ const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         <nav>
           <Link to="/" className={activePage === '/' ? 'active' : ''}>About</Link>
           <Link to="/store" className={activePage === '/store' ? 'active' : ''}>Shop</Link>
+          {user && <Link to="/orders/history" className={activePage === '/orders/history' ? 'active' : ''}>Orders</Link>}
         </nav>
         <div className="header-actions">
 
-          <span className="user-info" style={{ marginRight: '1rem', color: 'var(--text-muted)' }}>
-                Hi, {user.username || 'User'}
-              </span>
+          {user && (
+            <span className="user-info" style={{ marginRight: '1rem', color: 'var(--text-muted)' }}>
+              Hi, {user.username || 'User'}
+            </span>
+          )}
 
           {user && (
             <button 

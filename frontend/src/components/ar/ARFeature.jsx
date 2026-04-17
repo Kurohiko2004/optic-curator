@@ -61,10 +61,17 @@ const ARFeature = ({
   }, [modelScale, autoFit, modelOffsetX, modelOffsetY, modelOffsetZ,
     autoStretch, modelStretchFactor, earAnchor1, earAnchor2, showAnchors]);
 
+  const isStartingRef = useRef(false);
+
   // ── Lifecycle ────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (isActive) startAR();
-    else stopAR();
+    if (isActive) {
+      if (!isStartingRef.current) {
+        startAR();
+      }
+    } else {
+      stopAR();
+    }
     return () => stopAR();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive]);
@@ -72,6 +79,8 @@ const ARFeature = ({
 
 
   const startAR = async () => {
+    if (isStartingRef.current) return;
+    isStartingRef.current = true;
     try {
       // CRITICAL: Clear the container first to prevent ghost canvases/videos
       if (containerRef.current) {
@@ -81,6 +90,15 @@ const ARFeature = ({
       onLog('Initializing MindAR...');
       const mindarThree = new MindARThree({ container: containerRef.current });
       const { renderer, scene, camera } = mindarThree;
+
+      // Fix for Three.js deprecation warning
+      if (renderer && !renderer.outputColorSpace && renderer.outputEncoding) {
+        // Only if we have the old property and not the new one (older Three.js versions)
+      } else if (renderer) {
+        try {
+          renderer.outputColorSpace = 'srgb';
+        } catch (e) { /* ignore */ }
+      }
 
       onLog('Starting face tracking...');
       await mindarThree.start();
@@ -250,7 +268,14 @@ const ARFeature = ({
       });
 
     } catch (err) {
-      onLog('Error: ' + err.message);
+      console.error("AR Start Error:", err);
+      // Fallback for cases where err is a string or doesn't have .message
+      const errorMsg = err?.message || (typeof err === 'string' ? err : 'Unknown AR Error');
+      onLog('Error: ' + errorMsg);
+      // If start fails, ensure we reset the active state
+      onStop();
+    } finally {
+      isStartingRef.current = false;
     }
   };
 

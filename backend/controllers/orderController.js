@@ -1,7 +1,7 @@
 const orderService = require('../services/orderService');
 const asyncHandler = require('../utils/asyncHandlerUtil');
 const crypto = require('crypto');
-const qs = require('qs'); // SỬ DỤNG THƯ VIỆN QS ĐÃ CÓ TRONG PACKAGE.JSON
+const qs = require('qs');
 const config = require('../config/vnpay');
 const { sortObject, getFormatDate } = require('../utils/vnpayUtil');
 
@@ -15,13 +15,13 @@ const createOrder = asyncHandler(async (req, res) => {
         let ipAddr = req.headers['x-forwarded-for'] ||
             req.connection.remoteAddress ||
             req.socket.remoteAddress || '127.0.0.1';
-        
+
         if (ipAddr === '::1') ipAddr = '127.0.0.1';
 
         const tmnCode = config.vnp_TmnCode;
         const secretKey = config.vnp_HashSecret;
         let vnpUrl = config.vnp_Url;
-        
+
         const returnUrl = config.vnp_ReturnUrl || 'http://localhost:5173/payment/result';
         const date = getFormatDate();
         const amount = Math.floor(parseFloat(newOrder.totalPrice) * 100);
@@ -50,7 +50,7 @@ const createOrder = asyncHandler(async (req, res) => {
         // 3. Ký SHA512
         const hmac = crypto.createHmac("sha512", secretKey);
         const signed = hmac.update(new Buffer.from(signData, 'utf-8')).digest("hex");
-        
+
         vnp_Params['vnp_SecureHash'] = signed;
 
         // 4. Tạo URL Redirect cuối cùng
@@ -78,11 +78,13 @@ const createOrder = asyncHandler(async (req, res) => {
 
 const getMyOrders = asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const orders = await orderService.getUserOrders(userId);
+    const { page, limit } = req.query;
+
+    const result = await orderService.getUserOrders(userId, page, limit);
 
     res.status(200).json({
         success: true,
-        data: orders
+        ...result
     });
 });
 

@@ -21,6 +21,17 @@ const createOrderSchema = Joi.object({
     })
 });
 
+const getMyOrdersSchema = Joi.object({
+    page: Joi.number().integer().min(1).default(1).messages({
+        'number.base': 'Trang phải là số',
+        'number.min': 'Số trang tối thiểu là 1'
+    }),
+    limit: Joi.number().integer().valid(10, 20, 30).default(10).messages({
+        'any.only': 'Số lượng item mỗi trang phải là 10, 20 hoặc 30'
+    })
+});
+
 module.exports = {
-    createOrderSchema
+    createOrderSchema,
+    getMyOrdersSchema
 };
