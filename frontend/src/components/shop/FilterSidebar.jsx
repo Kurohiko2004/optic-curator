@@ -133,14 +133,14 @@ const FilterSidebar = ({
         >
           <div className="filter-options">
             {colors.map((color) => (
-              <label key={color.id} className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <label key={color.id} className="custom-checkbox-container">
                 <input
                   type="checkbox"
                   checked={selectedColors.includes(String(color.id))}
                   onChange={() => toggleColor(String(color.id))}
-                  style={{ width: '16px', height: '16px', accentColor: 'var(--accent-primary)' }}
                 />
-                <span className="label-text" style={{ color: selectedColors.includes(String(color.id)) ? 'white' : '#a0aec0' }}>
+                <span className="checkbox-square"></span>
+                <span className="label-text">
                   {color.name}
                 </span>
               </label>

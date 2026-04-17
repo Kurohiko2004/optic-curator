@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import Header from '../components/layout/Header';
 import './CartPage.css';
+import { formatPrice } from '../utils/formatPrice';; 
 
 const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const navigate = useNavigate();
@@ -25,13 +26,6 @@ const CartPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     navigate('/orders/me', { state: { preferredPaymentMethod: paymentMethod } });
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
 
   if (!user) {
     return (
