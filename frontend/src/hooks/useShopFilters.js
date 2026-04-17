@@ -5,7 +5,7 @@ export const useShopFilters = () => {
   const [expandedFilters, setExpandedFilters] = useState({ shape: true, face: true });
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedShape, setSelectedShape] = useState(null); 
+  const [selectedShape, setSelectedShape] = useState(null);
   const [selectedColors, setSelectedColors] = useState([]);
   const [isPriceFilterActive, setIsPriceFilterActive] = useState(false);
 
@@ -13,18 +13,12 @@ export const useShopFilters = () => {
     setIsPriceFilterActive(prev => !prev);
   };
 
-  const [isPriceFilterActive, setIsPriceFilterActive] = useState(false);
-
   const toggleFilter = (filter) => {
     setExpandedFilters(prev => ({ ...prev, [filter]: !prev[filter] }));
   };
 
-  const togglePriceFilter = () => {
-    setIsPriceFilterActive(prev => !prev);
-  };
-
   const toggleColor = (colorId) => {
-    setSelectedColors(prev => 
+    setSelectedColors(prev =>
       prev.includes(colorId) ? prev.filter(id => id !== colorId) : [...prev, colorId]
     );
   };
