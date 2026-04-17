@@ -1,6 +1,4 @@
 const db = require('../models/index.js');
-const { getPagination, getPagingData } = require('../utils/paginationUtil.js');
-
 
 /**
  * Xử lý giao dịch Đặt Hàng từ Giỏ hàng.
@@ -10,8 +8,6 @@ const { getPagination, getPagingData } = require('../utils/paginationUtil.js');
  */
 const createOrderFromCart = async (userId, orderDetails) => {
     console.time("insert");
-
-    // Khởi tạo Transaction (DB Transaction) -> Đảm bảo toàn vẹn dữ liệu
     const t = await db.sequelize.transaction();
 
     try {
@@ -92,13 +88,9 @@ const createOrderFromCart = async (userId, orderDetails) => {
     }
 };
 
-/**
- * Lấy danh sách lịch sử mua hàng
- */
-const getUserOrders = async (userId, page, items) => {
-    const { limit, offset, currentPage } = getPagination(page, items);
-
-    const dbResult = await db.Order.findAndCountAll({
+const getUserOrders = async (userId, page = 1, limit = 10) => {
+    const offset = (page - 1) * limit;
+    const { count, rows } = await db.Order.findAndCountAll({
         where: { userId },
         include: [
             {
@@ -114,11 +106,16 @@ const getUserOrders = async (userId, page, items) => {
             }
         ],
         order: [['createdAt', 'DESC']],
-        limit,
-        offset
+        limit: parseInt(limit),
+        offset: parseInt(offset)
     });
 
-    return getPagingData(dbResult, currentPage, limit);
+    return {
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: parseInt(page),
+        orders: rows
+    };
 };
 
 module.exports = {
