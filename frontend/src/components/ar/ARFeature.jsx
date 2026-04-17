@@ -125,17 +125,44 @@ const ARFeature = ({
         model.position.set(ox, oy, oz);
         onModelWidthUpdate?.(modelBaseWidthRef.current * ms);
 
+        const modelPath = item?.modelPath || FAILSAFE_MODEL;
+        const isFailsafe = modelPath === FAILSAFE_MODEL;
+        let largestMesh = null;
+        let maxVolume = 0;
+
         model.traverse((child) => {
           if (child.isMesh) {
             child.material = child.material.clone();
-            if (child.name === 'Plane001') child.material.color.set(selectedColor);
-            if (child.name === 'Plane') {
+            const name = child.name.toLowerCase();
+            const isLens = name.includes('lens') || name.includes('glass') || name === 'plane';
+
+            if (isLens) {
               child.material.transparent = true;
               child.material.opacity = 0.6;
               child.material.color.set('#000000');
+            } else if (isFailsafe) {
+              // Special case: failsafe model frame is Plane001
+              if (child.name === 'Plane001') {
+                child.material.color.set(selectedColor);
+              }
+            } else {
+              // Standard logic: find biggest for normal models
+              child.geometry.computeBoundingBox();
+              const size = new THREE.Vector3();
+              child.geometry.boundingBox.getSize(size);
+              const volume = size.x * size.y * size.z;
+
+              if (volume > maxVolume) {
+                maxVolume = volume;
+                largestMesh = child;
+              }
             }
           }
         });
+
+        if (!isFailsafe && largestMesh) {
+          largestMesh.material.color.set(selectedColor);
+        }
         mainAnchorGroup.add(model);
       };
 
@@ -272,10 +299,42 @@ const ARFeature = ({
 
   useEffect(() => {
     if (!arModelRef.current) return;
+    const FAILSAFE_MODEL = 'https://res.cloudinary.com/dfg9uh4cc/image/upload/v1776324744/glass1_sqdfcb.glb';
+    const modelPath = item?.modelPath || FAILSAFE_MODEL;
+    const isFailsafe = modelPath === FAILSAFE_MODEL;
+
+    let largestMesh = null;
+    let maxVolume = 0;
+
     arModelRef.current.traverse((child) => {
-      if (child.isMesh && child.name === 'Plane001') child.material.color.set(selectedColor);
+      if (child.isMesh) {
+        const name = child.name.toLowerCase();
+        const isLens = name.includes('lens') || name.includes('glass') || name === 'plane';
+        
+        if (isLens) return;
+
+        if (isFailsafe) {
+          if (child.name === 'Plane001') {
+            child.material.color.set(selectedColor);
+          }
+        } else {
+          child.geometry.computeBoundingBox();
+          const size = new THREE.Vector3();
+          child.geometry.boundingBox.getSize(size);
+          const volume = size.x * size.y * size.z;
+
+          if (volume > maxVolume) {
+            maxVolume = volume;
+            largestMesh = child;
+          }
+        }
+      }
     });
-  }, [selectedColor]);
+
+    if (!isFailsafe && largestMesh) {
+      largestMesh.material.color.set(selectedColor);
+    }
+  }, [selectedColor, item?.modelPath]);
 
 
   return (

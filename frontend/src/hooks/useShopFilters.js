@@ -7,6 +7,11 @@ export const useShopFilters = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedShape, setSelectedShape] = useState(null); 
   const [selectedColors, setSelectedColors] = useState([]);
+  const [isPriceFilterActive, setIsPriceFilterActive] = useState(false);
+
+  const togglePriceFilter = () => {
+    setIsPriceFilterActive(prev => !prev);
+  };
 
   const toggleFilter = (filter) => {
     setExpandedFilters(prev => ({ ...prev, [filter]: !prev[filter] }));
