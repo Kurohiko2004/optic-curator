@@ -67,7 +67,8 @@ const OrderHistoryPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                     {loading && <p>Loading order history...</p>}
                     {error && <p style={{ color: '#ff7b7b' }}>Error: {error}</p>}
                     
-                    {orders.length === 0 && !loading ? (
+                    {(orders || []).length === 0 && !loading ? (
+
                         <div style={{ textAlign: 'center', padding: '60px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
                             <p style={{ color: '#b5b5d1', fontSize: '1.2rem' }}>You haven't placed any orders yet.</p>
                             <button 
@@ -80,7 +81,8 @@ const OrderHistoryPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                     ) : (
                         <>
                             <div style={{ display: 'grid', gap: '24px' }}>
-                                {orders.map(order => (
+                                {orders?.map(order => (
+
                                     <div key={order.id} style={{ padding: '24px', borderRadius: '24px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                                         {/* Content omitted for brevity in replace tool, but will be preserved */}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-start' }}>

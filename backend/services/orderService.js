@@ -1,4 +1,6 @@
 const db = require('../models/index.js');
+const { getPagination, getPagingData } = require('../utils/paginationUtil.js');
+
 
 /**
  * Xử lý giao dịch Đặt Hàng từ Giỏ hàng.
@@ -88,9 +90,10 @@ const createOrderFromCart = async (userId, orderDetails) => {
     }
 };
 
-const getUserOrders = async (userId, page = 1, limit = 10) => {
-    const offset = (page - 1) * limit;
-    const { count, rows } = await db.Order.findAndCountAll({
+const getUserOrders = async (userId, page, items) => {
+    const { limit, offset, currentPage } = getPagination(page, items);
+
+    const dbResult = await db.Order.findAndCountAll({
         where: { userId },
         include: [
             {
@@ -106,16 +109,11 @@ const getUserOrders = async (userId, page = 1, limit = 10) => {
             }
         ],
         order: [['createdAt', 'DESC']],
-        limit: parseInt(limit),
-        offset: parseInt(offset)
+        limit,
+        offset
     });
 
-    return {
-        totalItems: count,
-        totalPages: Math.ceil(count / limit),
-        currentPage: parseInt(page),
-        orders: rows
-    };
+    return getPagingData(dbResult, currentPage, limit);
 };
 
 module.exports = {
