@@ -57,7 +57,7 @@ const OrderPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     }
 
     return (
-        <div style={{ minHeight: '100vh', padding: '24px', background: '#080c18', color: '#f7f7ff' }}>
+        <div style={{ minHeight: '100vh', padding: '100px 24px 24px', background: '#080c18', color: '#f7f7ff' }}>
             <Header onLoginClick={onLoginClick} onSignupClick={onSignupClick} user={user} onLogout={onLogout} />
 
             <div style={{ maxWidth: '1200px', margin: '0 auto', paddingTop: '24px' }}>
@@ -151,41 +151,6 @@ const OrderPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
                     </aside>
                 </div>
 
-                <section style={{ marginTop: '32px', borderRadius: '28px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', padding: '24px' }}>
-                    <h2 style={{ marginBottom: '18px' }}>Order History</h2>
-                    {loading && <p>Loading order history...</p>}
-                    {error && <p style={{ color: '#ff7b7b' }}>Error: {error}</p>}
-                    {orders.length === 0 ? (
-                        <p style={{ color: '#b5b5d1' }}>You have no orders yet.</p>
-                    ) : (
-                        <div style={{ display: 'grid', gap: '16px' }}>
-                            {orders.map(order => (
-                                <div key={order.id} style={{ padding: '18px', borderRadius: '22px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
-                                        <div>
-                                            <p style={{ margin: 0, color: '#a0a3cf' }}>Đơn hàng #{order.id}</p>
-                                            <h3 style={{ margin: '6px 0 0', fontSize: '1.1rem' }}>{order.recipientName}</h3>
-                                        </div>
-                                        <span style={{ color: '#7c5cff', fontWeight: 700 }}>{order.paymentMethod}</span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginTop: '16px', color: '#c3c6e8' }}>
-                                        <span>Tổng: {order.totalPrice}</span>
-                                        <span>Trạng thái: {order.status}</span>
-                                        <span>Quantity: {order.orderItems?.length || 0}</span>
-                                    </div>
-                                    <div style={{ marginTop: '16px', display: 'grid', gap: '10px' }}>
-                                        {order.orderItems?.map(item => (
-                                            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '12px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)' }}>
-                                                <span>{item.glasses?.name}</span>
-                                                <span>{item.quantity} x {item.priceAtPurchase}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </section>
             </div>
         </div>
     );

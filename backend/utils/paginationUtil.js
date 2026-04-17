@@ -1,7 +1,8 @@
 'use strict';
 
 
-const ALLOWED_ITEMS = [12, 24, 60];
+const ALLOWED_ITEMS = [10, 12, 20, 24, 30, 60];
+
 
 /**
  * Bước 1: Xử lý và làm sạch tham số đầu vào từ Request Query

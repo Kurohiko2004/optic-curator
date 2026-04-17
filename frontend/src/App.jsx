@@ -9,6 +9,7 @@ import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
 import './index.css';
 import OrderPage from "./pages/OrderPage.jsx";
+import OrderHistoryPage from "./pages/OrderHistoryPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import PaymentResultPage from "./pages/PaymentResultPage.jsx";
@@ -88,6 +89,15 @@ function App() {
 
             <Route path="/orders/me" element={
               <OrderPage
+                onLoginClick={openLogin}
+                onSignupClick={openSignup}
+                user={user}
+                onLogout={handleLogout}
+              />
+            } />
+            
+            <Route path="/orders/history" element={
+              <OrderHistoryPage
                 onLoginClick={openLogin}
                 onSignupClick={openSignup}
                 user={user}
