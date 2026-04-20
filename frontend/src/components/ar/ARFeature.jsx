@@ -90,6 +90,7 @@ const ARFeature = ({
       onLog('Initializing MindAR...');
       const mindarThree = new MindARThree({ container: containerRef.current });
       const { renderer, scene, camera } = mindarThree;
+      renderer.setPixelRatio(0.75); // Lower pixel ratio for improved performance
 
       // Fix for Three.js deprecation warning
       if (renderer && !renderer.outputColorSpace && renderer.outputEncoding) {

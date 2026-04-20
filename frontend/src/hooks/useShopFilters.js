@@ -8,11 +8,12 @@ export const useShopFilters = () => {
   const [selectedShape, setSelectedShape] = useState(null);
   const [selectedColors, setSelectedColors] = useState([]);
   const [isPriceFilterActive, setIsPriceFilterActive] = useState(false);
+  const [search, setSearch] = useState('');
+
 
   const togglePriceFilter = () => {
     setIsPriceFilterActive(prev => !prev);
   };
-
   const toggleFilter = (filter) => {
     setExpandedFilters(prev => ({ ...prev, [filter]: !prev[filter] }));
   };
@@ -28,6 +29,7 @@ export const useShopFilters = () => {
     setIsPriceFilterActive(false);
     setSelectedShape(null);
     setSelectedColors([]);
+    setSearch('');
     setCurrentPage(1);
   };
 
@@ -40,6 +42,8 @@ export const useShopFilters = () => {
     currentPage, setCurrentPage,
     selectedShape, setSelectedShape,
     selectedColors, setSelectedColors,
+    search, setSearch,
     toggleColor, resetFilters
   };
+
 };

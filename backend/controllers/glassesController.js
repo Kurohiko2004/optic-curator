@@ -46,4 +46,13 @@ const getAllColors = asyncHandler(async (req, res, next) => {
     res.status(200).json({ success: true, data: colors });
 });
 
-module.exports = { getAllGlasses, getGlassById, createGlass, updateGlass, getAllShapes, getAllColors };
+const deleteGlass = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const result = await glassesService.remove(id);
+    if (!result) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm để xóa' });
+    }
+    res.status(200).json({ success: true, message: 'Sản phẩm kính đã được xóa thành công' });
+});
+
+module.exports = { getAllGlasses, getGlassById, createGlass, updateGlass, getAllShapes, getAllColors, deleteGlass };

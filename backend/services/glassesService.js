@@ -19,11 +19,12 @@ const findAllGlasses = async (queryParams, pagination) => {
         through: { attributes: [] }
     };
 
-    // Tìm kiếm theo tên
+    // Tìm kiếm theo tên hoặc theo hình dạng
     if (search) {
-        whereCondition.name = {
-            [Op.like]: `%${search}%`
-        };
+        whereCondition[Op.or] = [
+            { name: { [Op.like]: `%${search}%` } },
+            // { '$shape.name$': { [Op.like]: `%${search}%` } }
+        ];
     }
 
     // Lọc theo hình dáng
@@ -62,7 +63,7 @@ const findAllGlasses = async (queryParams, pagination) => {
             },
             colorInclude
         ],
-        order: [[sortBy || 'id', sortOrder || 'ASC']], 
+        order: [[sortBy || 'id', sortOrder || 'ASC']],
         distinct: true // Tránh đếm trùng khi join many-to-many
     });
 };
@@ -118,11 +119,19 @@ const findAllColors = async () => {
     });
 };
 
+const remove = async (id) => {
+    const glass = await db.Glasses.findByPk(id);
+    if (!glass) return null;
+    await glass.destroy();
+    return true;
+};
+
 module.exports = {
     findAllGlasses,
     findById,
     create,
     update,
+    remove,
     findAllShapes,
     findAllColors
 };
