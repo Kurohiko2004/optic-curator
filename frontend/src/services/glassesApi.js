@@ -13,6 +13,7 @@ export const glassesApi = {
   // Admin functions
   create: (data) => fetchApi(API_ENDPOINTS.GLASSES.LIST, 'POST', data, true),
   update: (id, data) => fetchApi(API_ENDPOINTS.GLASSES.DETAIL(id), 'PUT', data, true),
+  delete: (id) => fetchApi(API_ENDPOINTS.GLASSES.DETAIL(id), 'DELETE', null, true),
 };
 
 // Aliases for compatibility

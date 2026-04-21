@@ -1,0 +1,314 @@
+.admin-dashboard-container {
+    padding-top: 100px;
+    padding-bottom: 60px;
+    min-height: 100vh;
+    background-color: #0f172a;
+    color: #f8fafc;
+}
+
+.admin-content {
+    max-width: 1400px;
+
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.admin-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.add-new-btn {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: black;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 15px -3px rgba(79, 172, 254, 0.4);
+}
+
+.add-new-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(79, 172, 254, 0.5);
+}
+
+.admin-main-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+.admin-sidebar {
+    position: sticky;
+    top: 120px;
+}
+
+.search-filters-bar {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.reset-filters-btn {
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 13px;
+}
+
+.reset-filters-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+}
+
+.filter-group input, 
+.filter-group select {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: white;
+}
+
+.filter-group select option {
+    background-color: #0f172a;
+    color: white;
+}
+
+
+.glasses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.admin-glass-card {
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-glass-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(79, 172, 254, 0.3);
+    background: rgba(30, 41, 59, 0.6);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.card-img-wrapper {
+    height: 180px;
+    position: relative;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.card-img-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.card-info {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-info h3 {
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.card-info .shape-tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #4facfe;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.card-price {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.card-stock {
+    font-size: 12px;
+    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.card-stock.low {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+}
+
+.message-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #1e293b;
+    border-left: 4px solid #4facfe;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Pagination Styles */
+.admin-results-info {
+    margin-bottom: 20px;
+    color: #94a3b8;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.matrix-footer {
+  margin-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-btn {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+.page-btn.active {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: black;
+  border: none;
+  font-weight: 700;
+}
+
+.page-btn:hover:not(.active) {
+  border-color: #4facfe;
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.pagination-dots {
+    color: #94a3b8;
+    padding: 0 4px;
+}
+
+.page-limit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.limit-select {
+  background: rgba(15, 23, 42, 0.8);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  outline: none;
+}
+
+.limit-select:focus {
+    border-color: #4facfe;
+}
+
+@media (max-width: 1024px) {
+    .admin-main-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-sidebar {
+        position: relative;
+        top: 0;
+        margin-bottom: 30px;
+    }
+
+    .search-filters-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+

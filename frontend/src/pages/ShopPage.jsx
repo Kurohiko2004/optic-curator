@@ -25,7 +25,9 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     itemsPerPage, setItemsPerPage,
     selectedShape, setSelectedShape,
     selectedColors, setSelectedColors,
+    search, setSearch,
     toggleColor, resetFilters
+
   } = useShopFilters();
 
   const [glasses, setGlasses] = useState([]);
@@ -87,6 +89,12 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           params.maxPrice = debouncedPrice;
         }
 
+        // 4. Thêm từ khóa tìm kiếm
+        if (search) {
+          params.search = search;
+        }
+
+
         const response = await fetchGlasses(params);
         setGlasses(response.data || []);
         setTotalPages(response.totalPages || 1);
@@ -99,12 +107,14 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     };
 
     loadGlasses();
-  }, [currentPage, itemsPerPage, debouncedPrice, isPriceFilterActive, selectedShape, selectedColors]);
+  }, [currentPage, itemsPerPage, debouncedPrice, isPriceFilterActive, selectedShape, selectedColors, search]);
+
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedPrice, isPriceFilterActive, itemsPerPage, selectedShape, selectedColors]);
+  }, [debouncedPrice, isPriceFilterActive, itemsPerPage, selectedShape, selectedColors, search]);
+
 
   const startTryOn = (itemId) => {
     setArModal({ isOpen: true, itemId });
@@ -144,7 +154,10 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           setSelectedShape={setSelectedShape}
           selectedColors={selectedColors}
           toggleColor={toggleColor}
+          search={search}
+          setSearch={setSearch}
           onReset={resetFilters}
+
         />
 
         <div className="product-matrix-container">

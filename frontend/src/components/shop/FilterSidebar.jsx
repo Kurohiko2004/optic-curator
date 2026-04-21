@@ -1,6 +1,8 @@
 import React from 'react';
 import FilterSection from './FilterSection';
 import { formatPrice } from '../../utils/formatPrice';
+import SearchBar from '../common/SearchBar';
+
 
 const FilterSidebar = ({ 
   price, setPrice, 
@@ -10,7 +12,9 @@ const FilterSidebar = ({
   faceShapes = [],
   selectedShape, setSelectedShape,
   selectedColors, toggleColor,
+  search, setSearch,
   onReset
+
 }) => {
   
   const handleShapeChange = (shape) => {
@@ -42,6 +46,16 @@ const FilterSidebar = ({
             Reset
           </button>
         </div>
+        
+        <div style={{ marginBottom: '2rem' }}>
+          <SearchBar 
+            label={null}
+            placeholder="Search glasses..."
+            value={search}
+            onChange={setSearch}
+          />
+        </div>
+
         
         {/* Price Filter with Toggle Switch */}
         <div className="filter-section">
