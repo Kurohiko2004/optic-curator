@@ -11,13 +11,13 @@ export const TRACKED_IDS = [10, 152, 234, 454, 132, 361, 54, 284, 58, 288];
  */
 export const isApproxEqual = (a, b) => Math.abs(a - b) / Math.max(a, b) < 0.12;
 
-// Dataset Averages (Centroids) for each shape based on empirical testing
+// Dataset Averages (Centroids) for each shape based on empirical testing results
 const SHAPE_CENTROIDS = {
-  Heart:  { ratioL: 1.175, rf: 0.771, rj: 0.827, angle: 125 }, // Angle guessed, will be tuned by batch tester
-  Oblong: { ratioL: 1.188, rf: 0.731, rj: 0.797, angle: 124 },
-  Oval:   { ratioL: 1.160, rf: 0.738, rj: 0.798, angle: 126 },
-  Round:  { ratioL: 1.205, rf: 0.786, rj: 0.856, angle: 132 },
-  Square: { ratioL: 1.182, rf: 0.761, rj: 0.838, angle: 118 },
+  Heart:  { ratioL: 1.175, rf: 0.771, rj: 0.827, angle: 141.7 },
+  Oblong: { ratioL: 1.188, rf: 0.731, rj: 0.797, angle: 136.8 },
+  Oval:   { ratioL: 1.160, rf: 0.738, rj: 0.798, angle: 137.0 },
+  Round:  { ratioL: 1.205, rf: 0.786, rj: 0.856, angle: 146.8 },
+  Square: { ratioL: 1.182, rf: 0.761, rj: 0.838, angle: 142.8 },
 };
 
 /**
@@ -54,10 +54,10 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   // 2. NEAREST NEIGHBOR CLASSIFICATION (Fine-tuning)
   // For balanced faces (Square, Round, Oval, Oblong), we use weighted Euclidean distance.
   const weights = { 
-    ratioL: 1.0,  // Vertical length
-    rf: 1.5,      // Forehead width
-    rj: 2.5,      // Jaw width (highest priority for Round vs others)
-    angle: 3.0    // Jaw angle (highest priority for Round vs Square)
+    ratioL: 0.5,  // Vertical length (reduced as it's very similar across types)
+    rf: 2.0,      // Forehead width
+    rj: 3.0,      // Jaw width (highest differentiator)
+    angle: 4.0    // Jaw angle (crucial for Square vs Round)
   };
   
   let minDistance = Infinity;
@@ -65,7 +65,7 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   let scores = {};
 
   Object.entries(SHAPE_CENTROIDS).forEach(([shape, centroid]) => {
-    // Normalizing angle distance by dividing by a factor (e.g. 10) to keep it in same scale as ratios
+    // Normalizing angle distance (range 135-147) by dividing by 10 to keep it in scale with ratios (0.7-1.2)
     const dist = Math.sqrt(
       weights.ratioL * Math.pow(ratioL - centroid.ratioL, 2) +
       weights.rf * Math.pow(rf - centroid.rf, 2) +
@@ -82,11 +82,11 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   process.push(`Nearest Centroid: ${bestMatch} (dist: ${minDistance.toFixed(4)})`);
   
   // 3. FINAL JAW ANGLE OVERRIDE (Breaking Round Bias)
-  // Even if ratios look Round, a sharp angle is structurally a Square.
-  if (bestMatch === "Round" && jawAngle < 122) {
+  // Based on dataset: Square avg = 142.8, Round avg = 146.8.
+  if (bestMatch === "Round" && jawAngle < 144) {
     bestMatch = "Square";
     process.push(`Sharp jaw angle (${jawAngle.toFixed(1)}°) override => SQUARE`);
-  } else if (bestMatch === "Square" && jawAngle > 128) {
+  } else if (bestMatch === "Square" && jawAngle > 145) {
     bestMatch = "Round";
     process.push(`Soft jaw angle (${jawAngle.toFixed(1)}°) override => ROUND`);
   }
