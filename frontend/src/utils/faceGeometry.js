@@ -30,7 +30,6 @@ const RANGES = {
 
 /**
  * Categorize face shape based on biological proportions and geometric measurements.
- * Logic v5: Rank-Based Voting (De-biased)
  */
 export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   if (Wc === 0) return { shape: "Unknown", process: [] };
@@ -38,88 +37,100 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   const ratioL = L / Wc; 
   const rf = Wf / Wc;    
   const rj = Wj / Wc;    
-  const rjf = rj / rf;
+  const rjf = rj / rf; // Ratio of Jaw to Forehead - key differentiator for this dataset
   const jawAngle = (angleLeft + angleRight) / 2;
 
-  let process = ["Logic v5: Rank-Based Voting"];
-  let votes = {};
-  Object.keys(SHAPE_CENTROIDS).forEach(s => votes[s] = 0);
-
-  const features = {
-    ratioL: ratioL,
-    rf: rf,
-    rj: rj,
-    angle: jawAngle,
-    rjf: rjf
+  const normalize = (val, range) => (val - range.min) / (range.max - range.min);
+  
+  // Custom ranges including rjf
+  const ranges = {
+    ratioL: { min: 1.150, max: 1.210 },
+    rf:     { min: 0.720, max: 0.790 },
+    rj:     { min: 0.790, max: 0.860 },
+    rjf:    { min: 1.050, max: 1.120 },
+    angle:  { min: 135.0, max: 148.0 }
   };
 
-  const weights = {
-    ratioL: 1,
-    rf: 2,
-    rj: 3,
-    angle: 4,
-    rjf: 4
+  const target = {
+    ratioL: normalize(ratioL, ranges.ratioL),
+    rf: normalize(rf, ranges.rf),
+    rj: normalize(rj, ranges.rj),
+    rjf: normalize(rjf, ranges.rjf),
+    angle: normalize(jawAngle, ranges.angle)
   };
 
-  let process = ["Logic v7: Angle-Prioritized Scoring"];
+  let process = ["Logic v4: Ratio-of-Ratios & De-biasing"];
+  
+  // 1. STATISTICAL DISTANCE (Standardized)
   let scores = {};
-  Object.keys(SHAPE_CENTROIDS).forEach(s => scores[s] = 0);
-
-  // 1. FEATURE SIGNATURES (Hard-hitting bonuses based on your identified differentiator)
-  // Feature A: Jaw Angle (Primary Differentiator)
-  if (jawAngle < 139) {
-    scores.Oblong += 25; scores.Oval += 25;
-    process.push("Signature: Sharp jawline => OBLONG/OVAL bonus");
-  } else if (jawAngle < 142) {
-    scores.Heart += 15; scores.Square += 15;
-    process.push("Signature: Medium jawline => HEART/SQUARE bonus");
-  } else if (jawAngle > 145) {
-    scores.Round += 20;
-    process.push("Signature: Soft jawline => ROUND bonus");
-  }
-
-  // Feature B: Jaw Ratio (rj)
-  if (rj < 0.81) {
-    scores.Oblong += 15; scores.Oval += 15;
-    process.push("Signature: Narrow jaw => OBLONG/OVAL bonus");
-  } else if (rj > 0.84) {
-    scores.Round += 10; scores.Square += 10;
-  }
-
-  // Feature C: Length Ratio (ratioL)
-  if (ratioL > 1.19) {
-    scores.Round += 10; scores.Oblong += 10;
-  } else if (ratioL < 1.17) {
-    scores.Oval += 15; scores.Heart += 10;
-  }
-
-  // Feature D: Jaw-to-Forehead Ratio (rjf)
-  if (rjf < 1.075) {
-    scores.Heart += 20;
-    process.push("Signature: Heart structure (Low J/F)");
-  }
-
-  // 2. TIE-BREAKER: EUCLIDEAN DISTANCE (as a small adjustment)
   Object.entries(SHAPE_CENTROIDS).forEach(([shape, centroid]) => {
     const c_rjf = centroid.rj / centroid.rf;
+    const normCentroid = {
+      ratioL: normalize(centroid.ratioL, ranges.ratioL),
+      rf: normalize(centroid.rf, ranges.rf),
+      rj: normalize(centroid.rj, ranges.rj),
+      rjf: normalize(c_rjf, ranges.rjf),
+      angle: normalize(centroid.angle, ranges.angle)
+    };
+
+    // Feature Weights - prioritizing rjf and angle
+    const weights = { ratioL: 1, rf: 2, rj: 2, rjf: 6, angle: 6 };
+
     const dist = Math.sqrt(
-      Math.pow(ratioL - centroid.ratioL, 2) * 10 +
-      Math.pow(rf - centroid.rf, 2) * 10 +
-      Math.pow(rj - centroid.rj, 2) * 20 +
-      Math.pow(jawAngle - centroid.angle, 2) * 0.5 // Lower weight for raw distance on angle
+      weights.ratioL * Math.pow(target.ratioL - normCentroid.ratioL, 2) +
+      weights.rf * Math.pow(target.rf - normCentroid.rf, 2) +
+      weights.rj * Math.pow(target.rj - normCentroid.rj, 2) +
+      weights.rjf * Math.pow(target.rjf - normCentroid.rjf, 2) +
+      weights.angle * Math.pow(target.angle - normCentroid.angle, 2)
     );
-    scores[shape] -= dist; // Penalty based on distance
+    scores[shape] = dist;
   });
 
-  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-  let [firstMatch, firstScore] = sorted[0];
-  let [secondMatch, secondScore] = sorted[1];
+  // 2. CLUSTER FILTERING (Narrow/Long vs. Wide/Round)
+  // Logic: First-pass forehead check, then sharp-angle safety net.
+  const isNarrowForehead = rf < 0.75;
+  const isSharpAngle = jawAngle < 140;
 
-  // 3. HYBRID LOGIC
+  if (isNarrowForehead || isSharpAngle) {
+    process.push(`Narrow Trigger: ${isNarrowForehead ? "Low Forehead" : "Sharp Angle"} restricts to OVAL/OBLONG`);
+    // Scale distance penalty: isolate from Round/Square/Heart
+    scores.Round *= 4;
+    scores.Square *= 4;
+    scores.Heart *= 3;
+    
+    // Within Narrow Cluster, Length and Angle provide the split
+    if (ratioL > 1.175 || jawAngle < 138) {
+      scores.Oblong *= 0.4; 
+      process.push("Narrow Cluster: Features suggest OBLONG");
+    } else {
+      scores.Oval *= 0.4;
+      process.push("Narrow Cluster: Features suggest OVAL");
+    }
+  } else {
+    // 3. WIDE CLUSTER REFINEMENT (Heart/Square/Round)
+    if (jawAngle < 143) {
+      scores.Round *= 2;
+      process.push("Wide Cluster: Sharp angle penalizes Round");
+    }
+  }
+
+  const sorted = Object.entries(scores).sort((a, b) => a[1] - b[1]);
+  let [firstMatch, firstDist] = sorted[0];
+  let [secondMatch, secondDist] = sorted[1];
+
+  // 4. SIGNATURE OVERRIDES (Hard Rules from Dataset Patterns)
+  // Low J/F ratio is unique to Heart
+  if (rjf < 1.076 && rj > 0.81) {
+    process.push(`Override: Low J/F ratio suggests HEART`);
+    if (secondMatch === "Heart") [firstMatch, secondMatch] = [secondMatch, firstMatch];
+  }
+
+  // 5. HYBRID LOGIC
   let finalShape = firstMatch;
-  if (firstScore - secondScore < 10) {
+  const hybridFactor = (rf < 0.75) ? 1.6 : 1.3;
+  if (secondDist < firstDist * hybridFactor && firstMatch !== secondMatch) {
     finalShape = `${firstMatch} / ${secondMatch}`;
-    process.push(`Hybrid: High score proximity`);
+    process.push(`Hybrid: Proximity match (${firstMatch} & ${secondMatch})`);
   }
 
   return { shape: finalShape, process, ratioL, rf, rj, rjf, jawAngle, scores };
