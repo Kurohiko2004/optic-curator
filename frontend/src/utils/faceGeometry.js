@@ -30,6 +30,7 @@ const RANGES = {
 
 /**
  * Categorize face shape based on biological proportions and geometric measurements.
+ * Logic v5: Rank-Based Voting (De-biased)
  */
 export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   if (Wc === 0) return { shape: "Unknown", process: [] };
@@ -37,99 +38,73 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   const ratioL = L / Wc; 
   const rf = Wf / Wc;    
   const rj = Wj / Wc;    
-  const rjf = rj / rf; // Ratio of Jaw to Forehead - key differentiator for this dataset
+  const rjf = rj / rf;
   const jawAngle = (angleLeft + angleRight) / 2;
 
-  const normalize = (val, range) => (val - range.min) / (range.max - range.min);
-  
-  // Custom ranges including rjf
-  const ranges = {
-    ratioL: { min: 1.150, max: 1.210 },
-    rf:     { min: 0.720, max: 0.790 },
-    rj:     { min: 0.790, max: 0.860 },
-    rjf:    { min: 1.050, max: 1.120 },
-    angle:  { min: 135.0, max: 148.0 }
+  let process = ["Logic v5: Rank-Based Voting"];
+  let votes = {};
+  Object.keys(SHAPE_CENTROIDS).forEach(s => votes[s] = 0);
+
+  const features = {
+    ratioL: ratioL,
+    rf: rf,
+    rj: rj,
+    angle: jawAngle,
+    rjf: rjf
   };
 
-  const target = {
-    ratioL: normalize(ratioL, ranges.ratioL),
-    rf: normalize(rf, ranges.rf),
-    rj: normalize(rj, ranges.rj),
-    rjf: normalize(rjf, ranges.rjf),
-    angle: normalize(jawAngle, ranges.angle)
+  const weights = {
+    ratioL: 1,
+    rf: 2,
+    rj: 3,
+    angle: 4,
+    rjf: 4
   };
 
-  let process = ["Logic v4: Ratio-of-Ratios & De-biasing"];
-  
-  // 1. STATISTICAL DISTANCE (Standardized)
-  let scores = {};
-  Object.entries(SHAPE_CENTROIDS).forEach(([shape, centroid]) => {
-    const c_rjf = centroid.rj / centroid.rf;
-    const normCentroid = {
-      ratioL: normalize(centroid.ratioL, ranges.ratioL),
-      rf: normalize(centroid.rf, ranges.rf),
-      rj: normalize(centroid.rj, ranges.rj),
-      rjf: normalize(c_rjf, ranges.rjf),
-      angle: normalize(centroid.angle, ranges.angle)
-    };
+  // 1. RANK-BASED VOTING
+  // For each feature, rank shapes by proximity and award points (5, 4, 3, 2, 1)
+  Object.entries(features).forEach(([featName, targetVal]) => {
+    const list = Object.entries(SHAPE_CENTROIDS).map(([shape, centroid]) => {
+      let cVal = centroid[featName];
+      if (featName === "rjf") cVal = centroid.rj / centroid.rf;
+      return { shape, dist: Math.abs(targetVal - cVal) };
+    });
 
-    // Feature Weights - prioritizing rjf and angle
-    const weights = { ratioL: 1, rf: 2, rj: 2, rjf: 6, angle: 6 };
+    // Sort by distance (closest first)
+    list.sort((a, b) => a.dist - b.dist);
 
-    const dist = Math.sqrt(
-      weights.ratioL * Math.pow(target.ratioL - normCentroid.ratioL, 2) +
-      weights.rf * Math.pow(target.rf - normCentroid.rf, 2) +
-      weights.rj * Math.pow(target.rj - normCentroid.rj, 2) +
-      weights.rjf * Math.pow(target.rjf - normCentroid.rjf, 2) +
-      weights.angle * Math.pow(target.angle - normCentroid.angle, 2)
-    );
-    scores[shape] = dist;
+    // Award points based on rank
+    const points = [5, 4, 3, 2, 1];
+    list.forEach((item, index) => {
+      votes[item.shape] += points[index] * (weights[featName] || 1);
+    });
   });
 
-  // 2. CLUSTER FILTERING (Narrow/Long vs. Wide/Round)
-  // Forehead width (rf) is the most stable differentiator for the Oblong/Oval cluster in this dataset.
+  // 2. HARD-SIGNATURE PENALTIES (PDF & Empirical)
+  if (jawAngle < 140) {
+    votes.Round -= 15; // Oblong/Oval/Square zone
+    process.push("Penalty: Angle too sharp for Round");
+  }
   if (rf < 0.75) {
-    process.push(`Narrow Cluster: Low Forehead ratio (${rf.toFixed(3)}) restricts to OVAL/OBLONG`);
-    // Scale distance penalty: isolate from Round/Square/Heart
-    scores.Round *= 4;
-    scores.Square *= 4;
-    scores.Heart *= 3;
-    
-    // Within Narrow Cluster, Length and Angle provide the split
-    if (ratioL > 1.175 || jawAngle < 138) {
-      scores.Oblong *= 0.4; 
-      process.push("Narrow Cluster: Features suggest OBLONG");
-    } else {
-      scores.Oval *= 0.4;
-      process.push("Narrow Cluster: Features suggest OVAL");
-    }
-  } else {
-    // 3. WIDE CLUSTER REFINEMENT (Heart/Square/Round)
-    // If it's a wide face but has a sharp angle, it's likely Square, not Round.
-    if (jawAngle < 143) {
-      scores.Round *= 2;
-      process.push("Wide Cluster: Sharp angle penalizes Round");
-    }
+    votes.Round -= 10; votes.Square -= 10;
+    process.push("Penalty: Narrow forehead favors Oval/Oblong");
+  }
+  if (rjf < 1.075) {
+    votes.Heart += 10;
+    process.push("Bonus: Heart signature (Low J/F)");
   }
 
-  const sorted = Object.entries(scores).sort((a, b) => a[1] - b[1]);
-  let [firstMatch, firstDist] = sorted[0];
-  let [secondMatch, secondDist] = sorted[1];
+  const sorted = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+  let [firstMatch, firstScore] = sorted[0];
+  let [secondMatch, secondScore] = sorted[1];
 
-  // 4. SIGNATURE OVERRIDES (Hard Rules from Dataset Patterns)
-  // Low J/F ratio is unique to Heart
-  if (rjf < 1.076 && rj > 0.81) {
-    process.push(`Override: Low J/F ratio suggests HEART`);
-    if (secondMatch === "Heart") [firstMatch, secondMatch] = [secondMatch, firstMatch];
-  }
-
-  // 5. HYBRID LOGIC
+  // 3. HYBRID LOGIC
   let finalShape = firstMatch;
-  const hybridFactor = (rf < 0.75) ? 1.6 : 1.3;
-  if (secondDist < firstDist * hybridFactor && firstMatch !== secondMatch) {
+  // If scores are within 10% of the max possible score (approx 70-80), it's a hybrid
+  if (firstScore - secondScore < 8) {
     finalShape = `${firstMatch} / ${secondMatch}`;
-    process.push(`Hybrid: Proximity match (${firstMatch} & ${secondMatch})`);
+    process.push(`Hybrid: High score proximity (${firstScore} vs ${secondScore})`);
   }
 
-  return { shape: finalShape, process, ratioL, rf, rj, rjf, jawAngle, scores };
+  return { shape: finalShape, process, ratioL, rf, rj, rjf, jawAngle, scores: votes };
 };
