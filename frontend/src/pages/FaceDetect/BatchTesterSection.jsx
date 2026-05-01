@@ -63,6 +63,7 @@ const BatchTesterSection = ({
                       <th style={{ padding: '10px' }}>Avg L/Wc</th>
                       <th style={{ padding: '10px' }}>Avg Rf</th>
                       <th style={{ padding: '10px' }}>Avg Rj</th>
+                      <th style={{ padding: '10px' }}>Avg Angle</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -77,6 +78,7 @@ const BatchTesterSection = ({
                         <td style={{ padding: '10px', color: '#cbd5e1' }}>{(s.sumL/s.count).toFixed(3)}</td>
                         <td style={{ padding: '10px', color: '#cbd5e1' }}>{(s.sumRf/s.count).toFixed(3)}</td>
                         <td style={{ padding: '10px', color: '#cbd5e1' }}>{(s.sumRj/s.count).toFixed(3)}</td>
+                        <td style={{ padding: '10px', color: '#cbd5e1' }}>{(s.sumAngle/s.count).toFixed(1)}°</td>
                       </tr>
                     ))}
                   </tbody>

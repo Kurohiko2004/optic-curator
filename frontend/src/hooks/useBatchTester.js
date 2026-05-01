@@ -17,13 +17,14 @@ const useBatchTester = () => {
     testResults.forEach(res => {
       const type = res.expected;
       if (!stats[type]) {
-        stats[type] = { count: 0, correct: 0, sumL: 0, sumRf: 0, sumRj: 0 };
+        stats[type] = { count: 0, correct: 0, sumL: 0, sumRf: 0, sumRj: 0, sumAngle: 0 };
       }
       stats[type].count++;
       if (res.match) stats[type].correct++;
       stats[type].sumL += res.ratioL || 0;
       stats[type].sumRf += res.rf || 0;
       stats[type].sumRj += res.rj || 0;
+      stats[type].sumAngle += res.jawAngle || 0;
     });
     setTestStats(stats);
   }, [testResults]);
@@ -133,7 +134,8 @@ const useBatchTester = () => {
           match,
           ratioL: resData.ratioL,
           rf: resData.rf,
-          rj: resData.rj
+          rj: resData.rj,
+          jawAngle: resData.jawAngle
         });
 
         setTestProgress(Math.round(((i + 1) / files.length) * 100));
