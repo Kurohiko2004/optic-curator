@@ -86,32 +86,31 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
     scores[shape] = dist;
   });
 
-  // 2. CLUSTER FILTERING (Narrow/Long vs. Wide/Round)
-  // Logic: First-pass forehead check, then sharp-angle safety net.
-  // Thresholds relaxed (v5) to account for MediaPipe measurement bias.
-  const isNarrowForehead = rf < 0.77;
-  const isSharpAngle = jawAngle < 144;
+  // 2. CLUSTER FILTERING (Narrow/Long vs. Wide/Round) - Logic v6
+  // Thresholds relaxed even further to catch MediaPipe noise.
+  const isNarrowForehead = rf < 0.785;
+  const isSharpAngle = jawAngle < 145;
 
   if (isNarrowForehead || isSharpAngle) {
-    process.push(`Narrow Trigger (v5): ${isNarrowForehead ? "Narrow Forehead" : "Sharp Angle"} detected`);
-    // Hard Exclusion: set Wide shapes to extremely high distance
-    scores.Round = 100;
-    scores.Square = 100;
-    scores.Heart = 100;
+    process.push(`Narrow Trigger (v6): rf=${rf.toFixed(3)}, angle=${jawAngle.toFixed(1)}`);
+    // Hard Exclusion of Wide types
+    scores.Round = 500;
+    scores.Square = 500;
+    scores.Heart = 500;
     
-    // Within Narrow Cluster, Length and Angle provide the split
-    if (ratioL > 1.175 || jawAngle < 138) {
-      scores.Oblong = 0.01; // Favor Oblong
-      process.push("Narrow Cluster: Features favor OBLONG");
+    // Forced win for Narrow cluster
+    if (ratioL > 1.178 || jawAngle < 139) {
+      scores.Oblong = -50; // Negative distance = absolute winner
+      process.push("Forced Win: OBLONG signature");
     } else {
-      scores.Oval = 0.01; // Favor Oval
-      process.push("Narrow Cluster: Features favor OVAL");
+      scores.Oval = -50; 
+      process.push("Forced Win: OVAL signature");
     }
   } else {
     // 3. WIDE CLUSTER REFINEMENT (Heart/Square/Round)
-    if (jawAngle < 145) {
-      scores.Round *= 3; // Aggressive Round penalty
-      process.push("Wide Cluster: Angle penalizes Round");
+    if (jawAngle < 146) {
+      scores.Round *= 10; // Extreme penalty for Round in non-round territory
+      process.push("Wide Cluster: Extreme Round suppression");
     }
   }
 
@@ -120,18 +119,20 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   let [secondMatch, secondDist] = sorted[1];
 
   // 4. SIGNATURE OVERRIDES (Hard Rules from Dataset Patterns)
-  // Low J/F ratio is unique to Heart
-  if (rjf < 1.076 && rj > 0.81) {
+  if (rjf < 1.076 && firstMatch !== "Heart" && firstMatch !== "Oblong" && firstMatch !== "Oval") {
     process.push(`Override: Low J/F ratio suggests HEART`);
     if (secondMatch === "Heart") [firstMatch, secondMatch] = [secondMatch, firstMatch];
   }
 
   // 5. HYBRID LOGIC
-  let finalShape = firstMatch;
-  const hybridFactor = (rf < 0.75) ? 1.6 : 1.3;
+  let finalShape = `[v6] ${firstMatch}`; // UI verification prefix
+  const hybridFactor = (rf < 0.785) ? 1.8 : 1.3;
   if (secondDist < firstDist * hybridFactor && firstMatch !== secondMatch) {
-    finalShape = `${firstMatch} / ${secondMatch}`;
-    process.push(`Hybrid: Proximity match (${firstMatch} & ${secondMatch})`);
+    // Only hybridize if they are both in the same cluster or reasonably close
+    if (Math.abs(firstDist - secondDist) < 50) {
+      finalShape = `[v6] ${firstMatch} / ${secondMatch}`;
+      process.push(`Hybrid: Proximity match`);
+    }
   }
 
   return { shape: finalShape, process, ratioL, rf, rj, rjf, jawAngle, scores };
