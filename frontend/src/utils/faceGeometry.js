@@ -51,28 +51,27 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   let votes = {};
   Object.keys(SHAPE_CENTROIDS).forEach(s => votes[s] = 0);
 
-  // 1. SIGNATURE VOTING SYSTEM (Inspired by Naive Bayes logic in the PDF)
-  // Instead of distance, we check which category the individual feature belongs to.
-  
-  // Feature A: Jaw Width (rj) - The strongest differentiator in your dataset
-  if (rj > 0.84) votes.Round += 3;
-  else if (rj > 0.82) votes.Square += 3;
-  else if (rj < 0.81) { votes.Oval += 2; votes.Oblong += 2; }
+  // 1. SIGNATURE VOTING SYSTEM (Refined from PDF Logic)
+  // Feature A: Jaw Width (rj)
+  if (rj > 0.84) votes.Round += 4;
+  else if (rj > 0.825) votes.Square += 4;
+  else if (rj < 0.81) { votes.Oval += 3; votes.Oblong += 3; }
+  if (rj < 0.80) votes.Heart += 2;
 
-  // Feature B: Jaw Angle - Key for Square vs Round
-  if (jawAngle > 145) votes.Round += 4;
-  else if (jawAngle < 140) { votes.Oblong += 3; votes.Oval += 3; }
-  else if (jawAngle < 143.5) votes.Square += 4;
+  // Feature B: Jaw Angle
+  if (jawAngle > 146) votes.Round += 5;
+  else if (jawAngle < 140) { votes.Oblong += 4; votes.Oval += 4; }
+  else if (jawAngle < 143) votes.Square += 5;
 
   // Feature C: Length Ratio (ratioL)
-  if (ratioL > 1.195) votes.Round += 2;
-  else if (ratioL < 1.17) votes.Oval += 3;
-  else if (ratioL > 1.18) votes.Oblong += 2;
+  if (ratioL > 1.20) votes.Round += 3;
+  else if (ratioL < 1.17) votes.Oval += 4;
+  else if (ratioL > 1.185) votes.Oblong += 3;
 
   // Feature D: Forehead (rf)
-  if (rf > 0.78) votes.Round += 1;
-  else if (rf < 0.74) { votes.Oblong += 2; votes.Oval += 2; }
-  else if (rf > 0.76) votes.Heart += 2;
+  if (rf > 0.775) votes.Heart += 4; // Heart signature: Wide forehead
+  if (rf > 0.78) votes.Round += 2;
+  if (rf < 0.74) { votes.Oblong += 3; votes.Oval += 3; }
 
   // 2. TIE-BREAKER VIA NORMALIZED EUCLIDEAN DISTANCE
   let scores = {};
@@ -89,21 +88,38 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
       Math.pow(target.rj - normCentroid.rj, 2) +
       Math.pow(target.angle - normCentroid.angle, 2)
     );
-    // Distance acts as a "penalty" to the votes
-    scores[shape] = votes[shape] - (dist * 2);
+    // Distance acts as a "penalty" to the votes. Multiplier increased for more sensitivity.
+    scores[shape] = votes[shape] - (dist * 4);
   });
 
-  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]); // Highest score first
+  // 3. POST-PROCESSING RULES (from Page 75 of PDF)
+  // Rule: If Oval and Round are close, check ratioL
+  if (scores.Oval > scores.Round - 1 && ratioL < 1.17) {
+    scores.Oval += 2;
+    process.push("PDF Rule: Small ratioL favors Oval over Round");
+  }
+  // Rule: If Oblong and Square are close, check jawAngle
+  if (scores.Oblong > scores.Square - 1 && jawAngle < 140) {
+    scores.Oblong += 2;
+    process.push("PDF Rule: Sharp angle favors Oblong over Square");
+  }
+  // Rule: Heart signature (Wide forehead + Narrow jaw)
+  if (rf > 0.77 && rj < 0.83) {
+    scores.Heart += 3;
+    process.push("PDF Rule: Wide forehead + Narrow jaw signature => HEART bonus");
+  }
+
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
   let [firstMatch, firstScore] = sorted[0];
   let [secondMatch, secondScore] = sorted[1];
 
-  // 3. HYBRID LOGIC
+  // 4. HYBRID LOGIC
   let finalShape = firstMatch;
-  if (Math.abs(firstScore - secondScore) < 0.8) {
+  if (Math.abs(firstScore - secondScore) < 1.2) {
     finalShape = `${firstMatch} / ${secondMatch}`;
-    process.push(`Hybrid: Close scores between ${firstMatch} and ${secondMatch}`);
+    process.push(`Hybrid: Scores are close (${firstScore.toFixed(1)} vs ${secondScore.toFixed(1)})`);
   } else {
-    process.push(`Primary Match: ${firstMatch} (score: ${firstScore.toFixed(2)})`);
+    process.push(`Primary Match: ${firstMatch}`);
   }
 
   return { shape: finalShape, process, ratioL, rf, rj, jawAngle, scores };
