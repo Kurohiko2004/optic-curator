@@ -86,10 +86,29 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
     scores[shape] = dist;
   });
 
-  // 2. AGGRESSIVE DE-BIASING FOR ROUND
+  // 2. CLUSTER FILTERING (Narrow vs. Wide)
+  // If jaw ratio is low, it's structurally impossible to be Round or Square in this dataset.
+  if (rj < 0.815) {
+    process.push(`Narrow Cluster: Low J ratio (${rj.toFixed(3)}) restricts to OVAL/OBLONG`);
+    // Scale distance penalty: increase Round/Square/Heart distances significantly
+    scores.Round *= 3;
+    scores.Square *= 3;
+    scores.Heart *= 2;
+    
+    // Within Narrow Cluster, Length is the key differentiator
+    if (ratioL > 1.175) {
+      scores.Oblong *= 0.5; // Bonus for Oblong
+      process.push("Narrow Cluster: Length suggests OBLONG");
+    } else {
+      scores.Oval *= 0.5; // Bonus for Oval
+      process.push("Narrow Cluster: Length suggests OVAL");
+    }
+  }
+
+  // 3. AGGRESSIVE DE-BIASING FOR ROUND
   // If the face is not significantly 'Round' by angle, penalize Round.
   if (jawAngle < 145) {
-    scores.Round *= 1.2; 
+    scores.Round *= 1.4; 
     process.push("Penalty: Jaw angle too sharp for pure Round");
   }
 
@@ -97,18 +116,19 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   let [firstMatch, firstDist] = sorted[0];
   let [secondMatch, secondDist] = sorted[1];
 
-  // 3. SIGNATURE OVERRIDES (Hard Rules from Dataset Patterns)
-  if (rjf < 1.075 && firstMatch !== "Heart") {
+  // 4. SIGNATURE OVERRIDES (Hard Rules from Dataset Patterns)
+  if (rjf < 1.075 && rj > 0.81) {
     process.push(`Override: Low J/F ratio (${rjf.toFixed(3)}) strongly suggests HEART`);
-    // Shift towards Heart if it's in top 2
     if (secondMatch === "Heart") [firstMatch, secondMatch] = [secondMatch, firstMatch];
   }
 
-  // 4. HYBRID LOGIC
+  // 5. HYBRID LOGIC
   let finalShape = firstMatch;
-  if (secondDist < firstDist * 1.25 && firstMatch !== secondMatch) {
+  // Increase hybrid range for narrow faces to catch Oval/Oblong ambiguity
+  const hybridFactor = rj < 0.815 ? 1.5 : 1.25;
+  if (secondDist < firstDist * hybridFactor && firstMatch !== secondMatch) {
     finalShape = `${firstMatch} / ${secondMatch}`;
-    process.push(`Hybrid: High proximity between ${firstMatch} and ${secondMatch}`);
+    process.push(`Hybrid: Proximity match (${firstMatch} & ${secondMatch})`);
   }
 
   return { shape: finalShape, process, ratioL, rf, rj, rjf, jawAngle, scores };
