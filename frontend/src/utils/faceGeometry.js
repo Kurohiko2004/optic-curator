@@ -61,49 +61,56 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
     rjf: 4
   };
 
-  // 1. RANK-BASED VOTING
-  // For each feature, rank shapes by proximity and award points (5, 4, 3, 2, 1)
-  Object.entries(features).forEach(([featName, targetVal]) => {
-    const list = Object.entries(SHAPE_CENTROIDS).map(([shape, centroid]) => {
-      let cVal = centroid[featName];
-      if (featName === "rjf") cVal = centroid.rj / centroid.rf;
-      return { shape, dist: Math.abs(targetVal - cVal) };
-    });
+  // 1. CLUSTER SPLIT (Based on Jaw Angle - the strongest differentiator)
+  const isNarrowCluster = jawAngle < 140.5;
+  const clusterShapes = isNarrowCluster ? ["Oblong", "Oval"] : ["Heart", "Square", "Round"];
+  
+  process.push(`Cluster: ${isNarrowCluster ? "NARROW/LONG" : "WIDE/ANGULAR"} (Angle: ${jawAngle.toFixed(1)}°)`);
 
-    // Sort by distance (closest first)
+  // 2. RANK-BASED VOTING (Within Cluster)
+  Object.entries(features).forEach(([featName, targetVal]) => {
+    const list = Object.entries(SHAPE_CENTROIDS)
+      .filter(([shape]) => clusterShapes.includes(shape)) // ONLY vote for cluster shapes
+      .map(([shape, centroid]) => {
+        let cVal = centroid[featName];
+        if (featName === "rjf") cVal = centroid.rj / centroid.rf;
+        return { shape, dist: Math.abs(targetVal - cVal) };
+      });
+
     list.sort((a, b) => a.dist - b.dist);
 
-    // Award points based on rank
-    const points = [5, 4, 3, 2, 1];
+    // Award points based on rank within the cluster
+    // (If 2 shapes: 5, 1. If 3 shapes: 5, 3, 1)
+    const points = clusterShapes.length === 2 ? [5, 1] : [5, 3, 1];
     list.forEach((item, index) => {
       votes[item.shape] += points[index] * (weights[featName] || 1);
     });
   });
 
-  // 2. HARD-SIGNATURE PENALTIES (PDF & Empirical)
-  if (jawAngle < 140) {
-    votes.Round -= 15; // Oblong/Oval/Square zone
-    process.push("Penalty: Angle too sharp for Round");
-  }
-  if (rf < 0.75) {
-    votes.Round -= 10; votes.Square -= 10;
-    process.push("Penalty: Narrow forehead favors Oval/Oblong");
-  }
-  if (rjf < 1.075) {
-    votes.Heart += 10;
-    process.push("Bonus: Heart signature (Low J/F)");
+  // 3. CLUSTER-SPECIFIC REFINEMENT
+  if (isNarrowCluster) {
+    // Oblong vs Oval differentiator: Length
+    if (ratioL > 1.175) votes.Oblong += 10; else votes.Oval += 10;
+  } else {
+    // Wide cluster differentiator: J/F Ratio for Heart
+    if (rjf < 1.076) votes.Heart += 15;
+    // Angle differentiator for Round vs Square
+    if (jawAngle > 145) votes.Round += 10;
   }
 
-  const sorted = Object.entries(votes).sort((a, b) => b[1] - a[1]);
-  let [firstMatch, firstScore] = sorted[0];
-  let [secondMatch, secondScore] = sorted[1];
+  const sorted = Object.entries(votes)
+    .filter(([_, score]) => score > 0)
+    .sort((a, b) => b[1] - a[1]);
+    
+  let [firstMatch, firstScore] = sorted[0] || ["Unknown", 0];
+  let [secondMatch, secondScore] = sorted[1] || [firstMatch, 0];
 
-  // 3. HYBRID LOGIC
+  // 4. HYBRID LOGIC
   let finalShape = firstMatch;
-  // If scores are within 10% of the max possible score (approx 70-80), it's a hybrid
-  if (firstScore - secondScore < 8) {
+  const threshold = isNarrowCluster ? 5 : 10; // Tighter for narrow cluster
+  if (firstScore - secondScore < threshold && firstMatch !== secondMatch) {
     finalShape = `${firstMatch} / ${secondMatch}`;
-    process.push(`Hybrid: High score proximity (${firstScore} vs ${secondScore})`);
+    process.push(`Hybrid: Proximity within cluster`);
   }
 
   return { shape: finalShape, process, ratioL, rf, rj, rjf, jawAngle, scores: votes };
