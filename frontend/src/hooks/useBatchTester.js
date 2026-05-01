@@ -99,7 +99,7 @@ const useBatchTester = () => {
           const p54 = getPos(54), p284 = getPos(284);
           const p234 = getPos(234), p454 = getPos(454);
           const p132 = getPos(132), p361 = getPos(361);
-          const p150 = getPos(150), p379 = getPos(379);
+          const p58 = getPos(58), p288 = getPos(288);
 
           const faceVector = p10.clone().sub(p152);
           const pHairline = p10.clone().add(faceVector.multiplyScalar(0.16));
@@ -111,11 +111,11 @@ const useBatchTester = () => {
           const Wc = getDist2D(p234, p454);
           const Wj = getDist2D(p132, p361);
 
-          const vecLeftMidJaw = p150.clone().sub(p132);
+          const vecLeftMidJaw = p58.clone().sub(p132);
           const vecLeftCheek = p234.clone().sub(p132);
           const angleLeft = vecLeftMidJaw.angleTo(vecLeftCheek) * (180 / Math.PI);
 
-          const vecRightMidJaw = p379.clone().sub(p361);
+          const vecRightMidJaw = p288.clone().sub(p361);
           const vecRightCheek = p454.clone().sub(p361);
           const angleRight = vecRightMidJaw.angleTo(vecRightCheek) * (180 / Math.PI);
 
