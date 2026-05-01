@@ -59,11 +59,19 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
     angle: normalize(jawAngle, ranges.angle)
   };
 
-  let process = ["Logic v4: Ratio-of-Ratios & De-biasing"];
+  let process = ["Logic v6: Two-Stage Absolute Classifier"];
   
-  // 1. STATISTICAL DISTANCE (Standardized)
+  // 1. STAGE 1: CLUSTER ASSIGNMENT
+  // Thresholds calibrated for MediaPipe drift
+  const isNarrow = rf < 0.785 || jawAngle < 145;
+  const clusterShapes = isNarrow ? ["Oblong", "Oval"] : ["Heart", "Round", "Square"];
+  
+  process.push(`Cluster: ${isNarrow ? "NARROW" : "WIDE"} (rf=${rf.toFixed(3)}, angle=${jawAngle.toFixed(1)})`);
+
+  // 2. STAGE 2: WITHIN-CLUSTER CLASSIFICATION
   let scores = {};
-  Object.entries(SHAPE_CENTROIDS).forEach(([shape, centroid]) => {
+  clusterShapes.forEach(shape => {
+    const centroid = SHAPE_CENTROIDS[shape];
     const c_rjf = centroid.rj / centroid.rf;
     const normCentroid = {
       ratioL: normalize(centroid.ratioL, ranges.ratioL),
@@ -73,8 +81,8 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
       angle: normalize(centroid.angle, ranges.angle)
     };
 
-    // Feature Weights - prioritizing rjf and angle
-    const weights = { ratioL: 1, rf: 2, rj: 2, rjf: 6, angle: 6 };
+    // Equal weighting within the cluster to allow subtle features (like length) to speak
+    const weights = { ratioL: 4, rf: 1, rj: 1, rjf: 1, angle: 2 };
 
     const dist = Math.sqrt(
       weights.ratioL * Math.pow(target.ratioL - normCentroid.ratioL, 2) +
@@ -86,53 +94,16 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
     scores[shape] = dist;
   });
 
-  // 2. CLUSTER FILTERING (Narrow/Long vs. Wide/Round) - Logic v6
-  // Thresholds relaxed even further to catch MediaPipe noise.
-  const isNarrowForehead = rf < 0.785;
-  const isSharpAngle = jawAngle < 145;
-
-  if (isNarrowForehead || isSharpAngle) {
-    process.push(`Narrow Trigger (v6): rf=${rf.toFixed(3)}, angle=${jawAngle.toFixed(1)}`);
-    // Hard Exclusion of Wide types
-    scores.Round = 500;
-    scores.Square = 500;
-    scores.Heart = 500;
-    
-    // Forced win for Narrow cluster
-    if (ratioL > 1.178 || jawAngle < 139) {
-      scores.Oblong = -50; // Negative distance = absolute winner
-      process.push("Forced Win: OBLONG signature");
-    } else {
-      scores.Oval = -50; 
-      process.push("Forced Win: OVAL signature");
-    }
-  } else {
-    // 3. WIDE CLUSTER REFINEMENT (Heart/Square/Round)
-    if (jawAngle < 146) {
-      scores.Round *= 10; // Extreme penalty for Round in non-round territory
-      process.push("Wide Cluster: Extreme Round suppression");
-    }
-  }
-
   const sorted = Object.entries(scores).sort((a, b) => a[1] - b[1]);
   let [firstMatch, firstDist] = sorted[0];
-  let [secondMatch, secondDist] = sorted[1];
+  let secondMatch = sorted[1] ? sorted[1][0] : firstMatch;
+  let secondDist = sorted[1] ? sorted[1][1] : firstDist;
 
-  // 4. SIGNATURE OVERRIDES (Hard Rules from Dataset Patterns)
-  if (rjf < 1.076 && firstMatch !== "Heart" && firstMatch !== "Oblong" && firstMatch !== "Oval") {
-    process.push(`Override: Low J/F ratio suggests HEART`);
-    if (secondMatch === "Heart") [firstMatch, secondMatch] = [secondMatch, firstMatch];
-  }
-
-  // 5. HYBRID LOGIC
-  let finalShape = `[v6] ${firstMatch}`; // UI verification prefix
-  const hybridFactor = (rf < 0.785) ? 1.8 : 1.3;
-  if (secondDist < firstDist * hybridFactor && firstMatch !== secondMatch) {
-    // Only hybridize if they are both in the same cluster or reasonably close
-    if (Math.abs(firstDist - secondDist) < 50) {
-      finalShape = `[v6] ${firstMatch} / ${secondMatch}`;
-      process.push(`Hybrid: Proximity match`);
-    }
+  // 3. HYBRID LOGIC (Only within cluster)
+  let finalShape = `[v6] ${firstMatch}`;
+  if (secondMatch !== firstMatch && secondDist < firstDist * 1.5) {
+    finalShape = `[v6] ${firstMatch} / ${secondMatch}`;
+    process.push("Hybrid match within cluster");
   }
 
   return { shape: finalShape, process, ratioL, rf, rj, rjf, jawAngle, scores };
