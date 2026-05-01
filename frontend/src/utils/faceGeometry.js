@@ -20,7 +20,7 @@ const SHAPE_CENTROIDS = {
   Square: { ratioL: 1.182, rf: 0.761, rj: 0.838, angle: 142.8 },
 };
 
-// Feature Ranges for Normalization (based on empirical dataset boundaries)
+// Feature Ranges for Normalization
 const RANGES = {
   ratioL: { min: 1.150, max: 1.210 },
   rf:     { min: 0.720, max: 0.790 },
@@ -39,10 +39,8 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   const rj = Wj / Wc;    
   const jawAngle = (angleLeft + angleRight) / 2;
 
-  // Helper to normalize values between 0 and 1
   const normalize = (val, range) => (val - range.min) / (range.max - range.min);
-
-  const normTarget = {
+  const target = {
     ratioL: normalize(ratioL, RANGES.ratioL),
     rf: normalize(rf, RANGES.rf),
     rj: normalize(rj, RANGES.rj),
@@ -50,13 +48,33 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   };
 
   let process = [];
-  const weights = { 
-    ratioL: 1.0, 
-    rf: 2.5, 
-    rj: 4.0, 
-    angle: 5.0 
-  };
+  let votes = {};
+  Object.keys(SHAPE_CENTROIDS).forEach(s => votes[s] = 0);
+
+  // 1. SIGNATURE VOTING SYSTEM (Inspired by Naive Bayes logic in the PDF)
+  // Instead of distance, we check which category the individual feature belongs to.
   
+  // Feature A: Jaw Width (rj) - The strongest differentiator in your dataset
+  if (rj > 0.84) votes.Round += 3;
+  else if (rj > 0.82) votes.Square += 3;
+  else if (rj < 0.81) { votes.Oval += 2; votes.Oblong += 2; }
+
+  // Feature B: Jaw Angle - Key for Square vs Round
+  if (jawAngle > 145) votes.Round += 4;
+  else if (jawAngle < 140) { votes.Oblong += 3; votes.Oval += 3; }
+  else if (jawAngle < 143.5) votes.Square += 4;
+
+  // Feature C: Length Ratio (ratioL)
+  if (ratioL > 1.195) votes.Round += 2;
+  else if (ratioL < 1.17) votes.Oval += 3;
+  else if (ratioL > 1.18) votes.Oblong += 2;
+
+  // Feature D: Forehead (rf)
+  if (rf > 0.78) votes.Round += 1;
+  else if (rf < 0.74) { votes.Oblong += 2; votes.Oval += 2; }
+  else if (rf > 0.76) votes.Heart += 2;
+
+  // 2. TIE-BREAKER VIA NORMALIZED EUCLIDEAN DISTANCE
   let scores = {};
   Object.entries(SHAPE_CENTROIDS).forEach(([shape, centroid]) => {
     const normCentroid = {
@@ -65,30 +83,27 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
       rj: normalize(centroid.rj, RANGES.rj),
       angle: normalize(centroid.angle, RANGES.angle)
     };
-
     const dist = Math.sqrt(
-      weights.ratioL * Math.pow(normTarget.ratioL - normCentroid.ratioL, 2) +
-      weights.rf * Math.pow(normTarget.rf - normCentroid.rf, 2) +
-      weights.rj * Math.pow(normTarget.rj - normCentroid.rj, 2) +
-      weights.angle * Math.pow(normTarget.angle - normCentroid.angle, 2)
+      Math.pow(target.ratioL - normCentroid.ratioL, 2) +
+      Math.pow(target.rf - normCentroid.rf, 2) +
+      Math.pow(target.rj - normCentroid.rj, 2) +
+      Math.pow(target.angle - normCentroid.angle, 2)
     );
-    scores[shape] = dist;
+    // Distance acts as a "penalty" to the votes
+    scores[shape] = votes[shape] - (dist * 2);
   });
 
-  // Sort to find the two closest matches
-  const sorted = Object.entries(scores).sort((a, b) => a[1] - b[1]);
-  let [firstMatch, firstDist] = sorted[0];
-  let [secondMatch, secondDist] = sorted[1];
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]); // Highest score first
+  let [firstMatch, firstScore] = sorted[0];
+  let [secondMatch, secondScore] = sorted[1];
 
-  // HYBRID LOGIC
-  // If the second best match is very close to the first, return as hybrid
-  // Since distances are now in normalized 0-1 space, a gap of 0.2 is significant.
+  // 3. HYBRID LOGIC
   let finalShape = firstMatch;
-  if (secondDist < firstDist + 0.15 && firstMatch !== secondMatch) {
+  if (Math.abs(firstScore - secondScore) < 0.8) {
     finalShape = `${firstMatch} / ${secondMatch}`;
-    process.push(`Hybrid: ${firstMatch} & ${secondMatch} are close in normalized space`);
+    process.push(`Hybrid: Close scores between ${firstMatch} and ${secondMatch}`);
   } else {
-    process.push(`Primary Match: ${firstMatch}`);
+    process.push(`Primary Match: ${firstMatch} (score: ${firstScore.toFixed(2)})`);
   }
 
   return { shape: finalShape, process, ratioL, rf, rj, jawAngle, scores };
