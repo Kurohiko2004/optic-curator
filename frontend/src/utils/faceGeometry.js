@@ -33,25 +33,7 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
 
   let process = [];
 
-  // 1. WIDTH HIERARCHY CHECK (Structural Coarse Filter)
-  // These rules are based on the "Universal Face Shape Matrix" structural hierarchy
-  
-  // PEAR: Jaw is the absolute widest point
-  if (Wj > Wc && Wj > Wf) {
-    return { shape: "Pear", process: ["Hierarchy: Jaw is widest point => PEAR"], ratioL, rf, rj, jawAngle };
-  } 
-
-  // HEART: Forehead is the widest point
-  if (Wf > Wc && Wf > Wj) {
-    return { shape: "Heart", process: ["Hierarchy: Forehead is widest point => HEART"], ratioL, rf, rj, jawAngle };
-  }
-
-  // DIAMOND: Cheekbones are significantly wider than both Forehead and Jaw
-  if (Wc > (Wf * 1.05) && Wc > (Wj * 1.05)) {
-    return { shape: "Diamond", process: ["Hierarchy: Cheekbones are dominant => DIAMOND"], ratioL, rf, rj, jawAngle };
-  }
-
-  // 2. NEAREST NEIGHBOR CLASSIFICATION (Fine-tuning)
+  // 1. NEAREST NEIGHBOR CLASSIFICATION
   // For balanced faces (Square, Round, Oval, Oblong), we use weighted Euclidean distance.
   const weights = { 
     ratioL: 0.5,  // Vertical length (reduced as it's very similar across types)
@@ -60,12 +42,9 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
     angle: 4.0    // Jaw angle (crucial for Square vs Round)
   };
   
-  let minDistance = Infinity;
-  let bestMatch = "Unknown";
   let scores = {};
-
   Object.entries(SHAPE_CENTROIDS).forEach(([shape, centroid]) => {
-    // Normalizing angle distance (range 135-147) by dividing by 10 to keep it in scale with ratios (0.7-1.2)
+    // Normalizing angle distance (range 135-147) by dividing by 20 to keep it in scale with ratios (0.7-1.2)
     const dist = Math.sqrt(
       weights.ratioL * Math.pow(ratioL - centroid.ratioL, 2) +
       weights.rf * Math.pow(rf - centroid.rf, 2) +
@@ -73,23 +52,33 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
       weights.angle * Math.pow((jawAngle - centroid.angle) / 20, 2)
     );
     scores[shape] = dist;
-    if (dist < minDistance) {
-      minDistance = dist;
-      bestMatch = shape;
-    }
   });
 
-  process.push(`Nearest Centroid: ${bestMatch} (dist: ${minDistance.toFixed(4)})`);
-  
-  // 3. FINAL JAW ANGLE OVERRIDE (Breaking Round Bias)
-  // Based on dataset: Square avg = 142.8, Round avg = 146.8.
-  if (bestMatch === "Round" && jawAngle < 144) {
-    bestMatch = "Square";
-    process.push(`Sharp jaw angle (${jawAngle.toFixed(1)}°) override => SQUARE`);
-  } else if (bestMatch === "Square" && jawAngle > 145) {
-    bestMatch = "Round";
-    process.push(`Soft jaw angle (${jawAngle.toFixed(1)}°) override => ROUND`);
+  // Sort to find the two closest matches
+  const sorted = Object.entries(scores).sort((a, b) => a[1] - b[1]);
+  let [firstMatch, firstDist] = sorted[0];
+  let [secondMatch, secondDist] = sorted[1];
+
+  // 2. JAW ANGLE OVERRIDE (Breaking Round Bias)
+  // Apply overrides to the matches if they are Round/Square
+  const applyOverride = (match) => {
+    if (match === "Round" && jawAngle < 144) return "Square";
+    if (match === "Square" && jawAngle > 145) return "Round";
+    return match;
+  };
+
+  firstMatch = applyOverride(firstMatch);
+  secondMatch = applyOverride(secondMatch);
+
+  // 3. HYBRID LOGIC
+  // If the second best match is within 15% distance of the first, return as hybrid
+  let finalShape = firstMatch;
+  if (secondDist < firstDist * 1.15 && firstMatch !== secondMatch) {
+    finalShape = `${firstMatch} / ${secondMatch}`;
+    process.push(`Hybrid: ${firstMatch} & ${secondMatch} are statistically close`);
+  } else {
+    process.push(`Primary Match: ${firstMatch} (dist: ${firstDist.toFixed(4)})`);
   }
 
-  return { shape: bestMatch, process, ratioL, rf, rj, jawAngle, scores };
+  return { shape: finalShape, process, ratioL, rf, rj, jawAngle, scores };
 };
