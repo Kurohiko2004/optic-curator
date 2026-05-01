@@ -88,11 +88,12 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
 
   // 2. CLUSTER FILTERING (Narrow/Long vs. Wide/Round)
   // Logic: First-pass forehead check, then sharp-angle safety net.
-  const isNarrowForehead = rf < 0.75;
-  const isSharpAngle = jawAngle < 140;
+  // Thresholds relaxed (v5) to account for MediaPipe measurement bias.
+  const isNarrowForehead = rf < 0.77;
+  const isSharpAngle = jawAngle < 144;
 
   if (isNarrowForehead || isSharpAngle) {
-    process.push(`Narrow Trigger: ${isNarrowForehead ? "Low Forehead" : "Sharp Angle"} restricts to OVAL/OBLONG`);
+    process.push(`Narrow Trigger (v5): ${isNarrowForehead ? "Narrow Forehead" : "Sharp Angle"} detected`);
     // Hard Exclusion: set Wide shapes to extremely high distance
     scores.Round = 100;
     scores.Square = 100;
@@ -101,16 +102,16 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
     // Within Narrow Cluster, Length and Angle provide the split
     if (ratioL > 1.175 || jawAngle < 138) {
       scores.Oblong = 0.01; // Favor Oblong
-      process.push("Narrow Cluster: Features suggest OBLONG");
+      process.push("Narrow Cluster: Features favor OBLONG");
     } else {
       scores.Oval = 0.01; // Favor Oval
-      process.push("Narrow Cluster: Features suggest OVAL");
+      process.push("Narrow Cluster: Features favor OVAL");
     }
   } else {
     // 3. WIDE CLUSTER REFINEMENT (Heart/Square/Round)
-    if (jawAngle < 143) {
-      scores.Round *= 3; // Aggressive Round penalty for Square/Heart territory
-      process.push("Wide Cluster: Sharp angle penalizes Round");
+    if (jawAngle < 145) {
+      scores.Round *= 3; // Aggressive Round penalty
+      process.push("Wide Cluster: Angle penalizes Round");
     }
   }
 
