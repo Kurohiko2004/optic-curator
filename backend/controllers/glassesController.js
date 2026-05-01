@@ -6,8 +6,14 @@ const getAllGlasses = asyncHandler(async (req, res, next) => {
     // 1. Xử lý phân trang
     const { limit, offset, currentPage } = getPagination(req.query.page, req.query.items);
 
+    console.log(`[GET /api/glasses] Bắt đầu lấy dữ liệu (Page: ${currentPage}, Limit: ${limit})`);
+    const startTime = Date.now();
+
     // 2. Gọi service để lấy dữ liệu
     const dbResult = await glassesService.findAllGlasses(req.query, { limit, offset });
+
+    const duration = Date.now() - startTime;
+    console.log(`[GET /api/glasses] Lấy thành công ${dbResult.rows.length} kính trong ${duration}ms`);
 
     // 3. Đóng gói dữ liệu trả về 
     const response = getPagingData(dbResult, currentPage, limit);

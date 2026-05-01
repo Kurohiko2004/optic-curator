@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Shape Algorithm Tester</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #0f172a; color: white; }
+        .container { max-width: 800px; margin: 0 auto; background: #1e293b; padding: 20px; border-radius: 12px; }
+        .viewport { position: relative; margin-top: 20px; display: none; text-align: center; }
+        img { max-width: 100%; border-radius: 8px; }
+        canvas { position: absolute; left: 50%; top: 0; transform: translateX(-50%); border-radius: 8px; pointer-events: none; }
+        .result { margin-top: 20px; padding: 15px; background: #334155; border-radius: 8px; }
+        .value { color: #38bdf8; font-weight: bold; font-family: monospace; }
+        .label { color: #10b981; font-weight: bold; font-size: 1.5em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Face Shape Algorithm Tester</h2>
+        <p>Upload a clear photo of a face looking straight at the camera to test the heuristic thresholds.</p>
+        
+        <input type="file" id="imageInput" accept="image/*" />
+        
+        <div id="viewport" class="viewport">
+            <img id="preview" />
+            <canvas id="output_canvas"></canvas>
+        </div>
+        
+        <div id="results" class="result" style="display:none;">
+            <h3>Calculated Distances (Normalized)</h3>
+            <p>Face Length (10-152): <span id="val-fl" class="value"></span></p>
+            <p>Cheekbone Width (234-454): <span id="val-cw" class="value"></span></p>
+            <p>Jaw Width (132-361): <span id="val-jw" class="value"></span></p>
+            <p>Forehead Width (54-284): <span id="val-fw" class="value"></span></p>
+            
+            <h3>Calculated Ratios</h3>
+            <p>Width/Length Ratio: <span id="val-wlr" class="value"></span></p>
+            <p>Jaw/Cheek Ratio: <span id="val-jcr" class="value"></span></p>
+            
+            <hr style="border-color: #475569; margin: 15px 0;">
+            <h3>Final Classification: <span id="final-shape" class="label"></span></h3>
+        </div>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('preview');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        const viewport = document.getElementById('viewport');
+
+        // Mirror of your faceShapeUtils.js algorithm
+        function determineFaceShapeFromDistances({ faceLength, cheekboneWidth, jawWidth, foreheadWidth }) {
+            const widthToLengthRatio = cheekboneWidth / faceLength;
+            const jawToCheekRatio = jawWidth / cheekboneWidth;
+
+            // Update UI with Ratios
+            document.getElementById('val-wlr').innerText = widthToLengthRatio.toFixed(3);
+            document.getElementById('val-jcr').innerText = jawToCheekRatio.toFixed(3);
+
+            // Threshold synchronized with faceShapeUtils.js (0.88)
+            if (widthToLengthRatio > 0.88) {
+                if (jawToCheekRatio > 0.85) { return "Square"; } 
+                else { return "Round"; }
+            } else {
+                if (jawToCheekRatio > 0.85) { return "Oblong"; } 
+                else if (foreheadWidth > cheekboneWidth && cheekboneWidth > jawWidth) { return "Heart"; } 
+                else { return "Oval"; }
+            }
+        }
+
+        // Initialize MediaPipe Face Mesh
+        const faceMesh = new FaceMesh({locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+        }});
+        
+        faceMesh.setOptions({
+            maxNumFaces: 1,
+            refineLandmarks: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        faceMesh.onResults((results) => {
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            
+            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                const landmarks = results.multiFaceLandmarks[0];
+                
+                // Draw Mesh
+                drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION, {color: '#C0C0C070', lineWidth: 1});
+                
+                // Draw specific anchors used for detection
+                const anchors = [10, 152, 234, 454, 132, 361, 54, 284];
+                anchors.forEach(idx => {
+                    const point = landmarks[idx];
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(point.x * canvasElement.width, point.y * canvasElement.height, 3, 0, 2 * Math.PI);
+                    canvasCtx.fillStyle = '#ff0000';
+                    canvasCtx.fill();
+                    // Label
+                    canvasCtx.fillStyle = 'white';
+                    canvasCtx.font = '10px Arial';
+                    canvasCtx.fillText(idx, point.x * canvasElement.width + 5, point.y * canvasElement.height);
+                });
+
+                // Helper to calculate 3D distance between two landmarks
+                const dist = (p1, p2) => Math.sqrt(
+                    Math.pow(landmarks[p1].x - landmarks[p2].x, 2) + 
+                    Math.pow(landmarks[p1].y - landmarks[p2].y, 2) + 
+                    Math.pow(landmarks[p1].z - landmarks[p2].z, 2)
+                );
+
+                // Use the exact same anchors as ARFeature.jsx
+                const faceLength = dist(10, 152);
+                const cheekboneWidth = dist(234, 454);
+                const jawWidth = dist(132, 361);
+                const foreheadWidth = dist(54, 284);
+
+                // Update UI
+                document.getElementById('val-fl').innerText = faceLength.toFixed(4);
+                document.getElementById('val-cw').innerText = cheekboneWidth.toFixed(4);
+                document.getElementById('val-jw').innerText = jawWidth.toFixed(4);
+                document.getElementById('val-fw').innerText = foreheadWidth.toFixed(4);
+
+                // Run Algorithm
+                const shape = determineFaceShapeFromDistances({ faceLength, cheekboneWidth, jawWidth, foreheadWidth });
+                document.getElementById('final-shape').innerText = shape;
+                
+                document.getElementById('results').style.display = 'block';
+            } else {
+                alert("No face detected in the image!");
+            }
+        });
+
+        // Handle Image Upload
+        imageInput.addEventListener('change', async (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                const url = URL.createObjectURL(file);
+                
+                document.getElementById('results').style.display = 'none';
+                viewport.style.display = 'block';
+                preview.src = url;
+
+                preview.onload = async () => {
+                    canvasElement.width = preview.clientWidth;
+                    canvasElement.height = preview.clientHeight;
+                    // Pass the static image to MediaPipe
+                    await faceMesh.send({ image: preview });
+                };
+            }
+        });
+    </script>
+</body>
+</html>

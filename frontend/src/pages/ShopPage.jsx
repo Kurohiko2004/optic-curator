@@ -137,7 +137,7 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         onLogout={onLogout}
       />
       <ShopHero />
-      <ShopBanner />
+      {/* <ShopBanner /> */}
 
       <main className="shop-main-area">
         <FilterSidebar
