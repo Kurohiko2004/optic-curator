@@ -20,6 +20,14 @@ const SHAPE_CENTROIDS = {
   Square: { ratioL: 1.182, rf: 0.761, rj: 0.838, angle: 142.8 },
 };
 
+// Feature Ranges for Normalization (based on empirical dataset boundaries)
+const RANGES = {
+  ratioL: { min: 1.150, max: 1.210 },
+  rf:     { min: 0.720, max: 0.790 },
+  rj:     { min: 0.790, max: 0.860 },
+  angle:  { min: 135.0, max: 148.0 }
+};
+
 /**
  * Categorize face shape based on biological proportions and geometric measurements.
  */
@@ -31,25 +39,38 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   const rj = Wj / Wc;    
   const jawAngle = (angleLeft + angleRight) / 2;
 
-  let process = [];
+  // Helper to normalize values between 0 and 1
+  const normalize = (val, range) => (val - range.min) / (range.max - range.min);
 
-  // 1. NEAREST NEIGHBOR CLASSIFICATION
-  // For balanced faces (Square, Round, Oval, Oblong), we use weighted Euclidean distance.
+  const normTarget = {
+    ratioL: normalize(ratioL, RANGES.ratioL),
+    rf: normalize(rf, RANGES.rf),
+    rj: normalize(rj, RANGES.rj),
+    angle: normalize(jawAngle, RANGES.angle)
+  };
+
+  let process = [];
   const weights = { 
-    ratioL: 0.5,  // Vertical length (reduced as it's very similar across types)
-    rf: 2.0,      // Forehead width
-    rj: 3.0,      // Jaw width (highest differentiator)
-    angle: 4.0    // Jaw angle (crucial for Square vs Round)
+    ratioL: 1.0, 
+    rf: 2.5, 
+    rj: 4.0, 
+    angle: 5.0 
   };
   
   let scores = {};
   Object.entries(SHAPE_CENTROIDS).forEach(([shape, centroid]) => {
-    // Normalizing angle distance (range 135-147) by dividing by 20 to keep it in scale with ratios (0.7-1.2)
+    const normCentroid = {
+      ratioL: normalize(centroid.ratioL, RANGES.ratioL),
+      rf: normalize(centroid.rf, RANGES.rf),
+      rj: normalize(centroid.rj, RANGES.rj),
+      angle: normalize(centroid.angle, RANGES.angle)
+    };
+
     const dist = Math.sqrt(
-      weights.ratioL * Math.pow(ratioL - centroid.ratioL, 2) +
-      weights.rf * Math.pow(rf - centroid.rf, 2) +
-      weights.rj * Math.pow(rj - centroid.rj, 2) +
-      weights.angle * Math.pow((jawAngle - centroid.angle) / 20, 2)
+      weights.ratioL * Math.pow(normTarget.ratioL - normCentroid.ratioL, 2) +
+      weights.rf * Math.pow(normTarget.rf - normCentroid.rf, 2) +
+      weights.rj * Math.pow(normTarget.rj - normCentroid.rj, 2) +
+      weights.angle * Math.pow(normTarget.angle - normCentroid.angle, 2)
     );
     scores[shape] = dist;
   });
@@ -59,25 +80,15 @@ export const categorizeFaceShape = (L, Wf, Wc, Wj, angleLeft, angleRight) => {
   let [firstMatch, firstDist] = sorted[0];
   let [secondMatch, secondDist] = sorted[1];
 
-  // 2. JAW ANGLE OVERRIDE (Breaking Round Bias)
-  // Apply overrides to the matches if they are Round/Square
-  const applyOverride = (match) => {
-    if (match === "Round" && jawAngle < 144) return "Square";
-    if (match === "Square" && jawAngle > 145) return "Round";
-    return match;
-  };
-
-  firstMatch = applyOverride(firstMatch);
-  secondMatch = applyOverride(secondMatch);
-
-  // 3. HYBRID LOGIC
-  // If the second best match is within 15% distance of the first, return as hybrid
+  // HYBRID LOGIC
+  // If the second best match is very close to the first, return as hybrid
+  // Since distances are now in normalized 0-1 space, a gap of 0.2 is significant.
   let finalShape = firstMatch;
-  if (secondDist < firstDist * 1.15 && firstMatch !== secondMatch) {
+  if (secondDist < firstDist + 0.15 && firstMatch !== secondMatch) {
     finalShape = `${firstMatch} / ${secondMatch}`;
-    process.push(`Hybrid: ${firstMatch} & ${secondMatch} are statistically close`);
+    process.push(`Hybrid: ${firstMatch} & ${secondMatch} are close in normalized space`);
   } else {
-    process.push(`Primary Match: ${firstMatch} (dist: ${firstDist.toFixed(4)})`);
+    process.push(`Primary Match: ${firstMatch}`);
   }
 
   return { shape: finalShape, process, ratioL, rf, rj, jawAngle, scores };
