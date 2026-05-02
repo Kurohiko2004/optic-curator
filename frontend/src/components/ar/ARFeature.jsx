@@ -152,7 +152,6 @@ const ARFeature = ({
 
         model.traverse((child) => {
           if (child.isMesh) {
-            child.material = child.material.clone();
             const name = child.name.toLowerCase();
             const isLens = name.includes('lens') || name.includes('glass') || name === 'plane';
 
@@ -184,6 +183,9 @@ const ARFeature = ({
           largestMesh.material.color.set(selectedColor);
         }
         mainAnchorGroup.add(model);
+        
+        // Force pre-compilation to prevent first-render GPU stutter
+        try { renderer.compile(scene, camera); } catch(e) {}
       };
 
       const loadModelWithFailsafe = (path, isFallback = false) => {
@@ -287,6 +289,7 @@ const ARFeature = ({
 
     // 1. Terminate render loop
     mindARRef.current.renderer?.setAnimationLoop(null);
+    mindARRef.current.renderer?.dispose();
 
     // 2. Explicitly detach the model from the MindAR anchor group
     // This is key to fix the "frozen model" bug

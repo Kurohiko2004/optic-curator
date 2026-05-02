@@ -13,6 +13,7 @@ import OrderHistoryPage from "./pages/OrderHistoryPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import PaymentResultPage from "./pages/PaymentResultPage.jsx";
+import FaceDetectPage from "./pages/FaceDetectPage.jsx";
 
 function App() {
   const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
@@ -111,6 +112,15 @@ function App() {
 
             <Route path="/ar-test" element={
               <ARTryOnPage />
+            } />
+
+            <Route path="/face_detect" element={
+              <FaceDetectPage 
+                onLoginClick={openLogin}
+                onSignupClick={openSignup}
+                user={user}
+                onLogout={handleLogout}
+              />
             } />
 
             <Route path="/admin" element={

@@ -14,6 +14,7 @@ const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         <nav>
           <Link to="/" className={activePage === '/' ? 'active' : ''}>About</Link>
           <Link to="/store" className={activePage === '/store' ? 'active' : ''}>Shop</Link>
+          <Link to="/face_detect" className={activePage === '/face_detect' ? 'active' : ''}>Face Scan</Link>
           {user && <Link to="/orders/history" className={activePage === '/orders/history' ? 'active' : ''}>Orders</Link>}
         </nav>
         <div className="header-actions">

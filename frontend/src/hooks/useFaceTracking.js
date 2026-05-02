@@ -5,6 +5,8 @@ import { TRACKED_IDS, categorizeFaceShape } from '../utils/faceGeometry';
 
 const useFaceTracking = (containerRef, showAnchors, showAllAnchors) => {
   const [isActive, setIsActive] = useState(false);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [detectionStatus, setDetectionStatus] = useState('idle'); // idle, detecting, completed
   const [hoveredId, setHoveredId] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const [measurements, setMeasurements] = useState({
@@ -12,10 +14,14 @@ const useFaceTracking = (containerRef, showAnchors, showAllAnchors) => {
     ratioL: 0, rf: 0, rj: 0
   });
   const [predictedShape, setPredictedShape] = useState({ shape: 'Waiting...', process: [] });
+  const [cameraWarning, setCameraWarning] = useState('');
 
   const mindARRef = useRef(null);
   const anchorDotsRef = useRef({});
+  const resultsBuffer = useRef([]);
+  const statusRef = useRef('idle'); // Use ref to avoid stale closure in animation loop
   const mouseMoveRef = useRef(null);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
     if (isActive) {
@@ -42,9 +48,13 @@ const useFaceTracking = (containerRef, showAnchors, showAllAnchors) => {
   }, [showAnchors, showAllAnchors]);
 
   const startAR = async () => {
+    if (mindARRef.current) return;
+    
     try {
       if (containerRef.current) containerRef.current.innerHTML = '';
       const mindarThree = new MindARThree({ container: containerRef.current });
+      mindARRef.current = mindarThree;
+
       const { renderer, scene, camera } = mindarThree;
 
       if (renderer) {
@@ -52,7 +62,18 @@ const useFaceTracking = (containerRef, showAnchors, showAllAnchors) => {
       }
 
       await mindarThree.start();
-      mindARRef.current = mindarThree;
+      setCameraWarning('');
+
+      // Start 5 second detection timeout
+      if (statusRef.current === 'detecting') {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+          if (statusRef.current === 'detecting') {
+             setIsActive(false);
+             setCameraWarning('No face detected. Please ensure your face is clearly visible and well lit.');
+          }
+        }, 5000);
+      }
 
       const faceMesh = mindarThree.addFaceMesh();
       faceMesh.material = new THREE.MeshBasicMaterial({ colorWrite: false });
@@ -124,43 +145,60 @@ const useFaceTracking = (containerRef, showAnchors, showAllAnchors) => {
         frameCount++;
 
         if (frameCount % 3 === 0) {
-          const getPos = (id) => {
-            const pos = new THREE.Vector3();
+          const getPos3D = (id) => {
+            const p = new THREE.Vector3();
             if (anchorDotsRef.current[id] && anchorDotsRef.current[id].group) {
-               anchorDotsRef.current[id].group.getWorldPosition(pos);
+              anchorDotsRef.current[id].group.getWorldPosition(p);
             }
-            return pos;
+            return p;
           };
 
-          const p10 = getPos(10), p152 = getPos(152);
-          const p54 = getPos(54), p284 = getPos(284);
-          const p234 = getPos(234), p454 = getPos(454);
-          const p132 = getPos(132), p361 = getPos(361);
-          const p58 = getPos(58), p288 = getPos(288);
+          const project = (v) => {
+            const p = v.clone().project(camera);
+            p.x *= camera.aspect;
+            p.z = 0;
+            return p;
+          };
 
-          const faceVector = p10.clone().sub(p152);
-          const pHairline = p10.clone().add(faceVector.multiplyScalar(0.16));
+          const p10_3d = getPos3D(10), p152_3d = getPos3D(152);
+          const p54_3d = getPos3D(54), p284_3d = getPos3D(284);
+          const p234_3d = getPos3D(234), p454_3d = getPos3D(454);
+          const p132_3d = getPos3D(132), p361_3d = getPos3D(361);
+          const p58_3d  = getPos3D(58),  p288_3d  = getPos3D(288);
+
+          const pHairline_3d = p10_3d;
           
           if (anchorDotsRef.current[10] && anchorDotsRef.current[10].group) {
-            const localHairline = pHairline.clone();
+            const localHairline = pHairline_3d.clone();
             anchorDotsRef.current[10].group.worldToLocal(localHairline);
             hairlineSphere.position.copy(localHairline);
           }
 
-          const L = pHairline.distanceTo(p152);
-          const Wf = p54.distanceTo(p284);
-          const Wc = p234.distanceTo(p454);
-          const Wj = p132.distanceTo(p361);
+          // --- Calculation Math (matching 2D logic via projection) ---
+          const p10 = project(p10_3d), p152 = project(p152_3d);
+          const p54 = project(p54_3d), p284 = project(p284_3d);
+          const p234 = project(p234_3d), p454 = project(p454_3d);
+          const p132 = project(p132_3d), p361 = project(p361_3d);
+          const p58 = project(p58_3d), p288 = project(p288_3d);
+          const pHairline = p10;
 
-          const vecLeftMidJaw = p58.clone().sub(p132);
-          const vecLeftCheek = p234.clone().sub(p132);
-          const angleLeft = vecLeftMidJaw.angleTo(vecLeftCheek) * (180 / Math.PI);
+          const getDist = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+          const L  = getDist(pHairline, p152);
+          const Wf = getDist(p54, p284);
+          const Wc = getDist(p234, p454);
+          const Wj = getDist(p132, p361);
 
-          const vecRightMidJaw = p288.clone().sub(p361);
-          const vecRightCheek = p454.clone().sub(p361);
-          const angleRight = vecRightMidJaw.angleTo(vecRightCheek) * (180 / Math.PI);
+          // Angle at chin apex (152) between jaw side points (58, 288) — projected coords
+          const v1x = p58.x - p152.x,  v1y = p58.y - p152.y;
+          const v2x = p288.x - p152.x, v2y = p288.y - p152.y;
+          const dot = v1x*v2x + v1y*v2y;
+          const mag1 = Math.sqrt(v1x*v1x + v1y*v1y);
+          const mag2 = Math.sqrt(v2x*v2x + v2y*v2y);
+          const cosA = Math.max(-1, Math.min(1, dot / (mag1 * mag2)));
+          const angleLeft  = Math.acos(cosA) * (180 / Math.PI);
+          const angleRight = angleLeft;
 
-          if (Wc > 0) {
+          if (Wc > 0 && statusRef.current !== 'completed') {
             const result = categorizeFaceShape(L, Wf, Wc, Wj, angleLeft, angleRight);
             
             setMeasurements({
@@ -170,10 +208,43 @@ const useFaceTracking = (containerRef, showAnchors, showAllAnchors) => {
               rj: result.rj
             });
             
-            setPredictedShape({
-              shape: result.shape,
-              process: result.process
-            });
+            if (!isDetecting) {
+              setPredictedShape({
+                shape: result.shape,
+                process: result.process
+              });
+            } else {
+              // --- Buffer Results for Voting ---
+              resultsBuffer.current.push(result.shape);
+              
+              if (resultsBuffer.current.length >= 20) {
+                // Calculate mode (most frequent)
+                const counts = {};
+                resultsBuffer.current.forEach(s => {
+                  // Normalize hybrid: "Round / Square" === "Square / Round"
+                  const normalized = s.includes(' / ') ? s.split(' / ').sort().join(' / ') : s;
+                  counts[normalized] = (counts[normalized] || 0) + 1;
+                });
+                
+                const sortedResults = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                const finalVotedShape = sortedResults[0][0];
+                
+                setPredictedShape({
+                  shape: finalVotedShape,
+                  process: [...result.process, `VOTING COMPLETED: Collected 20 samples. Most frequent: ${finalVotedShape}`]
+                });
+                
+                // Finalize but KEEP camera active
+                setIsDetecting(false);
+                setDetectionStatus('completed');
+                statusRef.current = 'completed';
+                
+                if (timeoutRef.current) {
+                  clearTimeout(timeoutRef.current);
+                  timeoutRef.current = null;
+                }
+              }
+            }
           }
         }
       });
@@ -181,29 +252,52 @@ const useFaceTracking = (containerRef, showAnchors, showAllAnchors) => {
     } catch (err) {
       console.error("AR Start Error:", err);
       setIsActive(false);
+      setCameraWarning('Camera access denied or hardware error. Please check permissions.');
     }
   };
 
   const stopAR = () => {
     if (!mindARRef.current) return;
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     mindARRef.current.renderer?.setAnimationLoop(null);
+    mindARRef.current.renderer?.dispose();
     mindARRef.current.stop();
     mindARRef.current = null;
     if (mouseMoveRef.current) window.removeEventListener('mousemove', mouseMoveRef.current);
     mouseMoveRef.current = null;
     anchorDotsRef.current = {};
     setHoveredId(null);
+    statusRef.current = 'idle';
+    setIsDetecting(false);
+    setDetectionStatus('idle');
     if (containerRef.current) containerRef.current.innerHTML = '';
+  };
+
+  const startDetection = () => {
+    resultsBuffer.current = [];
+    setDetectionStatus('detecting');
+    statusRef.current = 'detecting';
+    setIsDetecting(true);
+    setIsActive(true);
+    setCameraWarning('');
   };
 
   return {
     isActive,
     setIsActive,
+    isDetecting,
+    detectionStatus,
+    startDetection,
     measurements,
     predictedShape,
     hoveredId,
     tooltipPos,
-    anchorDotsRef
+    anchorDotsRef,
+    cameraWarning,
+    setCameraWarning
   };
 };
 

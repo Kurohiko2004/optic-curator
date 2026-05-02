@@ -6,14 +6,14 @@ PTIT-VR is a platform likely involving Virtual Reality or Augmented Reality expe
 ## Core Value
 Provide accurate facial geometry analysis and AR visualization to enhance user experience in virtual try-on or character customization.
 
-## Current Milestone: v1.1 Face Detection Refactor
-**Goal:** Refactor the face detection system to improve maintainability, separation of concerns, and robustness.
+## Current Milestone: v1.2 AR Try-On UI Restructure
+**Goal:** Redesign the AR Try-On modal to maximize the camera viewport by transitioning from a 3-column layout to a streamlined top/bottom overlay layout.
 
 **Target features:**
-- Modularize facial shape logic into standalone utilities.
-- Extract AR logic into custom hooks or services.
-- Decouple batch testing system from the main UI component.
-- Improve UI structure and responsiveness.
+- Move dev mode tools to a backup file to clean up the production UI.
+- Implement a top panel for variant color selection.
+- Implement a bottom panel for product details, diagnostics, and AR controls.
+- Increase the main camera viewport width for a better user experience.
 
 ## Evolution
 This document evolves at phase transitions and milestone boundaries.

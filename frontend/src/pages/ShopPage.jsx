@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/layout/Header';
 import FilterSidebar from '../components/shop/FilterSidebar';
 import ProductCard from '../components/shop/ProductCard';
-import ShopHero from '../components/shop/shopHero';
+//import ShopHero from '../components/shop/shopHero';
 import ShopBanner from '../components/shop/ShopBanner';
 import Pagination from '../components/shop/Pagination';
 import ARTryOnModal from './ARTryOnPage';
@@ -136,8 +136,6 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         user={user}
         onLogout={onLogout}
       />
-      <ShopHero />
-      {/* <ShopBanner /> */}
 
       <main className="shop-main-area">
         <FilterSidebar

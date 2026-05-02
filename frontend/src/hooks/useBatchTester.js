@@ -90,35 +90,31 @@ const useBatchTester = () => {
 
         if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
           const landmarks = results.multiFaceLandmarks[0];
-          const getPos = (id) => new THREE.Vector3(
-            landmarks[id].x * img.width, 
-            landmarks[id].y * img.height, 
-            landmarks[id].z * img.width
-          );
+          const getPos = (id) => ({ x: landmarks[id].x * img.width, y: landmarks[id].y * img.height });
 
           const p10 = getPos(10), p152 = getPos(152);
           const p54 = getPos(54), p284 = getPos(284);
           const p234 = getPos(234), p454 = getPos(454);
           const p132 = getPos(132), p361 = getPos(361);
-          const p58 = getPos(58), p288 = getPos(288);
+          const p58  = getPos(58),  p288  = getPos(288);
 
-          const faceVector = p10.clone().sub(p152);
-          const pHairline = p10.clone().add(faceVector.multiplyScalar(0.16));
+          const pHairline = p10;
+          const getDist = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 
-          const getDist2D = (va, vb) => Math.sqrt(Math.pow(va.x - vb.x, 2) + Math.pow(va.y - vb.y, 2));
+          const L  = getDist(pHairline, p152);
+          const Wf = getDist(p54, p284);
+          const Wc = getDist(p234, p454);
+          const Wj = getDist(p132, p361);
 
-          const L = getDist2D(pHairline, p152);
-          const Wf = getDist2D(p54, p284);
-          const Wc = getDist2D(p234, p454);
-          const Wj = getDist2D(p132, p361);
-
-          const vecLeftMidJaw = p58.clone().sub(p132);
-          const vecLeftCheek = p234.clone().sub(p132);
-          const angleLeft = vecLeftMidJaw.angleTo(vecLeftCheek) * (180 / Math.PI);
-
-          const vecRightMidJaw = p288.clone().sub(p361);
-          const vecRightCheek = p454.clone().sub(p361);
-          const angleRight = vecRightMidJaw.angleTo(vecRightCheek) * (180 / Math.PI);
+          const v1x = p58.x - p152.x,  v1y = p58.y - p152.y;
+          const v2x = p288.x - p152.x, v2y = p288.y - p152.y;
+          const dot = v1x*v2x + v1y*v2y;
+          const mag1 = Math.sqrt(v1x*v1x + v1y*v1y);
+          const mag2 = Math.sqrt(v2x*v2x + v2y*v2y);
+          const cosA = Math.max(-1, Math.min(1, dot / (mag1 * mag2)));
+          const chinAngle = Math.acos(cosA) * (180 / Math.PI);
+          const angleLeft  = chinAngle;
+          const angleRight = chinAngle;
 
           const res = categorizeFaceShape(L, Wf, Wc, Wj, angleLeft, angleRight);
           resData = res;
@@ -127,7 +123,7 @@ const useBatchTester = () => {
 
         match = detectedShape.includes(expectedShape);
         
-        newResults.push({
+        const entry = {
           filename: file.name,
           expected: expectedShape,
           predicted: detectedShape,
@@ -135,13 +131,19 @@ const useBatchTester = () => {
           ratioL: resData.ratioL,
           rf: resData.rf,
           rj: resData.rj,
-          jawAngle: resData.jawAngle
-        });
+          rjf: resData.rjf,
+          jawAngle: resData.jawAngle,
+          process: resData.process
+        };
+        newResults.push(entry);
 
-        setTestProgress(Math.round(((i + 1) / files.length) * 100));
-        setTestResults([...newResults]); 
+        if ((i + 1) % 10 === 0 || i === files.length - 1) {
+          setTestProgress(Math.round(((i + 1) / files.length) * 100));
+          setTestResults([...newResults]);
+        }
       }
-      
+
+      setTestResults([...newResults]);
       faceMesh.close();
     } catch (err) {
       console.error("Batch Test Error:", err);

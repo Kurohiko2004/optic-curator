@@ -1,0 +1,112 @@
+PTIT-VR FACE GEOMETRY: GOOGLE COLAB STRESS TEST MANUAL
+=====================================================
+
+This guide explains how to port the PTIT-VR facial shape classification logic (v6.5) to a Python environment (Google Colab) for high-volume stress testing.
+
+1. LIBRARIES TO INSTALL
+-----------------------
+Run this in the first cell of your Colab notebook:
+!pip install mediapipe opencv-python numpy
+
+2. CLASSIFICATION LOGIC (PYTHON PORT)
+--------------------------------------
+Copy the following code into your notebook. This is the exact logic currently running in your frontend.
+
+```python
+import numpy as np
+
+# Centroids calibrated from Batch Tester V6.5
+SHAPE_CENTROIDS = {
+    'heart':  {'ratioL': 1.160, 'rf': 0.761, 'rj': 0.816, 'angle': 148.9},
+    'oblong': {'ratioL': 1.210, 'rf': 0.723, 'rj': 0.789, 'angle:': 142.9},
+    'oval':   {'ratioL': 1.170, 'rf': 0.729, 'rj': 0.789, 'angle': 143.8},
+    'round':  {'ratioL': 1.160, 'rf': 0.777, 'rj': 0.847, 'angle': 153.7},
+    'square': {'ratioL': 1.170, 'rf': 0.754, 'rj': 0.832, 'angle': 149.4},
+}
+
+RANGES = {
+    'ratioL': {'min': 1.130, 'max': 1.210},
+    'rf':     {'min': 0.700, 'max': 0.800},
+    'rj':     {'min': 0.770, 'max': 0.870},
+    'angle':  {'min': 135.0, 'max': 160.0}
+}
+
+def normalize(val, range_dict):
+    return (val - range_dict['min']) / (range_dict['max'] - range_dict['min'])
+
+def categorize_face_shape(L, Wf, Wc, Wj, angle_avg):
+    if Wc == 0: return "unknown"
+    
+    ratioL = L / Wc
+    rf = Wf / Wc
+    rj = Wj / Wc
+    rjf = rj / rf
+    
+    target = {
+        'ratioL': normalize(ratioL, RANGES['ratioL']),
+        'rf':     normalize(rf, RANGES['rf']),
+        'rj':     normalize(rj, RANGES['rj']),
+        'rjf':    rj / rf, # We don't normalize rjf for weights
+        'angle':  normalize(angle_avg, RANGES['angle'])
+    }
+    
+    scores = {}
+    weights = {'ratioL': 6, 'rf': 8, 'rj': 4, 'rjf': 4, 'angle': 2}
+    
+    for shape, centroid in SHAPE_CENTROIDS.items():
+        norm_centroid = {
+            'ratioL': normalize(centroid['ratioL'], RANGES['ratioL']),
+            'rf':     normalize(centroid['rf'], RANGES['rf']),
+            'rj':     normalize(centroid['rj'], RANGES['rj']),
+            'rjf':    centroid['rj'] / centroid['rf'],
+            'angle':  normalize(centroid['angle'], RANGES['angle'])
+        }
+        
+        dist = np.sqrt(
+            weights['ratioL'] * (target['ratioL'] - norm_centroid['ratioL'])**2 +
+            weights['rf'] * (target['rf'] - norm_centroid['rf'])**2 +
+            weights['rj'] * (target['rj'] - norm_centroid['rj'])**2 +
+            weights['rjf'] * (target['rjf'] - norm_centroid['rjf'])**2 +
+            weights['angle'] * (target['angle'] - norm_centroid['angle'])**2
+        )
+        scores[shape] = dist
+
+    # --- SIGNATURE BONUSES (Soft Overrides) ---
+    
+    # Heart Bonus
+    if rjf < 1.078 and rj > 0.81:
+        scores['heart'] /= 10
+        
+    # Narrow Bonus (Oval/Oblong)
+    if rf < 0.76 and rj < 0.81:
+        scores['oval'] /= 10
+        scores['oblong'] /= 10
+
+    sorted_shapes = sorted(scores.items(), key=lambda x: x[1])
+    first_match, first_dist = sorted_shapes[0]
+    second_match, second_dist = sorted_shapes[1]
+    
+    final_shape = first_match
+    
+    # Final Safety Net for Narrowness
+    if rf < 0.76 and rj < 0.81:
+        final_shape = "oblong" if ratioL > 1.158 else "oval"
+        
+    return final_shape
+```
+
+3. HOW TO TEST
+--------------
+1. Create a folder in Colab named `test_images`.
+2. Use MediaPipe FaceMesh to extract these IDs:
+   - Forehead Top: 10
+   - Chin Bottom: 152
+   - Forehead Sides: 54, 284
+   - Cheekbone Edges: 127, 356
+   - Jaw Corners: 132, 361
+   - Lower Jaw Points (for angle): 58, 288
+3. Calculate L, Wf, Wc, Wj using 2D Euclidean distance: np.linalg.norm(p1 - p2).
+4. Run `categorize_face_shape` and compare against your manual labels.
+
+STRESS TEST TIP:
+Run this over 1000+ images. If "Oval" still fails, check your 'Wc' (127 to 356) measurement. If it is too small, the ratios will explode.

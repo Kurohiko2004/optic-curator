@@ -1,0 +1,81 @@
+========================================================================
+FACE DETECTION & CLASSIFICATION ARCHITECTURE
+========================================================================
+This document explains the face detection process, the geometric logic,
+the parameters used, and the rationale behind the classification system.
+
+1. THE TRACKING PIPELINE (useFaceTracking.js)
+------------------------------------------------------------------------
+We use MindAR (which wraps MediaPipe FaceMesh) to track facial landmarks
+in real-time. MediaPipe returns a 3D mesh consisting of 468 vertex points.
+During detection:
+- The camera is opened, and MindAR begins processing the video feed.
+- Every frame, if a face is detected, we extract specific key landmarks 
+  (anchors) that define the structural boundaries of the face.
+
+2. KEY ANCHORS & 2D PROJECTION
+------------------------------------------------------------------------
+We extract the following MediaPipe landmark indices:
+- Top / Bottom (Length): 10 (top edge of forehead) and 152 (chin)
+- Left / Right (Width): 234 (left cheek edge) and 454 (right cheek edge)
+- Forehead Width: 162 (left forehead) and 389 (right forehead)
+- Jawline Width: 132 (left jaw angle) and 361 (right jaw angle)
+
+CRITICAL DECISION: We convert the 3D world positions of these anchors into
+2D screen-space vectors before doing any math. 
+Why? Because using 3D distances directly caused severe inaccuracies when
+the user tilted their head (pitch/yaw). Projecting to 2D removes the Z-axis
+depth variance and produces much more consistent proportional measurements.
+
+3. GEOMETRIC MATH & RATIOS (faceGeometry.js)
+------------------------------------------------------------------------
+Instead of relying on absolute sizes (which change based on how close the
+user is to the camera), we calculate proportional ratios:
+
+a) Base Face Ratio (R) = faceWidth / faceHeight
+   - Tall/Oblong faces usually have R < 0.73
+   - Wide/Round faces usually have R > 0.82
+   
+b) Forehead Ratio (Rf) = foreheadWidth / faceWidth
+   - Helps identify Heart-shaped faces (which have wide foreheads).
+
+c) Jaw Ratio (Rj) = jawWidth / faceWidth
+   - Helps differentiate between Square (wide, strong jaw) and Oval/Round
+     (narrower jaw tapering downwards).
+
+4. CLASSIFICATION LOGIC (Rule-Based Clustering)
+------------------------------------------------------------------------
+We pass the ratios through a tiered decision tree. The thresholds below
+were empirically derived and calibrated using our specific benchmark data:
+
+- Oblong: If R < 0.73
+  The face is significantly longer than it is wide.
+
+- Square: If R is moderate to wide AND Rj is high (jaw is almost as wide
+  as the cheekbones, Rj > 0.73).
+
+- Heart: If Rf is exceptionally high (forehead is wide, Rf > 0.81) AND Rj
+  is low (jaw tapers sharply, Rj < 0.65).
+
+- Round: If R is high (face is wide, R > 0.83) but it doesn't meet the
+  sharp angles of a Square or Heart.
+
+- Oval: The fallback shape when ratios are well-balanced and sit in the
+  average ranges (0.73 < R < 0.82).
+
+5. STABILIZATION (The Voting Buffer)
+------------------------------------------------------------------------
+A single frame of detection can be noisy (e.g., the user blinks or moves).
+To prevent the classification from flickering, we use a rolling buffer
+(length = 20 frames). 
+Each frame casts a "vote" for a shape. Once the buffer is full, we count
+the votes. The shape with the most votes wins, ensuring a highly stable
+and accurate final result.
+
+6. HARDWARE SAFETY & TIMEOUTS
+------------------------------------------------------------------------
+If the camera starts but MediaPipe fails to detect a face within 5 seconds,
+we trigger an automatic timeout. This shuts down the camera to prevent
+the browser from freezing or causing GPU memory leaks.
+We also added explicit WebGL context disposal (`renderer.dispose()`) during
+cleanup to prevent framerate drops and 500ms GC stutters.
