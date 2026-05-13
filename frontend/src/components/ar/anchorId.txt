@@ -1,0 +1,8 @@
+Top forehead: 10
+Bottom chin: 152
+Left cheekbone: 234
+Right cheekbone: 454
+Left jaw: 132
+Right jaw: 361
+Left temple: 54
+Right temple: 284
