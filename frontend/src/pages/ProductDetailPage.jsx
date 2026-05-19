@@ -6,10 +6,12 @@ import Header from '../components/layout/Header';
 import ARTryOnPage from './ARTryOnPage';
 import GlassesModel from '../components/ar/GlassesModel';
 import { fetchGlassById } from '../services/api';
+import { glassesApi } from '../services/glassesApi';
 import { useCart } from '../context/CartContext';
 import { formatPrice } from '../utils/formatPrice';
 import { useToast } from '../context/ToastContext';
 import QuantityPopup from '../components/common/QuantityPopup';
+import ProductCard from '../components/shop/ProductCard';
 import './ProductDetailPage.css';
 
 // Mapping color names to hex for visual representation (Optional fallback)
@@ -58,6 +60,9 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [adding, setAdding] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const [similarLoading, setSimilarLoading] = useState(false);
+  const similarScrollRef = useRef(null);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -81,6 +86,33 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
     getProductDetail();
   }, [id]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
+  useEffect(() => {
+    const getSimilarProducts = async () => {
+      if (!item || !item.glassesShapeId) return;
+
+      setSimilarLoading(true);
+      try {
+        const response = await glassesApi.getSimilarGlasses(item.glassesShapeId, 5);
+        const products = response.data || response;
+        const filtered = Array.isArray(products)
+          ? products.filter((p) => p.id !== item.id).slice(0, 5)
+          : [];
+        setSimilarProducts(filtered);
+      } catch (err) {
+        console.error("Error fetching similar products:", err);
+        setSimilarProducts([]);
+      } finally {
+        setSimilarLoading(false);
+      }
+    };
+
+    getSimilarProducts();
+  }, [item]);
 
   if (loading) {
     return (
@@ -249,6 +281,48 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
             </div>
           </div>
         </div>
+
+        {similarProducts.length > 0 && (
+  <section className="similar-section">
+    <div className="similar-header">
+      <h2 className="similar-heading">Similar Styles</h2>
+      {similarProducts.length > 3 && (
+        <div className="carousel-controls">
+          <button 
+            className="carousel-btn prev" 
+            onClick={() => {
+              if (similarScrollRef.current) {
+                similarScrollRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+              }
+            }}
+          >
+            ←
+          </button>
+          <button 
+            className="carousel-btn next" 
+            onClick={() => {
+              if (similarScrollRef.current) {
+                similarScrollRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+              }
+            }}
+          >
+            →
+          </button>
+        </div>
+      )}
+    </div>
+
+    <div className="similar-carousel-wrapper" ref={similarScrollRef}>
+      <div className="similar-track">
+        {similarProducts.map((product) => (
+          <div key={product.id} className="similar-card-item">
+            <ProductCard item={product} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
       </main>
 
       <ARTryOnPage

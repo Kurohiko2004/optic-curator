@@ -9,7 +9,10 @@ export const glassesApi = {
   getById: (id) => fetchApi(API_ENDPOINTS.GLASSES.DETAIL(id)),
   getShapes: () => fetchApi(API_ENDPOINTS.GLASSES.SHAPES),
   getColors: () => fetchApi(API_ENDPOINTS.GLASSES.COLORS),
-  
+  getSimilarGlasses: (shapeId, limit = 5) => {
+    return glassesApi.getList({ glassesShapeId: shapeId, items: limit });
+  },
+
   // Admin functions
   create: (data) => fetchApi(API_ENDPOINTS.GLASSES.LIST, 'POST', data, true),
   update: (id, data) => fetchApi(API_ENDPOINTS.GLASSES.DETAIL(id), 'PUT', data, true),

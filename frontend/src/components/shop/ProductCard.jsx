@@ -5,12 +5,14 @@ import {formatPrice} from "../../utils/formatPrice.js";
 import { useToast } from '../../context/ToastContext';
 import QuantityPopup from '../common/QuantityPopup';
 
-const ProductCard = ({ item, onTryOnClick }) => {
+const ProductCard = ({ item, onTryOnClick = () => {} }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { showToast } = useToast();
   const [adding, setAdding] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  if (!item) return null;
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -41,8 +43,9 @@ const ProductCard = ({ item, onTryOnClick }) => {
           <h4>{item.name}</h4>
           <span className="price">{formatPrice(item.price)}</span>
         </div>
-        <p className="type">{item.type}</p>
-        <p className="color">{item.color}</p>
+        {item.type && <p className="type">{item.type}</p>}
+        {item.color && <p className="color">{item.color}</p>}
+        {item.shape && <p className="type">{item.shape.name}</p>}
         <div className="product-actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
             <button 
