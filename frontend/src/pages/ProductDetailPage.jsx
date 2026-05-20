@@ -65,6 +65,50 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const similarScrollRef = useRef(null);
   const { showToast } = useToast();
 
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScrollLimits = () => {
+    if (similarScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = similarScrollRef.current;
+      setCanScrollLeft(scrollLeft > 5);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+    }
+  };
+
+  useEffect(() => {
+    const container = similarScrollRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollLimits);
+      checkScrollLimits();
+      const timeoutId = setTimeout(checkScrollLimits, 150);
+      window.addEventListener('resize', checkScrollLimits);
+      return () => {
+        container.removeEventListener('scroll', checkScrollLimits);
+        window.removeEventListener('resize', checkScrollLimits);
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [similarProducts]);
+
+  const scroll = (direction) => {
+    if (similarScrollRef.current) {
+      const container = similarScrollRef.current;
+      const card = container.querySelector('.similar-card-item');
+      if (card) {
+        const cardWidth = card.getBoundingClientRect().width;
+        const track = container.querySelector('.similar-track');
+        const gap = track ? parseFloat(window.getComputedStyle(track).gap) || 0 : 0;
+        const scrollAmount = cardWidth + gap;
+        
+        container.scrollBy({
+          left: direction === 'left' ? -scrollAmount : scrollAmount,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
   useEffect(() => {
     const getProductDetail = async () => {
       setLoading(true);
@@ -290,21 +334,15 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         <div className="carousel-controls">
           <button 
             className="carousel-btn prev" 
-            onClick={() => {
-              if (similarScrollRef.current) {
-                similarScrollRef.current.scrollBy({ left: -320, behavior: 'smooth' });
-              }
-            }}
+            onClick={() => scroll('left')}
+            disabled={!canScrollLeft}
           >
             ←
           </button>
           <button 
             className="carousel-btn next" 
-            onClick={() => {
-              if (similarScrollRef.current) {
-                similarScrollRef.current.scrollBy({ left: 320, behavior: 'smooth' });
-              }
-            }}
+            onClick={() => scroll('right')}
+            disabled={!canScrollRight}
           >
             →
           </button>

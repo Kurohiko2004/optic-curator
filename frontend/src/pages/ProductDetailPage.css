@@ -302,7 +302,23 @@
 .carousel-btn:hover {
   background: var(--accent-primary);
   border-color: var(--accent-primary);
-  transform: scale(1.05);
+}
+
+.carousel-btn.prev:not(:disabled):hover {
+  transform: scale(1.05) translateX(-3px);
+}
+
+.carousel-btn.next:not(:disabled):hover {
+  transform: scale(1.05) translateX(3px);
+}
+
+.carousel-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 /* Khung bọc ẩn thanh cuộn */
