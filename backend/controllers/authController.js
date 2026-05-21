@@ -15,7 +15,8 @@ const signToken = (id) => {
 const filterUser = (user) => ({
     id: user.id,
     username: user.username,
-    email: user.email
+    email: user.email,
+    role: user.role?.roleName || 'User'
 });
 
 const signup = asyncHandler(async (req, res, next) => {
@@ -59,9 +60,18 @@ const login = asyncHandler(async (req, res, next) => {
         success: true,
         token,
         data: {
-            user: { id: user.id, username: user.username, email: user.email }
+            user: filterUser(user)
         }
     });
 });
 
-module.exports = { signup, login };
+const getCurrentUser = asyncHandler(async (req, res, next) => {
+    res.status(200).json({
+        success: true,
+        data: {
+            user: filterUser(req.user)
+        }
+    });
+});
+
+module.exports = { signup, login, getCurrentUser };

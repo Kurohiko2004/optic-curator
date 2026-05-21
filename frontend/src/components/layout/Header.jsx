@@ -13,21 +13,38 @@ const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
         <Link to="/" className="logo premium-gradient-text" style={{ textDecoration: 'none' }}>OPTIC VR</Link>
         <nav>
           <Link to="/" className={activePage === '/' ? 'active' : ''}>About</Link>
-          <Link to="/store" className={activePage === '/store' ? 'active' : ''}>Shop</Link>
-          <Link to="/face_detect" className={activePage === '/face_detect' ? 'active' : ''}>Face Scan</Link>
-          {user && <Link to="/orders/history" className={activePage === '/orders/history' ? 'active' : ''}>Orders</Link>}
+          {user?.role === 'Admin' ? (
+            <Link to="/admin" className={activePage === '/admin' ? 'active' : ''}>Glass Inventory</Link>
+          ) : (
+            <Link to="/store" className={activePage === '/store' ? 'active' : ''}>Shop</Link>
+          )}
+          {user?.role !== 'Admin' && (
+            <Link to="/face_detect" className={activePage === '/face_detect' ? 'active' : ''}>Face Scan</Link>
+          )}{user && user?.role !== 'Admin' && <Link to="/orders/history" className={activePage === '/orders/history' ? 'active' : ''}>Orders</Link>}
         </nav>
         <div className="header-actions">
 
           {user && (
-            <span className="user-info" style={{ marginRight: '1rem', color: 'var(--text-muted)' }}>
+            <Link 
+              to="/profile" 
+              className="user-info" 
+              style={{ 
+                marginRight: '1rem', 
+                color: 'var(--text-muted)', 
+                textDecoration: 'none',
+                cursor: 'pointer',
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={(e) => e.target.style.color = 'var(--accent-primary)'}
+              onMouseLeave={(e) => e.target.style.color = 'var(--text-muted)'}
+            >
               Hi, {user.username || 'User'}
-            </span>
+            </Link>
           )}
 
-          {user && (
-            <button 
-              className="icon-button cart-btn" 
+          {user && user?.role !== 'Admin' && (
+            <button
+              className="icon-button cart-btn"
               style={{ position: 'relative' }}
               onClick={() => navigate('/cart')}
             >
@@ -55,9 +72,9 @@ const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           )}
           {user ? (
             <>
-              <button 
-                className="secondary-button" 
-                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }} 
+              <button
+                className="secondary-button"
+                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }}
                 onClick={onLogout}
               >
                 Log Out
@@ -65,16 +82,16 @@ const Header = ({ onLoginClick, onSignupClick, user, onLogout }) => {
             </>
           ) : (
             <>
-              <button 
-                className="secondary-button" 
-                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }} 
+              <button
+                className="secondary-button"
+                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent' }}
                 onClick={onSignupClick}
               >
                 Sign Up
               </button>
-              <button 
-                className="button-primary" 
-                style={{ padding: '8px 16px', borderRadius: '8px' }} 
+              <button
+                className="button-primary"
+                style={{ padding: '8px 16px', borderRadius: '8px' }}
                 onClick={onLoginClick}
               >
                 Log In

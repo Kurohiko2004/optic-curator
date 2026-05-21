@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../context/AuthContext';
 import './AuthModal.css';
 
 const AuthModal = ({ isOpen, initialMode, onClose, onSuccess }) => {
@@ -10,19 +10,18 @@ const AuthModal = ({ isOpen, initialMode, onClose, onSuccess }) => {
     email: '',
     password: ''
   });
+  const [localError, setLocalError] = useState(null);
 
-  const { authenticate, loading, error, setError } = useAuth((data) => {
-    if (onSuccess) onSuccess(data);
-  });
+  const { login, signup, loading } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode || 'login');
       setShowPassword(false);
       setFormData({ username: '', email: '', password: '' });
-      setError(null);
+      setLocalError(null);
     }
-  }, [isOpen, initialMode, setError]);
+  }, [isOpen, initialMode]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -31,10 +30,17 @@ const AuthModal = ({ isOpen, initialMode, onClose, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLocalError(null);
     try {
-      await authenticate(mode, formData);
+      let userData;
+      if (mode === 'login') {
+        userData = await login(formData.email, formData.password);
+      } else {
+        userData = await signup(formData.username, formData.email, formData.password);
+      }
+      if (onSuccess) onSuccess(userData);
     } catch (err) {
-      // Error is handled in the hook
+      setLocalError(err.message || 'Authentication failed');
     }
   };
 
@@ -49,44 +55,44 @@ const AuthModal = ({ isOpen, initialMode, onClose, onSuccess }) => {
         </h2>
 
         <form onSubmit={handleSubmit}>
-          {error && <div className="error-message" style={{ color: 'red', marginBottom: '15px', textAlign: 'center' }}>{error}</div>}
-          
+          {localError && <div className="error-message" style={{ color: 'red', marginBottom: '15px', textAlign: 'center' }}>{localError}</div>}
+
           {mode === 'signup' && (
             <div className="input-group">
-              <input 
-                type="text" 
-                name="username" 
-                placeholder="Username" 
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
                 value={formData.username}
                 onChange={handleInputChange}
-                required 
+                required
               />
             </div>
           )}
 
           <div className="input-group">
-            <input 
-              type="email" 
-              name="email" 
-              placeholder="Email" 
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
               value={formData.email}
               onChange={handleInputChange}
-              required 
+              required
             />
           </div>
 
           <div className="input-group password-group">
-            <input 
-              type={showPassword ? 'text' : 'password'} 
+            <input
+              type={showPassword ? 'text' : 'password'}
               name="password"
-              placeholder="Password" 
+              placeholder="Password"
               value={formData.password}
               onChange={handleInputChange}
               required
             />
-            <button 
-              type="button" 
-              className="password-toggle-btn" 
+            <button
+              type="button"
+              className="password-toggle-btn"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
@@ -97,9 +103,9 @@ const AuthModal = ({ isOpen, initialMode, onClose, onSuccess }) => {
             </button>
           </div>
 
-          <button 
-            type="submit" 
-            className="button-primary login-submit-btn" 
+          <button
+            type="submit"
+            className="button-primary login-submit-btn"
             disabled={loading}
           >
             {loading ? 'Processing...' : (mode === 'login' ? 'Log In' : 'Sign Up')}

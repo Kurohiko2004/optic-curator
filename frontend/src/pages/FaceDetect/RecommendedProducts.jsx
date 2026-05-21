@@ -1,8 +1,136 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from '../../components/shop/ProductCard';
 import { fetchGlasses } from '../../services/api';
 import { getRecommendedGlassesShapes } from '../../utils/faceGeometry';
+
+const RecommendationRow = ({ row, handleTypeClick, onTryOnClick }) => {
+  const scrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScrollLimits = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 5);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+    }
+  };
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollLimits);
+      checkScrollLimits();
+      const timeoutId = setTimeout(checkScrollLimits, 150);
+      window.addEventListener('resize', checkScrollLimits);
+      return () => {
+        container.removeEventListener('scroll', checkScrollLimits);
+        window.removeEventListener('resize', checkScrollLimits);
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [row.products]);
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const container = scrollRef.current;
+      const card = container.querySelector('.similar-card-item');
+      if (card) {
+        const cardWidth = card.getBoundingClientRect().width;
+        const track = container.querySelector('.similar-track');
+        const gap = track ? parseFloat(window.getComputedStyle(track).gap) || 0 : 0;
+        const scrollAmount = cardWidth + gap;
+        
+        container.scrollBy({
+          left: direction === 'left' ? -scrollAmount : scrollAmount,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
+  return (
+    <div className="recommendation-row" style={{ marginBottom: '50px' }}>
+      <div className="recommendation-row-header" style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        padding: '12px 24px',
+        marginBottom: '20px',
+        borderRadius: '12px',
+        background: 'linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%)',
+        borderLeft: '4px solid #6366f1'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <h4 
+            onClick={() => handleTypeClick(row.shapeId)}
+            style={{ 
+              color: '#fff', 
+              fontSize: '1.4rem', 
+              margin: 0,
+              cursor: 'pointer',
+              transition: 'color 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.color = '#818cf8'}
+            onMouseLeave={(e) => e.target.style.color = '#fff'}
+          >
+            {row.shapeName} Collection
+          </h4>
+          <span 
+            onClick={() => handleTypeClick(row.shapeId)}
+            style={{ 
+              color: '#6366f1', 
+              cursor: 'pointer', 
+              fontSize: '0.9rem', 
+              fontWeight: 'bold',
+              padding: '6px 12px',
+              borderRadius: '8px',
+              background: 'rgba(99, 102, 241, 0.1)',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.2)'}
+            onMouseLeave={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.1)'}
+          >
+            View all →
+          </span>
+        </div>
+
+        {row.products.length > 3 && (
+          <div className="carousel-controls">
+            <button 
+              className="carousel-btn prev" 
+              onClick={() => scroll('left')}
+              disabled={!canScrollLeft}
+            >
+              ←
+            </button>
+            <button 
+              className="carousel-btn next" 
+              onClick={() => scroll('right')}
+              disabled={!canScrollRight}
+            >
+              →
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="similar-carousel-wrapper" ref={scrollRef}>
+        <div className="similar-track" style={{ padding: '10px 0' }}>
+          {row.products.map(item => (
+            <div key={item.id} className="similar-card-item">
+              <ProductCard 
+                item={item} 
+                onTryOnClick={() => onTryOnClick(item.id)} 
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const RecommendedProducts = ({ faceShape, onTryOnClick }) => {
   const [recommendationGroups, setRecommendationGroups] = useState([]);
@@ -97,66 +225,12 @@ const RecommendedProducts = ({ faceShape, onTryOnClick }) => {
           </div>
 
           {group.rows.map((row) => (
-            <div key={row.shapeId} className="recommendation-row" style={{ marginBottom: '50px' }}>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                padding: '12px 24px',
-                marginBottom: '20px',
-                borderRadius: '12px',
-                background: 'linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%)',
-                borderLeft: '4px solid #6366f1'
-              }}>
-                <h4 
-                  onClick={() => handleTypeClick(row.shapeId)}
-                  style={{ 
-                    color: '#fff', 
-                    fontSize: '1.4rem', 
-                    margin: 0,
-                    cursor: 'pointer',
-                    transition: 'color 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.target.style.color = '#818cf8'}
-                  onMouseLeave={(e) => e.target.style.color = '#fff'}
-                >
-                  {row.shapeName} Collection
-                </h4>
-                <span 
-                  onClick={() => handleTypeClick(row.shapeId)}
-                  style={{ 
-                    color: '#6366f1', 
-                    cursor: 'pointer', 
-                    fontSize: '0.9rem', 
-                    fontWeight: 'bold',
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    background: 'rgba(99, 102, 241, 0.1)'
-                  }}
-                  onMouseEnter={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.2)'}
-                  onMouseLeave={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.1)'}
-                >
-                  View all →
-                </span>
-              </div>
-
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-                gap: '30px', 
-                padding: '10px 20px'
-              }}>
-                {row.products.slice(0, 3).map(item => (
-                  <div key={item.id} style={{ flex: '0 0 300px' }}>
-                    <ProductCard 
-                      item={item} 
-                      onTryOnClick={() => onTryOnClick(item.id)} 
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
+            <RecommendationRow
+              key={row.shapeId}
+              row={row}
+              handleTypeClick={handleTypeClick}
+              onTryOnClick={onTryOnClick}
+            />
           ))}
         </div>
       ))}
