@@ -32,11 +32,21 @@ const ProductCard = ({ item, onTryOnClick = () => {} }) => {
     }
   };
 
+  const isOutOfStock = item.stock === 0;
+
   return (
-    <div className="product-card glass-morphism animate-fade-in">
+    <div className={`product-card glass-morphism animate-fade-in ${isOutOfStock ? 'out-of-stock' : ''}`}>
       <div className="product-image-container">
         <img src={item.image} alt={item.name} />
-        <div className="try-on-badge">AR Ready</div>
+        {isOutOfStock ? (
+          <div className="out-of-stock-overlay">
+            <div className="out-of-stock-badge">
+              <span>OUT OF STOCK</span>
+            </div>
+          </div>
+        ) : (
+          <div className="try-on-badge">AR Ready</div>
+        )}
       </div>
       <div className="product-info">
         <div className="info-top">
@@ -48,24 +58,29 @@ const ProductCard = ({ item, onTryOnClick = () => {} }) => {
         {item.shape && <p className="type">{item.shape.name}</p>}
         <div className="product-actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-            <button 
-                className="secondary-button" 
+            <button
+                className="secondary-button"
                 style={{ flex: 1, padding: '10px 12px' }}
                 onClick={() => navigate(`/item/${item.id}`)}
             >
                 Details
             </button>
-            <button className="button-primary" style={{ flex: 1, padding: '10px 12px' }} onClick={onTryOnClick}>
+            <button
+              className="button-primary"
+              style={{ flex: 1, padding: '10px 12px' }}
+              onClick={onTryOnClick}
+              disabled={isOutOfStock}
+            >
                 Try AR
             </button>
           </div>
-          <button 
-            className="button-primary" 
-            style={{ width: '100%', background: 'var(--accent-secondary)' }} 
+          <button
+            className="button-primary"
+            style={{ width: '100%', background: 'var(--accent-secondary)' }}
             onClick={handleAddToCart}
-            disabled={adding}
+            disabled={adding || isOutOfStock}
           >
-            {adding ? 'Adding...' : 'Add to Cart'}
+            {isOutOfStock ? 'Out of Stock' : (adding ? 'Adding...' : 'Add to Cart')}
           </button>
         </div>
       </div>
