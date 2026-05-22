@@ -182,6 +182,7 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   }
 
   const selectedColorHex = selectedVariant ? (colorMap[selectedVariant.name] || '#666') : '#666';
+  const isOutOfStock = item.stock <= 0;
 
   const handleAddToCart = async () => {
     if (!user || !user.loggedIn) {
@@ -295,18 +296,18 @@ const ProductDetailPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
             <div className="action-buttons">
               <button
                 type="button"
-                className="button-primary ar-trigger"
+                className={isOutOfStock ? "secondary-button ar-trigger" : "button-primary ar-trigger"}
                 onClick={() => setArModal({ isOpen: true })}
               >
                 <span>Virtual AR Try-on</span>
               </button>
               <button
                 type="button"
-                className="secondary-button add-cart"
+                className={`secondary-button add-cart ${isOutOfStock ? 'out-of-stock-btn' : ''}`}
                 onClick={handleAddToCart}
-                disabled={adding}
+                disabled={adding || isOutOfStock}
               >
-                {adding ? 'Adding...' : 'Add to Cart'}
+                {isOutOfStock ? 'Out of Stock' : (adding ? 'Adding...' : 'Add to Cart')}
               </button>
             </div>
             <QuantityPopup

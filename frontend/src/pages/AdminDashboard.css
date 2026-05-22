@@ -1,5 +1,5 @@
 .admin-dashboard-container {
-    padding-top: 100px;
+    padding-top: 120px;
     padding-bottom: 60px;
     min-height: 100vh;
     background-color: #0f172a;
@@ -94,7 +94,7 @@
     color: #94a3b8;
 }
 
-.filter-group input, 
+.filter-group input,
 .filter-group select {
     background: rgba(15, 23, 42, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -210,6 +210,7 @@
 
 /* Pagination Styles */
 .admin-results-info {
+    margin-top: 12px;
     margin-bottom: 20px;
     color: #94a3b8;
     display: flex;
@@ -218,48 +219,48 @@
 }
 
 .matrix-footer {
-  margin-top: 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px;
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  backdrop-filter: blur(12px);
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
 }
 
 .pagination {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .page-btn {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
 }
 
 .page-btn.active {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: black;
-  border: none;
-  font-weight: 700;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: black;
+    border: none;
+    font-weight: 700;
 }
 
 .page-btn:hover:not(.active) {
-  border-color: #4facfe;
-  background: rgba(15, 23, 42, 0.8);
+    border-color: #4facfe;
+    background: rgba(15, 23, 42, 0.8);
 }
 
 .pagination-dots {
@@ -268,21 +269,21 @@
 }
 
 .page-limit {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #94a3b8;
-  font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #94a3b8;
+    font-size: 0.9rem;
 }
 
 .limit-select {
-  background: rgba(15, 23, 42, 0.8);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 8px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  outline: none;
+    background: rgba(15, 23, 42, 0.8);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
 }
 
 .limit-select:focus {
@@ -293,7 +294,7 @@
     .admin-main-layout {
         grid-template-columns: 1fr;
     }
-    
+
     .admin-sidebar {
         position: relative;
         top: 0;
@@ -307,8 +308,13 @@
 }
 
 @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
-
-
