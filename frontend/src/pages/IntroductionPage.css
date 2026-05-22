@@ -1,11 +1,10 @@
 /* IntroductionPage.css */
 
 .intro-page {
-  padding-top: 80px;
+  padding-top: 120px;
   min-height: 100vh;
 }
 
-/* BANNER */
 .intro-banner {
   max-width: 1400px;
   margin: 0 auto 4rem auto;

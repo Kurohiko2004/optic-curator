@@ -166,7 +166,7 @@ const ShopPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
             </div>
           )}
 
-          <div className="results-info" style={{ marginBottom: '20px', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
+          <div className="results-info">
             <span>Showing {glasses.length} of {totalItems} products</span>
           </div>
 
