@@ -1,5 +1,5 @@
 .shop-page {
-  padding-top: 80px;
+  padding-top: 110px; /* give more space under fixed header */
   min-height: 100vh;
 }
 
@@ -8,12 +8,15 @@
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 100;
+  z-index: 1000;
   padding: 1rem 0;
   border-radius: 0;
   border-top: none;
   border-left: none;
   border-right: none;
+  background: rgba(6,10,20,0.6); /* translucent header to blend with dark theme */
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.6);
 }
 
 .header-content {
@@ -133,8 +136,18 @@ nav a:hover, nav a.active {
 
 .filters-sidebar {
   position: sticky;
-  top: 100px;
+  top: 110px; /* match header spacing so filters align with content */
   height: fit-content;
+}
+
+/* Results info ("Showing X of Y products") */
+.results-info {
+  margin: 10px 0 20px 0;
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
 .filter-group {

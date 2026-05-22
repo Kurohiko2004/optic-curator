@@ -66,17 +66,16 @@ const ProductCard = ({ item, onTryOnClick = () => {} }) => {
                 Details
             </button>
             <button
-              className="button-primary"
+              className={isOutOfStock ? "secondary-button" : "button-primary"}
               style={{ flex: 1, padding: '10px 12px' }}
               onClick={onTryOnClick}
-              disabled={isOutOfStock}
             >
                 Try AR
             </button>
           </div>
           <button
-            className="button-primary"
-            style={{ width: '100%', background: 'var(--accent-secondary)' }}
+            className={`button-primary ${isOutOfStock ? 'out-of-stock-btn' : ''}`}
+            style={{ width: '100%', background: isOutOfStock ? undefined : 'var(--accent-secondary)' }}
             onClick={handleAddToCart}
             disabled={adding || isOutOfStock}
           >

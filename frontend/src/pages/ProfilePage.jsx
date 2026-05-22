@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 
 const ProfilePage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
   const [username, setUsername] = useState(user?.username || '');
-  
+
   const [profileError, setProfileError] = useState('');
 
   const [passwords, setPasswords] = useState({
@@ -13,7 +13,7 @@ const ProfilePage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     new: '',
     confirm: ''
   });
-  
+
   const [passwordError, setPasswordError] = useState('');
   const { showToast } = useToast();
 
@@ -83,8 +83,8 @@ const ProfilePage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           {/* Section 1: Update Account */}
           <div className="profile-card">
             <h3>Account Settings</h3>
-            
-            
+
+
             {profileError && <div className="error-alert">⚠ {profileError}</div>}
 
             <form onSubmit={handleUpdateProfile}>
@@ -95,10 +95,10 @@ const ProfilePage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
               <div className="form-group">
                 <label>Username</label>
-                <input 
-                  type="text" 
-                  value={username} 
-                  onChange={(e) => setUsername(e.target.value)} 
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter your username"
                 />
               </div>
@@ -113,36 +113,36 @@ const ProfilePage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
           <div className="profile-card">
             <h3>Change Password</h3>
 
-            
+
             {passwordError && <div className="error-alert">⚠ {passwordError}</div>}
 
             <form onSubmit={handleChangePassword}>
               <div className="form-group">
                 <label>Current Password</label>
-                <input 
-                  type="password" 
-                  value={passwords.current} 
-                  onChange={(e) => setPasswords({ ...passwords, current: e.target.value })} 
+                <input
+                  type="password"
+                  value={passwords.current}
+                  onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
                   placeholder="••••••••"
                 />
               </div>
 
               <div className="form-group">
                 <label>New Password</label>
-                <input 
-                  type="password" 
-                  value={passwords.new} 
-                  onChange={(e) => setPasswords({ ...passwords, new: e.target.value })} 
+                <input
+                  type="password"
+                  value={passwords.new}
+                  onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
                   placeholder="••••••••"
                 />
               </div>
 
               <div className="form-group">
                 <label>Confirm New Password</label>
-                <input 
-                  type="password" 
-                  value={passwords.confirm} 
-                  onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })} 
+                <input
+                  type="password"
+                  value={passwords.confirm}
+                  onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
                   placeholder="••••••••"
                 />
               </div>

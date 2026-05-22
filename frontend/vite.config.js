@@ -11,7 +11,7 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://optic-backend:8082', // Sửa lại target thành tên service container backend
+        target: 'http://localhost:8082', // Sửa lại target thành localhost cho chạy trên local
         changeOrigin: true,
       },
     },
