@@ -19,7 +19,7 @@ const OrderHistoryPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
 
     if (!user) {
         return (
-            <div style={{ minHeight: '100vh', padding: '40px', background: '#0b0f1a', color: '#fff' }}>
+            <div style={{ minHeight: '100vh', padding: '40px', background: 'transparent', color: '#fff' }}>
                 <Header onLoginClick={onLoginClick} onSignupClick={onSignupClick} user={user} onLogout={onLogout} />
                 <div style={{ maxWidth: '560px', margin: '80px auto', padding: '30px', borderRadius: '24px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     <h1 style={{ marginBottom: '16px' }}>Login required</h1>
@@ -31,7 +31,7 @@ const OrderHistoryPage = ({ onLoginClick, onSignupClick, user, onLogout }) => {
     }
 
     return (
-        <div style={{ minHeight: '100vh', padding: '100px 24px 24px', background: '#080c18', color: '#f7f7ff' }}>
+        <div style={{ minHeight: '100vh', padding: '100px 24px 24px', background: 'transparent', color: '#f7f7ff' }}>
             <Header onLoginClick={onLoginClick} onSignupClick={onSignupClick} user={user} onLogout={onLogout} />
 
             <div style={{ maxWidth: '1000px', margin: '0 auto', paddingTop: '40px' }}>
