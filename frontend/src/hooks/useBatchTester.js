@@ -73,6 +73,9 @@ const useBatchTester = () => {
         let detectedShape = "no face";
         let match = false;
         let resData = { ratioL: 0, rf: 0, rj: 0 };
+        let rawLandmarks = null;
+        let imgW = img.width;
+        let imgH = img.height;
 
         const results = await new Promise(async (resolve) => {
           resolveCurrentResult = resolve;
@@ -90,6 +93,7 @@ const useBatchTester = () => {
 
         if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
           const landmarks = results.multiFaceLandmarks[0];
+          rawLandmarks = landmarks;
           const getPos = (id) => ({ x: landmarks[id].x * img.width, y: landmarks[id].y * img.height });
 
           const p10 = getPos(10), p152 = getPos(152);
@@ -133,7 +137,10 @@ const useBatchTester = () => {
           rj: resData.rj,
           rjf: resData.rjf,
           jawAngle: resData.jawAngle,
-          process: resData.process
+          process: resData.process,
+          landmarks: rawLandmarks,
+          imgWidth: imgW,
+          imgHeight: imgH,
         };
         newResults.push(entry);
 
